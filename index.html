@@ -9,70 +9,149 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <div class="container">
-      <h1>DIAGCALC</h1>
-      <h2>Avaliação de testes diagnósticos</h2>
-        <p>A DIAGCALC é uma calculadora de medidas de avaliação de testes diagnósticos.</p>
-            As medidas calculadas são a <b>Sensibilidade</b>, a <b>Especificidade</b>, o <b>Valor Preditivo Positivo</b>, o <b>Valor Preditivo Negativo</b> e os <b>Likelihood Ratios Positivo e Negativo (LR+ e LR-)</b>.
-            Todas as medidas são calculadas com Intervalos de Confiança a 95% (IC95%).
+    <header class="intro" role="banner">
+      <div class="container">
+        <p class="tag">Ferramenta pedagógica</p>
+        <h1>DIAGCALC</h1>
+        <p class="lead">
+          Calculadora interativa para explorar medidas de desempenho de testes
+          diagnósticos e aplicar o raciocínio bayesiano na prática clínica.
         </p>
-            <p>Para utilizar, é necessário preencher a tabela com o número de Verdadeiros e Falsos Positivos (VP e FP) e de Verdadeiros e Falsos Negativos (FN e VN) e clicar em Calcular.</p>
-            Também é possível calcular a probabilidade de doença pós-teste, sendo preciso para esse cálculo preencher a probabilidade pré-teste.
-
-        </p>
-      <form id="inputForm">
-        <div class="grid-container">
-          <div></div>
-          <div class="grid-header-pos">Doença +</div>
-          <div class="grid-header-neg">Doença -</div>
-          <div class="grid-label-pos">Teste +</div>
-          <div class="grid-item">
-            <input type="number" id="tp" placeholder="VP" required />
-          </div>
-          <div class="grid-item">
-            <input type="number" id="fp" placeholder="FP" required />
-          </div>
-          <div class="grid-label-neg">Teste -</div>
-          <div class="grid-item">
-            <input type="number" id="fn" placeholder="FN" required />
-          </div>
-          <div class="grid-item">
-            <input type="number" id="tn" placeholder="VN" required />
-          </div>
+        <div class="intro-highlights" role="list">
+          <article class="highlight" role="listitem">
+            <h2>Medidas chave</h2>
+            <p>Sensibilidade, especificidade, VPP, VPN e likelihood ratios com IC&nbsp;95%.</p>
+          </article>
+          <article class="highlight" role="listitem">
+            <h2>Probabilidade pós-teste</h2>
+            <p>Converta probabilidade pré-teste em probabilidade pós-teste positiva e negativa.</p>
+          </article>
+          <article class="highlight" role="listitem">
+            <h2>Interpretação guiada</h2>
+            <p>Resultados explicados para apoiar o estudo autónomo.</p>
+          </article>
         </div>
-        <label for="preTestProb">Probabilidade Pré-Teste (%):</label>
-
-        <input
-          class="preTestProb"
-          type="number"
-          id="preTestProb"
-          placeholder="Probabilidade Pré-Teste"
-          required
-        />
-        <button type="button" onclick="calculate()">Calcular</button>
-
-      </form>
-
-      <div id="results">
-        <h2 id="Resultados"></h2>
-        <p id="sensitivity"></p>
-        <p id="specificity"></p>
-        <p id="ppv"></p>
-        <p id="npv"></p>
-        <p id="space"></p>
-        <p id="lrPositive"></p>
-        <p id="lrNegative"></p>
-        <p id="space2"></p>
-        <p id="postTestProbPositive"></p>
-        <p id="postTestProbNegative"></p>
       </div>
-    </div>
-    <footer>
-        A DIAGCALC é uma calculadora de medidas de avaliação de testes diagnósticos criada para fins pedagógicos e de treino de estudantes de áreas formativas na saúde.</br>
-        Quaisquer análises, resultados e conclusões não são passíveis de utilização,interpretação ou generalização para além deste contexto específico.</br>
-        </br>
-        &copy; 2025 — Licença MIT - Desenvolvido por <a href="http://tiagojacinto.net">Tiago Jacinto</a>. <a href="mailto:tiagojacinto@med.up.pt">Contacto</a>
+    </header>
+    <main class="container" id="main" role="main">
+      <section aria-labelledby="form-title">
+        <div class="section-heading">
+          <h2 id="form-title">Preencha a matriz de confusão</h2>
+          <p>
+            Utilize valores inteiros iguais ou superiores a zero. Explore os cenários
+            de exemplo ou introduza dados reais para treinar a interpretação.
+          </p>
+        </div>
+        <form id="inputForm" novalidate>
+          <div class="form-row">
+            <label class="full" for="datasetSelect">Carregar cenário de estudo:</label>
+            <select id="datasetSelect" class="full" aria-describedby="dataset-help">
+              <option value="">— Selecionar —</option>
+              <option value="screening">Programa de rastreio (prevalência baixa)</option>
+              <option value="caseControl">Estudo caso-controlo</option>
+              <option value="clinic">Clínica especializada</option>
+            </select>
+            <p id="dataset-help" class="help-text">
+              Os dados são preenchidos automaticamente e pode ajustá-los em seguida.
+            </p>
+          </div>
+          <fieldset class="confusion-matrix">
+            <legend>Matriz de confusão</legend>
+            <div class="grid-container" role="group" aria-label="Resultados do teste diagnóstico">
+              <span class="empty" aria-hidden="true"></span>
+              <span class="grid-header grid-header-pos">Doença +</span>
+              <span class="grid-header grid-header-neg">Doença -</span>
+              <label class="grid-label grid-label-pos" for="tp">Teste +</label>
+              <div class="grid-item">
+                <input type="number" id="tp" inputmode="numeric" min="0" step="1" placeholder="Verdadeiros positivos" required />
+              </div>
+              <div class="grid-item">
+                <input type="number" id="fp" inputmode="numeric" min="0" step="1" placeholder="Falsos positivos" required />
+              </div>
+              <label class="grid-label grid-label-neg" for="fn">Teste -</label>
+              <div class="grid-item">
+                <input type="number" id="fn" inputmode="numeric" min="0" step="1" placeholder="Falsos negativos" required />
+              </div>
+              <div class="grid-item">
+                <input type="number" id="tn" inputmode="numeric" min="0" step="1" placeholder="Verdadeiros negativos" required />
+              </div>
+            </div>
+          </fieldset>
+          <div class="form-row">
+            <label for="preTestProb">Probabilidade pré-teste (%):</label>
+            <input
+              class="preTestProb"
+              type="number"
+              id="preTestProb"
+              inputmode="decimal"
+              min="0"
+              max="100"
+              step="0.1"
+              placeholder="Ex.: 12,5"
+              required
+            />
+            <p class="help-text">
+              Sugestão: estime a prevalência da doença na população estudada ou a probabilidade clínica antes do teste.
+            </p>
+          </div>
+          <div class="form-actions" role="group">
+            <button type="submit">Calcular resultados</button>
+            <button type="reset" id="resetButton" class="secondary">Limpar campos</button>
+          </div>
+          <p id="feedback" class="feedback" role="alert" aria-live="polite"></p>
+        </form>
+      </section>
 
+      <section aria-labelledby="results-title" class="results-section">
+        <h2 id="results-title">Resultados</h2>
+        <p class="help-text">
+          Os valores são apresentados com intervalos de confiança de 95% calculados pelo método de Wilson.
+        </p>
+        <div class="results-actions" role="group">
+          <button type="button" id="printButton" class="secondary">Imprimir relatório</button>
+        </div>
+        <div id="probabilityChart" class="probability-chart" aria-label="Comparação entre probabilidades pré e pós-teste"></div>
+        <div id="results" class="results-grid" aria-live="polite"></div>
+      </section>
+
+      <section aria-labelledby="interpretation-title" class="interpretation">
+        <h2 id="interpretation-title">Guia de interpretação</h2>
+        <details>
+          <summary>Sensibilidade e especificidade</summary>
+          <p>
+            Quantificam a capacidade do teste para identificar corretamente pessoas com e sem a condição. São úteis para compreender o desempenho intrínseco do teste. Saiba mais em <a href="https://en.wikipedia.org/wiki/Sensitivity_and_specificity" target="_blank" rel="noopener noreferrer">Wikipedia (en)</a>.
+          </p>
+        </details>
+        <details>
+          <summary>Valores preditivos</summary>
+          <p>
+            Dependem da prevalência (probabilidade pré-teste). Utilize-os para estimar a probabilidade de a pessoa ter ou não a doença após obter um resultado positivo ou negativo. Consulte <a href="https://en.wikipedia.org/wiki/Positive_and_negative_predictive_values" target="_blank" rel="noopener noreferrer">Wikipedia (en)</a> para aprofundar.
+          </p>
+        </details>
+        <details>
+          <summary>Likelihood ratios</summary>
+          <p>
+            Relacionam a probabilidade de um resultado em pessoas doentes vs. não doentes e podem ser aplicados diretamente na fórmula de Bayes para atualizar a probabilidade de doença. Referência adicional em <a href="https://en.wikipedia.org/wiki/Likelihood_ratio" target="_blank" rel="noopener noreferrer">Wikipedia (en)</a>.
+          </p>
+        </details>
+        <details>
+          <summary>Probabilidades pós-teste</summary>
+          <p>
+            Resultam da aplicação do LR ao odds pré-teste. São cruciais para decisões clínicas como iniciar terapêutica ou solicitar exames adicionais. Veja também <a href="https://en.wikipedia.org/wiki/Posterior_probability" target="_blank" rel="noopener noreferrer">Wikipedia (en)</a>.
+          </p>
+        </details>
+      </section>
+    </main>
+    <footer>
+      <p>
+        A DIAGCALC é uma calculadora de medidas de avaliação de testes diagnósticos criada para fins pedagógicos e de treino de estudantes de áreas formativas na saúde.
+      </p>
+      <p>
+        Quaisquer análises, resultados e conclusões não são passíveis de utilização, interpretação ou generalização para além deste contexto específico.
+      </p>
+      <p>
+        &copy; 2025 — Licença MIT — Desenvolvido por <a href="http://tiagojacinto.net">Tiago Jacinto</a>. <a href="mailto:tiagojacinto@med.up.pt">Contacto</a>
+      </p>
     </footer>
     <script src="script.js"></script>
   </body>
