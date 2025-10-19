@@ -11,6 +11,11 @@
   <body>
     <header class="intro" role="banner">
       <div class="container">
+        <div class="header-controls">
+          <button id="themeToggle" class="theme-toggle" aria-label="Alternar modo escuro" type="button">
+            <span class="theme-icon">◐</span>
+          </button>
+        </div>
         <p class="tag">Ferramenta pedagógica</p>
         <h1>DIAGCALC</h1>
         <p class="lead">
@@ -47,13 +52,25 @@
             <label class="full" for="datasetSelect">Carregar cenário de estudo:</label>
             <select id="datasetSelect" class="full" aria-describedby="dataset-help">
               <option value="">— Selecionar —</option>
-              <option value="screening">Programa de rastreio (prevalência baixa)</option>
-              <option value="caseControl">Estudo caso-controlo</option>
-              <option value="clinic">Clínica especializada</option>
+              <optgroup label="Cenários genéricos">
+                <option value="screening">Programa de rastreio (prevalência baixa)</option>
+                <option value="caseControl">Estudo caso-controlo</option>
+                <option value="clinic">Clínica especializada</option>
+              </optgroup>
+              <optgroup label="Casos da literatura médica">
+                <option value="ddimer">D-dímero para embolia pulmonar</option>
+                <option value="troponin">Troponina ultrassensível para EAM</option>
+                <option value="mammography">Mamografia de rastreio</option>
+                <option value="covid_antigen">Teste rápido antigénio COVID-19</option>
+                <option value="hiv_elisa">ELISA para HIV</option>
+                <option value="strep_throat">Teste rápido para Streptococcus</option>
+                <option value="xray_pneumonia">Radiografia de tórax para pneumonia</option>
+              </optgroup>
             </select>
             <p id="dataset-help" class="help-text">
               Os dados são preenchidos automaticamente e pode ajustá-los em seguida.
             </p>
+            <div id="dataset-reference" class="dataset-reference" style="display: none;"></div>
           </div>
           <fieldset class="confusion-matrix">
             <legend>Matriz de confusão</legend>
@@ -111,6 +128,11 @@
           <button type="button" id="printButton" class="secondary">Imprimir relatório</button>
         </div>
         <div id="probabilityChart" class="probability-chart" aria-label="Comparação entre probabilidades pré e pós-teste"></div>
+        <div id="faganNomogram" class="fagan-nomogram" style="display: none;">
+          <h3>Nomograma de Fagan</h3>
+          <p class="help-text">Visualização gráfica da relação entre probabilidade pré-teste, likelihood ratio e probabilidade pós-teste.</p>
+          <canvas id="faganCanvas" width="600" height="400" aria-label="Nomograma de Fagan"></canvas>
+        </div>
         <div id="results" class="results-grid" aria-live="polite"></div>
       </section>
 
@@ -139,6 +161,61 @@
           <p>
             Resultam da aplicação do LR ao odds pré-teste. São cruciais para decisões clínicas como iniciar terapêutica ou solicitar exames adicionais. Veja também <a href="https://en.wikipedia.org/wiki/Posterior_probability" target="_blank" rel="noopener noreferrer">Wikipedia (en)</a>.
           </p>
+        </details>
+      </section>
+
+      <section aria-labelledby="references-title" class="references">
+        <h2 id="references-title">Recursos e referências</h2>
+        <details>
+          <summary>Literatura de apoio</summary>
+          <ul class="reference-list">
+            <li>
+              <strong>Akobeng AK.</strong> Understanding diagnostic tests 1-3: sensitivity, specificity, and predictive values. 
+              <em>Acta Paediatr.</em> 2007;96(3):338-341. 
+              <a href="https://doi.org/10.1111/j.1651-2227.2006.00180.x" target="_blank" rel="noopener noreferrer">DOI: 10.1111/j.1651-2227.2006.00180.x</a>
+            </li>
+            <li>
+              <strong>McGee S.</strong> Simplifying likelihood ratios. 
+              <em>J Gen Intern Med.</em> 2002;17(8):646-649. 
+              <a href="https://doi.org/10.1046/j.1525-1497.2002.10750.x" target="_blank" rel="noopener noreferrer">DOI: 10.1046/j.1525-1497.2002.10750.x</a>
+            </li>
+            <li>
+              <strong>Fagan TJ.</strong> Nomogram for Bayes theorem. 
+              <em>N Engl J Med.</em> 1975;293(5):257. 
+              <a href="https://doi.org/10.1056/NEJM197507312930513" target="_blank" rel="noopener noreferrer">DOI: 10.1056/NEJM197507312930513</a>
+            </li>
+          </ul>
+        </details>
+        <details>
+          <summary>Recursos online</summary>
+          <ul class="reference-list">
+            <li>
+              <strong>The Centre for Evidence-Based Medicine (CEBM):</strong> 
+              <a href="https://www.cebm.ox.ac.uk/resources/ebm-tools" target="_blank" rel="noopener noreferrer">EBM Tools and Resources</a>
+            </li>
+            <li>
+              <strong>StatPearls:</strong> 
+              <a href="https://www.ncbi.nlm.nih.gov/books/NBK557491/" target="_blank" rel="noopener noreferrer">Sensitivity and Specificity</a>
+            </li>
+            <li>
+              <strong>Deeks JJ, Altman DG.</strong> Diagnostic tests 4: likelihood ratios. 
+              <em>BMJ.</em> 2004;329(7458):168-169. 
+              <a href="https://www.bmj.com/content/329/7458/168" target="_blank" rel="noopener noreferrer">Acesso livre</a>
+            </li>
+          </ul>
+        </details>
+        <details>
+          <summary>Calculadoras complementares</summary>
+          <ul class="reference-list">
+            <li>
+              <strong>MDCalc:</strong> 
+              <a href="https://www.mdcalc.com/" target="_blank" rel="noopener noreferrer">Medical calculators</a>
+            </li>
+            <li>
+              <strong>ClinCalc:</strong> 
+              <a href="https://clincalc.com/Stats/SampleSize.aspx" target="_blank" rel="noopener noreferrer">Diagnostic Test Calculator</a>
+            </li>
+          </ul>
         </details>
       </section>
     </main>

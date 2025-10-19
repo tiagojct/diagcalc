@@ -3,15 +3,39 @@
   font-feature-settings:
     "liga" 1,
     "calt" 1; /* Fix for Chrome */
-  --primary-color: #d4486f;
-  --primary-dark: #a23053;
-  --secondary-color: #3559a2;
-  --background-color: #f4f6f9;
-  --surface-color: #ffffff;
-  --border-color: #dbe0ea;
-  --text-color: #1f2933;
-  --muted-text: #52606d;
-  --success-color: #1b9c85;
+  /* Flexoki Color Scheme */
+  --base-100: #FFFCF0;
+  --base-200: #F2F0E5;
+  --base-300: #E6E4D9;
+  --base-400: #DAD8CE;
+  --base-500: #CECDC3;
+  --base-600: #B7B5AC;
+  --base-700: #878580;
+  --base-800: #575653;
+  --base-900: #403E3C;
+  --base-950: #282726;
+  --base-1000: #100F0F;
+  
+  --red: #AF3029;
+  --orange: #BC5215;
+  --yellow: #AD8301;
+  --green: #66800B;
+  --cyan: #24837B;
+  --blue: #205EA6;
+  --purple: #5E409D;
+  --magenta: #A02F6F;
+  
+  /* Semantic colors */
+  --primary-color: var(--blue);
+  --primary-dark: #1a4a7f;
+  --secondary-color: var(--cyan);
+  --background-color: var(--base-100);
+  --surface-color: var(--base-200);
+  --border-color: var(--base-400);
+  --text-color: var(--base-1000);
+  --muted-text: var(--base-800);
+  --success-color: var(--green);
+  --accent-warm: var(--orange);
 }
 
 @supports (font-variation-settings: normal) {
@@ -27,6 +51,7 @@ body {
   margin: 0;
   padding: 0;
   line-height: 1.6;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .container {
@@ -46,14 +71,37 @@ footer {
 }
 
 .intro {
-  background: radial-gradient(circle at top left, rgba(212, 72, 111, 0.15), transparent 60%),
-    radial-gradient(circle at top right, rgba(53, 89, 162, 0.12), transparent 55%),
-    linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(244, 246, 249, 0.7));
-  border-bottom: 1px solid var(--border-color);
+  background: var(--surface-color);
+  border-bottom: 2px solid var(--base-300);
 }
 
 .intro .container {
   padding: 3.5rem 0 2.5rem;
+  position: relative;
+}
+
+.header-controls {
+  position: absolute;
+  top: 1rem;
+  right: 0;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.theme-toggle {
+  width: auto;
+  padding: 0.5rem 1rem;
+  background: var(--base-300);
+  color: var(--text-color);
+  border: 2px solid var(--border-color);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1.2rem;
+  transition: background-color 0.2s;
+}
+
+.theme-toggle:hover {
+  background-color: var(--base-400);
 }
 
 h1 {
@@ -71,12 +119,12 @@ h2 {
 .tag {
   display: inline-block;
   padding: 0.35rem 0.75rem;
-  border-radius: 999px;
+  border-radius: 4px;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-size: 0.7rem;
-  background-color: rgba(212, 72, 111, 0.12);
-  color: var(--primary-dark);
+  background-color: var(--base-300);
+  color: var(--base-800);
   margin: 0 auto;
 }
 
@@ -95,11 +143,11 @@ h2 {
 }
 
 .highlight {
-  background-color: var(--surface-color);
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  border-radius: 16px;
+  background-color: var(--background-color);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
   padding: 1.5rem;
-  box-shadow: 0 12px 24px rgba(31, 41, 51, 0.06);
+  box-shadow: none;
 }
 
 .highlight h2 {
@@ -127,10 +175,10 @@ main .container {
 
 form {
   background-color: var(--surface-color);
-  border-radius: 20px;
+  border-radius: 8px;
   padding: 2.5rem;
-  box-shadow: 0 18px 45px rgba(31, 41, 51, 0.08);
-  border: 1px solid rgba(31, 41, 51, 0.05);
+  box-shadow: none;
+  border: 2px solid var(--border-color);
 }
 
 .form-row {
@@ -147,6 +195,33 @@ form {
   width: 100%;
 }
 
+select {
+  padding: 0.85rem 1rem;
+  border: 2px solid var(--border-color);
+  border-radius: 4px;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  font-size: 1rem;
+  transition: border-color 0.2s;
+  cursor: pointer;
+}
+
+select:focus {
+  border-color: var(--primary-color);
+  outline: none;
+}
+
+optgroup {
+  font-weight: 600;
+  color: var(--base-900);
+  font-style: normal;
+}
+
+option {
+  padding: 0.5rem;
+  color: var(--text-color);
+}
+
 .help-text {
   margin: 0;
   font-size: 0.9rem;
@@ -154,11 +229,11 @@ form {
 }
 
 .confusion-matrix {
-  border: 1px solid var(--border-color);
-  border-radius: 16px;
+  border: 2px solid var(--base-300);
+  border-radius: 8px;
   padding: 1.75rem;
   margin: 0 0 2rem;
-  background-color: rgba(31, 41, 51, 0.015);
+  background-color: var(--background-color);
 }
 
 .confusion-matrix legend {
@@ -176,10 +251,10 @@ form {
 .grid-header {
   text-align: center;
   padding: 0.75rem;
-  border-radius: 12px;
+  border-radius: 4px;
   font-weight: 600;
-  color: var(--surface-color);
-  background: linear-gradient(135deg, var(--secondary-color), #223a71);
+  color: var(--background-color);
+  background: var(--primary-color);
 }
 
 .grid-label {
@@ -187,25 +262,25 @@ form {
   justify-content: center;
   align-items: center;
   padding: 0.75rem;
-  border-radius: 12px;
+  border-radius: 4px;
   font-weight: 600;
-  color: var(--surface-color);
-  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  color: var(--background-color);
+  background: var(--secondary-color);
   text-align: center;
 }
 
 .grid-item {
   text-align: center;
   padding: 0.75rem;
-  background-color: var(--surface-color);
-  border-radius: 12px;
+  background-color: var(--background-color);
+  border-radius: 4px;
   border: 1px solid var(--border-color);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
-  transition: transform 0.2s ease-in-out;
+  box-shadow: none;
+  transition: border-color 0.2s ease;
 }
 
 .grid-item:hover {
-  transform: scale(1.03);
+  border-color: var(--base-600);
 }
 
 /* Input Styling */
@@ -214,48 +289,51 @@ form {
   width: 100%;
   padding: 0.85rem 1rem;
   margin: 0;
-  border: 1px solid var(--border-color);
-  border-radius: 10px;
+  border: 2px solid var(--border-color);
+  border-radius: 4px;
   box-sizing: border-box;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition: border-color 0.2s;
   font-size: 1rem;
+  background-color: var(--background-color);
 }
 
 .grid-item input:focus,
 .preTestProb:focus {
-  border-color: var(--secondary-color);
+  border-color: var(--primary-color);
   outline: none;
-  box-shadow: 0 0 0 3px rgba(53, 89, 162, 0.2);
+  box-shadow: none;
 }
 
 /* Button Styles */
 button {
   width: 100%;
-  background: linear-gradient(135deg, var(--secondary-color), #223a71);
-  color: var(--surface-color);
+  background: var(--primary-color);
+  color: var(--background-color);
   padding: 0.9rem;
   border: none;
-  border-radius: 12px;
+  border-radius: 4px;
   cursor: pointer;
   font-size: 1em;
-  font-weight: bold;
-  transition: transform 0.2s, box-shadow 0.2s;
+  font-weight: 600;
+  transition: background-color 0.2s;
 }
 
 button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(34, 58, 113, 0.25);
+  background-color: var(--primary-dark);
+  transform: none;
+  box-shadow: none;
 }
 
 .secondary {
   background: transparent;
-  color: var(--secondary-color);
-  border: 1px solid var(--secondary-color);
+  color: var(--base-800);
+  border: 2px solid var(--border-color);
   box-shadow: none;
 }
 
 .secondary:hover {
-  background-color: rgba(53, 89, 162, 0.08);
+  background-color: var(--base-300);
+  border-color: var(--base-500);
   box-shadow: none;
 }
 
@@ -297,10 +375,10 @@ button:hover {
 
 .probability-chart {
   background-color: var(--surface-color);
-  border-radius: 16px;
+  border-radius: 8px;
   padding: 1.5rem;
-  border: 1px solid rgba(31, 41, 51, 0.05);
-  box-shadow: 0 14px 28px rgba(31, 41, 51, 0.05);
+  border: 2px solid var(--border-color);
+  box-shadow: none;
   display: grid;
   gap: 1rem;
 }
@@ -325,27 +403,27 @@ button:hover {
 .chart-bar {
   position: relative;
   height: 16px;
-  background-color: rgba(53, 89, 162, 0.12);
-  border-radius: 999px;
+  background-color: var(--base-300);
+  border-radius: 2px;
   overflow: hidden;
 }
 
 .chart-fill {
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, var(--secondary-color), #223a71);
-  border-radius: 999px;
+  background: var(--primary-color);
+  border-radius: 2px;
   transform-origin: left center;
   transform: scaleX(0);
   transition: transform 0.4s ease-in-out;
 }
 
 .chart-fill.positive {
-  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  background: var(--accent-warm);
 }
 
 .chart-fill.negative {
-  background: linear-gradient(135deg, var(--success-color), #158f78);
+  background: var(--success-color);
 }
 
 .chart-value {
@@ -355,10 +433,10 @@ button:hover {
 
 .result-card {
   background-color: var(--surface-color);
-  border-radius: 16px;
+  border-radius: 8px;
   padding: 1.5rem;
-  border: 1px solid rgba(31, 41, 51, 0.05);
-  box-shadow: 0 16px 32px rgba(31, 41, 51, 0.06);
+  border: 2px solid var(--border-color);
+  box-shadow: none;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -367,7 +445,7 @@ button:hover {
 .result-card h3 {
   margin: 0;
   font-size: 1.05rem;
-  color: var(--secondary-color);
+  color: var(--base-900);
 }
 
 .result-value {
@@ -389,18 +467,18 @@ button:hover {
 .interpretation {
   margin-top: 3rem;
   background-color: var(--surface-color);
-  border-radius: 20px;
+  border-radius: 8px;
   padding: 2.5rem;
-  box-shadow: 0 18px 45px rgba(31, 41, 51, 0.05);
-  border: 1px solid rgba(31, 41, 51, 0.05);
+  box-shadow: none;
+  border: 2px solid var(--border-color);
 }
 
 .interpretation details {
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
+  border: 2px solid var(--base-300);
+  border-radius: 4px;
   padding: 1rem 1.25rem;
   margin-bottom: 1rem;
-  background-color: rgba(31, 41, 51, 0.015);
+  background-color: var(--background-color);
 }
 
 .interpretation summary {
@@ -413,15 +491,194 @@ button:hover {
   color: var(--muted-text);
 }
 
+/* Dataset Reference */
+.dataset-reference {
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: var(--base-300);
+  border-left: 4px solid var(--primary-color);
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.dataset-reference h4 {
+  margin: 0 0 0.5rem;
+  font-size: 0.95rem;
+  color: var(--base-900);
+}
+
+.dataset-reference p {
+  margin: 0.25rem 0;
+  color: var(--base-800);
+}
+
+.dataset-reference .reference-citation {
+  font-style: italic;
+  color: var(--base-700);
+  margin-top: 0.5rem;
+}
+
+/* Fagan Nomogram */
+.fagan-nomogram {
+  background-color: var(--surface-color);
+  border-radius: 8px;
+  padding: 1.5rem;
+  border: 2px solid var(--border-color);
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.fagan-nomogram h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1.2rem;
+  color: var(--base-900);
+}
+
+.fagan-nomogram canvas {
+  max-width: 100%;
+  width: 600px;
+  height: 400px;
+  margin-top: 1rem;
+  border: 1px solid var(--base-300);
+  border-radius: 4px;
+}
+
+/* References Section */
+.references {
+  margin-top: 3rem;
+  background-color: var(--surface-color);
+  border-radius: 8px;
+  padding: 2.5rem;
+  box-shadow: none;
+  border: 2px solid var(--border-color);
+}
+
+.references details {
+  border: 2px solid var(--base-300);
+  border-radius: 4px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+  background-color: var(--background-color);
+}
+
+.references summary {
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.reference-list {
+  margin: 1rem 0 0;
+  padding-left: 1.5rem;
+  color: var(--base-800);
+}
+
+.reference-list li {
+  margin-bottom: 0.75rem;
+  line-height: 1.6;
+}
+
+.reference-list strong {
+  color: var(--base-900);
+}
+
+/* Tooltip */
+.tooltip {
+  position: relative;
+  display: inline-block;
+  cursor: help;
+  border-bottom: 1px dotted var(--base-600);
+}
+
+.tooltip .tooltip-text {
+  visibility: hidden;
+  width: 280px;
+  background-color: var(--base-950);
+  color: var(--base-100);
+  text-align: left;
+  border-radius: 6px;
+  padding: 0.75rem;
+  position: absolute;
+  z-index: 1000;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -140px;
+  opacity: 0;
+  transition: opacity 0.3s;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.tooltip .tooltip-text::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: var(--base-950) transparent transparent transparent;
+}
+
+.tooltip:hover .tooltip-text,
+.tooltip:focus .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Dark Mode */
+[data-theme="dark"] {
+  --base-100: #100F0F;
+  --base-200: #1C1B1A;
+  --base-300: #282726;
+  --base-400: #343331;
+  --base-500: #403E3C;
+  --base-600: #575653;
+  --base-700: #6F6E69;
+  --base-800: #B7B5AC;
+  --base-900: #CECDC3;
+  --base-950: #E6E4D9;
+  --base-1000: #FFFCF0;
+  
+  --red: #D14D41;
+  --orange: #DA702C;
+  --yellow: #D0A215;
+  --green: #879A39;
+  --cyan: #3AA99F;
+  --blue: #4385BE;
+  --purple: #8B7EC8;
+  --magenta: #CE5D97;
+  
+  --primary-color: var(--blue);
+  --primary-dark: #5a9cd6;
+  --secondary-color: var(--cyan);
+  --background-color: var(--base-100);
+  --surface-color: var(--base-200);
+  --border-color: var(--base-400);
+  --text-color: var(--base-1000);
+  --muted-text: var(--base-800);
+  --success-color: var(--green);
+  --accent-warm: var(--orange);
+}
+
 a {
-  color: var(--secondary-color);
+  color: var(--primary-color);
+  text-decoration: none;
+  border-bottom: 1px solid var(--base-400);
 }
 
 a:hover {
-  color: var(--primary-color);
+  color: var(--primary-dark);
+  border-bottom-color: var(--primary-dark);
 }
 
 @media (max-width: 720px) {
+  .header-controls {
+    position: static;
+    justify-content: center;
+    margin-bottom: 1rem;
+  }
+
   form {
     padding: 1.75rem;
   }
@@ -433,8 +690,8 @@ a:hover {
 
   .grid-header,
   .grid-label {
-    font-size: 0.95rem;
-    padding: 0.65rem;
+    font-size: 0.9rem;
+    padding: 0.6rem;
   }
 
   .grid-container .empty {
@@ -470,6 +727,26 @@ a:hover {
 
   .chart-value {
     justify-self: flex-start;
+  }
+
+  .fagan-nomogram canvas {
+    width: 100%;
+    height: auto;
+  }
+
+  .tooltip .tooltip-text {
+    width: 220px;
+    margin-left: -110px;
+    font-size: 0.8rem;
+  }
+
+  .references,
+  .interpretation {
+    padding: 1.75rem;
+  }
+
+  .reference-list {
+    font-size: 0.9rem;
   }
 }
 

@@ -5,6 +5,9 @@ const datasets = {
     fn: 18,
     tn: 882,
     preTestProb: 6,
+    name: "Programa de rastreio (prevalência baixa)",
+    description: "Cenário genérico de rastreio populacional com baixa prevalência.",
+    reference: null
   },
   caseControl: {
     tp: 92,
@@ -12,6 +15,9 @@ const datasets = {
     fn: 8,
     tn: 82,
     preTestProb: 50,
+    name: "Estudo caso-controlo",
+    description: "Desenho caso-controlo típico com prevalência artificialmente equilibrada.",
+    reference: null
   },
   clinic: {
     tp: 75,
@@ -19,7 +25,122 @@ const datasets = {
     fn: 10,
     tn: 140,
     preTestProb: 40,
+    name: "Clínica especializada",
+    description: "Contexto de clínica especializada com prevalência intermédia.",
+    reference: null
   },
+  ddimer: {
+    tp: 195,
+    fp: 87,
+    fn: 5,
+    tn: 413,
+    preTestProb: 28.6,
+    name: "D-dímero para embolia pulmonar",
+    description: "Wells score baixo + D-dímero para excluir embolia pulmonar em urgência.",
+    reference: {
+      authors: "Righini M, et al.",
+      title: "Age-Adjusted D-Dimer Cutoff Levels to Rule Out Pulmonary Embolism",
+      journal: "JAMA. 2014;311(11):1117-1124",
+      doi: "10.1001/jama.2014.2135",
+      url: "https://jamanetwork.com/journals/jama/fullarticle/1839153"
+    }
+  },
+  troponin: {
+    tp: 289,
+    fp: 156,
+    fn: 11,
+    tn: 1544,
+    preTestProb: 15,
+    name: "Troponina ultrassensível para EAM",
+    description: "Troponina de alta sensibilidade para diagnóstico de enfarte agudo do miocárdio.",
+    reference: {
+      authors: "Reichlin T, et al.",
+      title: "Early Diagnosis of Myocardial Infarction with Sensitive Cardiac Troponin Assays",
+      journal: "N Engl J Med. 2009;361(9):858-867",
+      doi: "10.1056/NEJMoa0900428",
+      url: "https://www.nejm.org/doi/full/10.1056/NEJMoa0900428"
+    }
+  },
+  mammography: {
+    tp: 7,
+    fp: 93,
+    fn: 3,
+    tn: 897,
+    preTestProb: 1,
+    name: "Mamografia de rastreio",
+    description: "Rastreio mamográfico em mulheres 50-69 anos (dados agregados).",
+    reference: {
+      authors: "Kopans DB, et al.",
+      title: "Screening Mammography Performance Metrics",
+      journal: "Radiology. 2020;297(2):239-240",
+      doi: "10.1148/radiol.2020203635",
+      url: "https://pubs.rsna.org/doi/10.1148/radiol.2020203635"
+    }
+  },
+  covid_antigen: {
+    tp: 103,
+    fp: 8,
+    fn: 47,
+    tn: 192,
+    preTestProb: 42.9,
+    name: "Teste rápido antigénio COVID-19",
+    description: "Teste rápido de antigénio para SARS-CoV-2 em sintomáticos (primeiros 7 dias).",
+    reference: {
+      authors: "Dinnes J, et al.",
+      title: "Rapid, Point-of-Care Antigen Tests for COVID-19",
+      journal: "Cochrane Database Syst Rev. 2022;7:CD013705",
+      doi: "10.1002/14651858.CD013705.pub3",
+      url: "https://www.cochranelibrary.com/cdsr/doi/10.1002/14651858.CD013705.pub3"
+    }
+  },
+  hiv_elisa: {
+    tp: 199,
+    fp: 1,
+    fn: 1,
+    tn: 9799,
+    preTestProb: 2,
+    name: "ELISA para HIV",
+    description: "Teste ELISA de 4ª geração para rastreio de HIV em população geral.",
+    reference: {
+      authors: "Masciotra S, et al.",
+      title: "Performance of HIV Diagnostic Tests",
+      journal: "J Clin Microbiol. 2013;51(6):1694-1700",
+      doi: "10.1128/JCM.03552-12",
+      url: "https://journals.asm.org/doi/10.1128/JCM.03552-12"
+    }
+  },
+  strep_throat: {
+    tp: 142,
+    fp: 25,
+    fn: 18,
+    tn: 315,
+    preTestProb: 32,
+    name: "Teste rápido para Streptococcus",
+    description: "Teste rápido para faringite estreptocócica em crianças com febre e odinofagia.",
+    reference: {
+      authors: "Cohen JF, et al.",
+      title: "Rapid Antigen Detection Test for Group A Streptococcus in Children",
+      journal: "Cochrane Database Syst Rev. 2016;7:CD010502",
+      doi: "10.1002/14651858.CD010502.pub2",
+      url: "https://www.cochranelibrary.com/cdsr/doi/10.1002/14651858.CD010502.pub2"
+    }
+  },
+  xray_pneumonia: {
+    tp: 168,
+    fp: 82,
+    fn: 32,
+    tn: 318,
+    preTestProb: 33.3,
+    name: "Radiografia de tórax para pneumonia",
+    description: "RX tórax para pneumonia adquirida na comunidade em adultos sintomáticos.",
+    reference: {
+      authors: "Hagaman JT, et al.",
+      title: "Admission Chest Radiograph Lacks Sensitivity in Pneumonia",
+      journal: "Am J Med Sci. 2009;337(4):236-240",
+      doi: "10.1097/MAJ.0b013e31818ad805",
+      url: "https://www.amjmedsci.org/"
+    }
+  }
 };
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -30,6 +151,18 @@ document.addEventListener("DOMContentLoaded", () => {
   const resetButton = document.getElementById("resetButton");
   const probabilityChartEl = document.getElementById("probabilityChart");
   const printButton = document.getElementById("printButton");
+  const datasetReferenceEl = document.getElementById("dataset-reference");
+  const themeToggle = document.getElementById("themeToggle");
+  const faganNomogramEl = document.getElementById("faganNomogram");
+  const faganCanvas = document.getElementById("faganCanvas");
+
+  // Initialize theme
+  initializeTheme();
+
+  // Theme toggle
+  if (themeToggle) {
+    themeToggle.addEventListener("click", toggleTheme);
+  }
 
   form.addEventListener("submit", (event) => {
     event.preventDefault();
@@ -50,15 +183,25 @@ document.addEventListener("DOMContentLoaded", () => {
       postPositive: metrics.postTestPositive.value,
       postNegative: metrics.postTestNegative.value,
     });
+    renderFaganNomogram(faganCanvas, faganNomogramEl, {
+      preTest: metrics.preTestProbability.value,
+      lrPositive: metrics.lrPositive.value,
+      lrNegative: metrics.lrNegative.value,
+      postPositive: metrics.postTestPositive.value,
+      postNegative: metrics.postTestNegative.value,
+    });
     setFeedback("Cálculo concluído. Explore a interpretação abaixo.", true);
   });
 
   datasetSelect.addEventListener("change", () => {
     const selected = datasetSelect.value;
     if (!selected || !datasets[selected]) {
+      datasetReferenceEl.style.display = "none";
       return;
     }
-    applyDataset(datasets[selected]);
+    const dataset = datasets[selected];
+    applyDataset(dataset);
+    displayDatasetReference(dataset);
     setFeedback("Cenário carregado. Ajuste os valores conforme necessário e calcule novamente.", true);
   });
 
@@ -66,8 +209,12 @@ document.addEventListener("DOMContentLoaded", () => {
     window.requestAnimationFrame(() => {
       resultsEl.innerHTML = "";
       datasetSelect.value = "";
+      datasetReferenceEl.style.display = "none";
       setFeedback("Campos limpos.", true);
       clearProbabilityChart(probabilityChartEl);
+      if (faganNomogramEl) {
+        faganNomogramEl.style.display = "none";
+      }
     });
   });
 
@@ -126,12 +273,12 @@ document.addEventListener("DOMContentLoaded", () => {
     return { valid: true };
   }
 
-  function applyDataset({ tp, fp, fn, tn, preTestProb }) {
-    document.getElementById("tp").value = tp;
-    document.getElementById("fp").value = fp;
-    document.getElementById("fn").value = fn;
-    document.getElementById("tn").value = tn;
-    document.getElementById("preTestProb").value = preTestProb;
+  function applyDataset(dataset) {
+    document.getElementById("tp").value = dataset.tp;
+    document.getElementById("fp").value = dataset.fp;
+    document.getElementById("fn").value = dataset.fn;
+    document.getElementById("tn").value = dataset.tn;
+    document.getElementById("preTestProb").value = dataset.preTestProb;
   }
 
   function setFeedback(message, isSuccess) {
@@ -470,4 +617,232 @@ function interpretLRNegative(value) {
     return "LR- baixo: pouco impacto, considere avaliação adicional.";
   }
   return "LR- próximo de 1: resultado negativo não exclui a doença.";
+}
+
+// Theme Management
+function initializeTheme() {
+  const savedTheme = localStorage.getItem("diagcalc-theme");
+  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  const theme = savedTheme || (prefersDark ? "dark" : "light");
+  document.documentElement.setAttribute("data-theme", theme);
+  updateThemeIcon(theme);
+}
+
+function toggleTheme() {
+  const currentTheme = document.documentElement.getAttribute("data-theme");
+  const newTheme = currentTheme === "dark" ? "light" : "dark";
+  document.documentElement.setAttribute("data-theme", newTheme);
+  localStorage.setItem("diagcalc-theme", newTheme);
+  updateThemeIcon(newTheme);
+}
+
+function updateThemeIcon(theme) {
+  const toggle = document.getElementById("themeToggle");
+  if (toggle) {
+    const icon = toggle.querySelector(".theme-icon");
+    if (icon) {
+      icon.textContent = theme === "dark" ? "☀" : "◐";
+    }
+  }
+}
+
+// Dataset Reference Display
+function displayDatasetReference(dataset) {
+  const referenceEl = document.getElementById("dataset-reference");
+  if (!referenceEl) return;
+
+  if (!dataset.reference) {
+    referenceEl.style.display = "none";
+    return;
+  }
+
+  const ref = dataset.reference;
+  referenceEl.innerHTML = `
+    <h4>📚 Referência</h4>
+    <p><strong>${dataset.description}</strong></p>
+    <p class="reference-citation">
+      ${ref.authors} ${ref.title}. <em>${ref.journal}</em>. 
+      <a href="${ref.url}" target="_blank" rel="noopener noreferrer">DOI: ${ref.doi}</a>
+    </p>
+  `;
+  referenceEl.style.display = "block";
+}
+
+// Fagan Nomogram Rendering
+function renderFaganNomogram(canvas, container, data) {
+  if (!canvas || !container) return;
+
+  const { preTest, lrPositive, lrNegative, postPositive, postNegative } = data;
+
+  if (!Number.isFinite(preTest) || !Number.isFinite(lrPositive)) {
+    container.style.display = "none";
+    return;
+  }
+
+  container.style.display = "block";
+  const ctx = canvas.getContext("2d");
+  const width = canvas.width;
+  const height = canvas.height;
+
+  // Adjust for device pixel ratio
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  ctx.scale(dpr, dpr);
+  
+  const displayWidth = rect.width;
+  const displayHeight = rect.height;
+
+  // Clear canvas
+  ctx.clearRect(0, 0, displayWidth, displayHeight);
+
+  // Define scales
+  const margin = 60;
+  const colWidth = (displayWidth - 2 * margin) / 3;
+  const scaleHeight = displayHeight - 2 * margin;
+
+  // Helper: probability to y position (logit scale)
+  function probToY(prob) {
+    const clampedProb = Math.max(0.001, Math.min(0.999, prob));
+    const logit = Math.log(clampedProb / (1 - clampedProb));
+    const minLogit = Math.log(0.001 / 0.999);
+    const maxLogit = Math.log(0.999 / 0.001);
+    const normalized = (logit - minLogit) / (maxLogit - minLogit);
+    return margin + scaleHeight * (1 - normalized);
+  }
+
+  // Helper: LR to y position (log scale)
+  function lrToY(lr) {
+    const clampedLR = Math.max(0.01, Math.min(1000, lr));
+    const logLR = Math.log10(clampedLR);
+    const minLog = Math.log10(0.01);
+    const maxLog = Math.log10(1000);
+    const normalized = (logLR - minLog) / (maxLog - minLog);
+    return margin + scaleHeight * (1 - normalized);
+  }
+
+  // Draw axes
+  ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--base-600').trim();
+  ctx.lineWidth = 2;
+
+  // Left axis (pre-test probability)
+  const leftX = margin;
+  ctx.beginPath();
+  ctx.moveTo(leftX, margin);
+  ctx.lineTo(leftX, margin + scaleHeight);
+  ctx.stroke();
+
+  // Middle axis (likelihood ratio)
+  const middleX = margin + colWidth * 1.5;
+  ctx.beginPath();
+  ctx.moveTo(middleX, margin);
+  ctx.lineTo(middleX, margin + scaleHeight);
+  ctx.stroke();
+
+  // Right axis (post-test probability)
+  const rightX = margin + colWidth * 3;
+  ctx.beginPath();
+  ctx.moveTo(rightX, margin);
+  ctx.lineTo(rightX, margin + scaleHeight);
+  ctx.stroke();
+
+  // Labels
+  ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim();
+  ctx.font = "bold 12px Inter, sans-serif";
+  ctx.textAlign = "center";
+  
+  ctx.fillText("Pré-teste", leftX, margin - 30);
+  ctx.fillText("LR", middleX, margin - 30);
+  ctx.fillText("Pós-teste", rightX, margin - 30);
+
+  // Draw scale markers
+  ctx.font = "10px Inter, sans-serif";
+  ctx.textAlign = "right";
+  
+  // Pre-test markers
+  [0.1, 1, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 95, 99].forEach(p => {
+    const y = probToY(p / 100);
+    ctx.fillText(`${p}%`, leftX - 5, y + 3);
+  });
+
+  // LR markers
+  ctx.textAlign = "center";
+  [0.01, 0.1, 0.2, 0.5, 1, 2, 5, 10, 100, 1000].forEach(lr => {
+    const y = lrToY(lr);
+    ctx.fillText(lr >= 1 ? lr : lr.toFixed(2), middleX, y + 3);
+  });
+
+  // Post-test markers
+  ctx.textAlign = "left";
+  [0.1, 1, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 95, 99].forEach(p => {
+    const y = probToY(p / 100);
+    ctx.fillText(`${p}%`, rightX + 5, y + 3);
+  });
+
+  // Draw connecting lines
+  const preY = probToY(preTest);
+  
+  // Positive LR line
+  if (Number.isFinite(lrPositive) && lrPositive > 0) {
+    const lrPosY = lrToY(lrPositive);
+    const postPosY = probToY(postPositive);
+    
+    ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--accent-warm').trim();
+    ctx.lineWidth = 2;
+    ctx.setLineDash([5, 5]);
+    
+    ctx.beginPath();
+    ctx.moveTo(leftX, preY);
+    ctx.lineTo(middleX, lrPosY);
+    ctx.lineTo(rightX, postPosY);
+    ctx.stroke();
+    
+    // Draw circles at endpoints
+    ctx.setLineDash([]);
+    ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--accent-warm').trim();
+    ctx.beginPath();
+    ctx.arc(leftX, preY, 5, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(rightX, postPosY, 5, 0, 2 * Math.PI);
+    ctx.fill();
+  }
+
+  // Negative LR line
+  if (Number.isFinite(lrNegative) && lrNegative > 0) {
+    const lrNegY = lrToY(lrNegative);
+    const postNegY = probToY(postNegative);
+    
+    ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--success-color').trim();
+    ctx.lineWidth = 2;
+    ctx.setLineDash([5, 5]);
+    
+    ctx.beginPath();
+    ctx.moveTo(leftX, preY);
+    ctx.lineTo(middleX, lrNegY);
+    ctx.lineTo(rightX, postNegY);
+    ctx.stroke();
+    
+    // Draw circles at endpoints
+    ctx.setLineDash([]);
+    ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--success-color').trim();
+    ctx.beginPath();
+    ctx.arc(rightX, postNegY, 5, 0, 2 * Math.PI);
+    ctx.fill();
+  }
+
+  // Legend
+  ctx.font = "11px Inter, sans-serif";
+  ctx.textAlign = "left";
+  
+  ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--accent-warm').trim();
+  ctx.fillRect(margin, displayHeight - 40, 15, 3);
+  ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim();
+  ctx.fillText("Teste positivo (LR+)", margin + 20, displayHeight - 36);
+  
+  ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--success-color').trim();
+  ctx.fillRect(margin, displayHeight - 25, 15, 3);
+  ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--text-color').trim();
+  ctx.fillText("Teste negativo (LR-)", margin + 20, displayHeight - 21);
 }
