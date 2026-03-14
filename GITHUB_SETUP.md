@@ -24,6 +24,10 @@ git push -u origin main
 
 The workflow in `.github/workflows/deploy-pages.yml` will publish the web app.
 
+Current custom domain:
+
+- `diagcalc.tiagojct.eu`
+
 ## Create a release
 
 After you push the repo:

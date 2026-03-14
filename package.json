@@ -1,8 +1,8 @@
 {
   "name": "diagcalc",
-  "version": "3.2.0",
+  "version": "3.2.1",
   "description": "Diagnostic calculator for the browser, terminal, and plain CLI.",
-  "homepage": "https://tiagojct.github.io/diagcalc/",
+  "homepage": "https://diagcalc.tiagojct.eu/",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/tiagojct/diagcalc.git"

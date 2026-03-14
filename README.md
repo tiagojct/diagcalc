@@ -10,7 +10,7 @@ Both interfaces use the same calculation engine.
 ## Repository
 
 - GitHub: `https://github.com/tiagojct/diagcalc`
-- Web app: `https://tiagojct.github.io/diagcalc/`
+- Web app: `https://diagcalc.tiagojct.eu/`
 - npm package: `https://www.npmjs.com/package/diagcalc`
 
 ## Description
