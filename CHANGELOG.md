@@ -10,6 +10,11 @@ Todas as alterações relevantes deste projeto são registadas aqui. As datas se
 ### Técnico
 - Atualização dos metadados do pacote npm para apontar para o domínio final `diagcalc.tiagojct.eu`.
 
+## [3.2.3] - 2026-03-14
+
+### Corrigido
+- Definição explícita da cor do texto e dos placeholders dos campos numéricos no modo escuro da interface web, para evitar inputs pouco legíveis em alguns browsers.
+
 ## [3.2] - 2026-03-13
 
 ### Adicionado

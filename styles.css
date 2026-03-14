@@ -337,6 +337,13 @@ option {
   font-size: 1rem;
   font-family: inherit;
   background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+.grid-item input::placeholder,
+.preTestProb::placeholder {
+  color: var(--muted-text);
+  opacity: 1;
 }
 
 .grid-item input:focus,
