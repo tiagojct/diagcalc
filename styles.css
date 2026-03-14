@@ -34,12 +34,23 @@
   --muted-text: var(--base-800);
   --success-color: var(--green);
   --accent-warm: var(--orange);
+  --page-accent-cool: rgba(32, 94, 166, 0.08);
+  --page-accent-warm: rgba(188, 82, 21, 0.05);
+  --intro-gradient-end: rgba(230, 228, 217, 0.4);
+  --panel-bg: rgba(242, 240, 229, 0.8);
+  --panel-soft-bg: rgba(255, 252, 240, 0.82);
+  --highlight-bg: rgba(255, 252, 240, 0.66);
+  --matrix-bg: rgba(255, 252, 240, 0.9);
+  --heading-strong: var(--base-900);
+  --reference-bg: var(--base-300);
+  --reference-text: var(--base-800);
+  --reference-muted: var(--base-700);
 }
 
 body {
   font-family: "JetBrains Mono", monospace;
   background-color: var(--background-color);
-  background-image: radial-gradient(circle at top left, rgba(32, 94, 166, 0.08), transparent 30%), linear-gradient(180deg, rgba(188, 82, 21, 0.05), transparent 22%);
+  background-image: radial-gradient(circle at top left, var(--page-accent-cool), transparent 30%), linear-gradient(180deg, var(--page-accent-warm), transparent 22%);
   color: var(--text-color);
   margin: 0;
   padding: 0;
@@ -64,7 +75,7 @@ footer {
 }
 
 .intro {
-  background: linear-gradient(180deg, var(--surface-color), rgba(230, 228, 217, 0.4));
+  background: linear-gradient(180deg, var(--surface-color), var(--intro-gradient-end));
   border-bottom: 2px solid var(--base-300);
 }
 
@@ -136,7 +147,7 @@ h2 {
 }
 
 .highlight {
-  background-color: rgba(255, 252, 240, 0.66);
+  background-color: var(--highlight-bg);
   border: 2px solid var(--border-color);
   border-radius: 8px;
   padding: 1.25rem;
@@ -161,7 +172,7 @@ h2 {
 }
 
 .panel {
-  background-color: rgba(242, 240, 229, 0.8);
+  background-color: var(--panel-bg);
   border: 2px solid var(--border-color);
   border-radius: 10px;
   padding: 1.35rem;
@@ -243,7 +254,7 @@ select:focus {
 
 optgroup {
   font-weight: 600;
-  color: var(--base-900);
+  color: var(--heading-strong);
   font-style: normal;
 }
 
@@ -263,7 +274,7 @@ option {
   border-radius: 8px;
   padding: 1.25rem;
   margin: 0 0 2rem;
-  background-color: rgba(255, 252, 240, 0.9);
+  background-color: var(--matrix-bg);
 }
 
 .confusion-matrix legend {
@@ -358,7 +369,7 @@ button:hover {
 
 .secondary {
   background: transparent;
-  color: var(--base-800);
+  color: var(--muted-text);
   border: 2px solid var(--border-color);
   box-shadow: none;
 }
@@ -407,7 +418,7 @@ button:hover {
 }
 
 .probability-chart {
-  background-color: rgba(255, 252, 240, 0.82);
+  background-color: var(--panel-soft-bg);
   border-radius: 8px;
   padding: 1.5rem;
   border: 2px solid var(--border-color);
@@ -465,7 +476,7 @@ button:hover {
 }
 
 .result-card {
-  background-color: rgba(255, 252, 240, 0.82);
+  background-color: var(--panel-soft-bg);
   border-radius: 8px;
   padding: 1.5rem;
   border: 2px solid var(--border-color);
@@ -478,7 +489,7 @@ button:hover {
 .result-card h3 {
   margin: 0;
   font-size: 1.05rem;
-  color: var(--base-900);
+  color: var(--heading-strong);
 }
 
 .result-value {
@@ -523,7 +534,7 @@ button:hover {
 .dataset-reference {
   margin-top: 1rem;
   padding: 1rem;
-  background-color: var(--base-300);
+  background-color: var(--reference-bg);
   border-left: 4px solid var(--primary-color);
   border-radius: 4px;
   font-size: 0.9rem;
@@ -532,17 +543,17 @@ button:hover {
 .dataset-reference h4 {
   margin: 0 0 0.5rem;
   font-size: 0.95rem;
-  color: var(--base-900);
+  color: var(--heading-strong);
 }
 
 .dataset-reference p {
   margin: 0.25rem 0;
-  color: var(--base-800);
+  color: var(--reference-text);
 }
 
 .dataset-reference .reference-citation {
   font-style: italic;
-  color: var(--base-700);
+  color: var(--reference-muted);
   margin-top: 0.5rem;
 }
 
@@ -559,7 +570,7 @@ button:hover {
 .fagan-nomogram h3 {
   margin: 0 0 0.5rem;
   font-size: 1.2rem;
-  color: var(--base-900);
+  color: var(--heading-strong);
 }
 
 .fagan-nomogram canvas {
@@ -592,7 +603,7 @@ button:hover {
 .reference-list {
   margin: 1rem 0 0;
   padding-left: 1.5rem;
-  color: var(--base-800);
+  color: var(--muted-text);
 }
 
 .reference-list li {
@@ -601,7 +612,7 @@ button:hover {
 }
 
 .reference-list strong {
-  color: var(--base-900);
+  color: var(--heading-strong);
 }
 
 /* Tooltip */
@@ -682,6 +693,17 @@ button:hover {
   --muted-text: var(--base-800);
   --success-color: var(--green);
   --accent-warm: var(--orange);
+  --page-accent-cool: rgba(67, 133, 190, 0.14);
+  --page-accent-warm: rgba(218, 112, 44, 0.08);
+  --intro-gradient-end: rgba(28, 27, 26, 0.6);
+  --panel-bg: rgba(28, 27, 26, 0.86);
+  --panel-soft-bg: rgba(40, 39, 38, 0.9);
+  --highlight-bg: rgba(28, 27, 26, 0.82);
+  --matrix-bg: rgba(16, 15, 15, 0.82);
+  --heading-strong: var(--text-color);
+  --reference-bg: var(--base-300);
+  --reference-text: var(--text-color);
+  --reference-muted: var(--muted-text);
 }
 
 a {

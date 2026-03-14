@@ -2,6 +2,14 @@
 
 Todas as alterações relevantes deste projeto são registadas aqui. As datas seguem o formato ISO (AAAA-MM-DD).
 
+## [3.2.2] - 2026-03-14
+
+### Corrigido
+- Melhoria do contraste no modo escuro da interface web, removendo cores claras fixas que deixavam alguns blocos e textos pouco legíveis.
+
+### Técnico
+- Atualização dos metadados do pacote npm para apontar para o domínio final `diagcalc.tiagojct.eu`.
+
 ## [3.2] - 2026-03-13
 
 ### Adicionado
