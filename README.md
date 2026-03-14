@@ -1,61 +1,160 @@
-# DIAGCALC 3.1
+# DIAGCALC
 
-DIAGCALC é uma calculadora interativa concebida para apoiar estudantes das áreas da saúde na interpretação de testes diagnósticos. A aplicação permite explorar de forma guiada medidas como sensibilidade, especificidade, valores preditivos, likelihood ratios e probabilidades pós-teste.
+DIAGCALC is a diagnostic test calculator with two interfaces:
 
-## ✨ Novidades da versão 3.1
+- a web app for teaching and interactive use
+- a terminal app with both TUI and plain CLI modes
 
-### 🎨 Design Minimalista Flexoki
-- Novo esquema de cores Flexoki com paleta neutra e elegante
-- **Modo escuro** com toggle funcional e persistência de preferência
-- Interface limpa sem sombras volumétricas, focada no conteúdo
+Both interfaces use the same calculation engine.
 
-### 📊 Casos Clínicos Reais
-- **7 novos cenários** baseados na literatura médica publicada
-- Referências bibliográficas completas com DOIs clicáveis
-- Estudos de D-dímero, troponina, mamografia, COVID-19, HIV, e mais
+## Repository
 
-### 📈 Nomograma de Fagan
-- Visualização gráfica interativa do teorema de Bayes
-- Conexão visual entre probabilidade pré-teste, LR e pós-teste
-- Renderização dinâmica adaptada ao tema escolhido
+- GitHub: `https://github.com/tiagojct/diagcalc`
 
-### 📚 Recursos Educativos
-- Seção de referências bibliográficas expandida
-- Links para recursos externos de qualidade
-- Calculadoras complementares recomendadas
+## Features
 
-## Funcionalidades principais
-- Introdução de dados através de uma matriz de confusão com validação em tempo real
-- **10 cenários pré-configurados**: 3 genéricos e 7 da literatura médica
-- Cálculo automático de intervalos de confiança a 95% com o método de Wilson
-- Cartões de resultados com notas interpretativas e painel comparativo das probabilidades pré e pós-teste
-- **Nomograma de Fagan** para visualização gráfica dos likelihood ratios
-- Guia textual com definições, dicas clínicas e ligações para referências adicionais
-- **Modo escuro/claro** com alternância fácil
-- Botão de impressão para gerar relatórios de estudo
+- confusion matrix input: TP, FP, FN, TN
+- pre-test probability input
+- sensitivity, specificity, PPV, NPV
+- LR+ and LR-
+- positive and negative post-test probability
+- 95% confidence intervals with the Wilson method
+- preset study scenarios
+- Fagan nomogram in the web app
+- TUI, text CLI, and JSON CLI output in the terminal app
 
-## Pré-requisitos
-- Browser moderno (Chrome, Firefox, Edge ou Safari) com suporte a ES6.
-- Não são necessárias dependências adicionais: todos os recursos são ficheiros estáticos.
+## Web App
 
-## Como utilizar
-1. Abra o ficheiro `index.html` num navegador.
-2. Opcionalmente, selecione um cenário de estudo pré-definido para preencher automaticamente a matriz.
-3. Introduza valores inteiros para VP, FP, FN e VN, bem como a probabilidade pré-teste (em percentagem).
-4. Clique em "Calcular resultados" para gerar as métricas e o gráfico comparativo.
-5. Utilize o botão "Imprimir relatório" para exportar os resultados para PDF ou papel.
+The web app is static. It does not need a build step.
 
-## Estrutura do projeto
-- `index.html` — Marcações principais da aplicação
-- `styles.css` — Estilos Flexoki e definições de layout responsivo com dark mode
-- `script.js` — Lógica de cálculo, validação, interação, tema e renderização do nomograma
-- `CHANGELOG.md` — Histórico detalhado das versões
-- `UPDATES.md` — Documentação completa das melhorias da v3.1
-- `LICENSE` — Licença MIT
+### Run locally
 
-## Contribuições e evolução
-Sugestões e contributos são bem-vindos. Consulte o `CHANGELOG.md` para acompanhar a evolução da aplicação. Planeia-se incluir novas visualizações e traduções no futuro.
+Open `index.html` directly in a browser, or serve the folder locally:
 
-## Licença
-Distribuído sob a licença MIT. Consulte o ficheiro `LICENSE` para mais detalhes.
+```bash
+python3 -m http.server 8080
+```
 
+Then open:
+
+```text
+http://localhost:8080
+```
+
+### Use
+
+1. Load a preset scenario, or leave the selector empty.
+2. Enter TP, FP, FN, TN.
+3. Enter pre-test probability.
+4. Click `Calculate results`.
+5. Review the probability bars, result cards, and Fagan nomogram.
+
+## Terminal App
+
+The terminal app requires Node.js 18 or newer.
+
+### Install locally
+
+```bash
+npm install
+```
+
+### TUI mode
+
+```bash
+node bin/diagcalc.js --tui
+```
+
+If you want the short command:
+
+```bash
+npm link
+diag --tui
+```
+
+### CLI mode
+
+List datasets:
+
+```bash
+diag --list-datasets
+```
+
+Run a preset case:
+
+```bash
+diag --dataset hiv_elisa
+```
+
+Run an ad hoc case:
+
+```bash
+diag --tp 42 --fp 8 --fn 3 --tn 120 --pre 15
+```
+
+Get JSON output:
+
+```bash
+diag --dataset ddimer --format json
+```
+
+### TUI controls
+
+- `Tab` / `Ctrl-N`: next panel
+- `Shift-Tab` / `Ctrl-P`: previous panel
+- arrows: move selection
+- type digits directly in the input editor
+- `Backspace`: delete one character from the selected field
+- `Delete` or `Ctrl-U`: clear the selected field
+- `Enter`: open the selected field in prompt mode
+- `n`: start a blank ad hoc case
+- `x`: export current case to plain text
+- `m`: export current case to Markdown
+- `r`: reset current case
+- `q`: quit
+
+## Deployment
+
+### GitHub Pages
+
+This repository includes a GitHub Pages workflow at `.github/workflows/deploy-pages.yml`.
+
+To publish the web app:
+
+1. Push to the `main` branch.
+2. In GitHub, open `Settings -> Pages`.
+3. Set the source to `GitHub Actions`.
+4. The workflow will publish the static site automatically.
+
+### npm
+
+This package is ready for npm publishing.
+
+Publish steps:
+
+```bash
+npm login
+npm publish --access public
+```
+
+After publishing, users can install it with:
+
+```bash
+npm install -g diagcalc
+diag --tui
+```
+
+## Project Structure
+
+- `index.html` - web app markup
+- `styles.css` - web app styles
+- `script.js` - web app logic and Fagan nomogram rendering
+- `lib/diagcalc-core.js` - shared calculations and validation
+- `lib/diagcalc-datasets.js` - shared preset datasets
+- `tui/index.js` - terminal UI
+- `bin/diagcalc.js` - CLI and TUI entrypoint
+- `.github/workflows/deploy-pages.yml` - GitHub Pages deployment workflow
+
+## License
+
+MIT

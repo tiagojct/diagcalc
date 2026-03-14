@@ -1,8 +1,6 @@
 :root {
-  font-family: "Inter", sans-serif;
-  font-feature-settings:
-    "liga" 1,
-    "calt" 1; /* Fix for Chrome */
+  font-family: "JetBrains Mono", monospace;
+  font-feature-settings: normal;
   /* Flexoki Color Scheme */
   --base-100: #FFFCF0;
   --base-200: #F2F0E5;
@@ -38,15 +36,10 @@
   --accent-warm: var(--orange);
 }
 
-@supports (font-variation-settings: normal) {
-  :root {
-    font-family: "InterVariable", sans-serif;
-  }
-}
-
 body {
-  font-family: "Inter", sans-serif;
+  font-family: "JetBrains Mono", monospace;
   background-color: var(--background-color);
+  background-image: radial-gradient(circle at top left, rgba(32, 94, 166, 0.08), transparent 30%), linear-gradient(180deg, rgba(188, 82, 21, 0.05), transparent 22%);
   color: var(--text-color);
   margin: 0;
   padding: 0;
@@ -55,7 +48,7 @@ body {
 }
 
 .container {
-  width: min(960px, 92vw);
+  width: min(1380px, 94vw);
   margin: 0 auto;
   padding: 2.5rem 0;
 }
@@ -71,7 +64,7 @@ footer {
 }
 
 .intro {
-  background: var(--surface-color);
+  background: linear-gradient(180deg, var(--surface-color), rgba(230, 228, 217, 0.4));
   border-bottom: 2px solid var(--base-300);
 }
 
@@ -138,15 +131,15 @@ h2 {
 
 .intro-highlights {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
 }
 
 .highlight {
-  background-color: var(--background-color);
-  border: 1px solid var(--border-color);
+  background-color: rgba(255, 252, 240, 0.66);
+  border: 2px solid var(--border-color);
   border-radius: 8px;
-  padding: 1.5rem;
+  padding: 1.25rem;
   box-shadow: none;
 }
 
@@ -160,8 +153,45 @@ h2 {
   color: var(--muted-text);
 }
 
-main .container {
-  padding: 2.5rem 0 3rem;
+.workspace {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  align-items: start;
+}
+
+.panel {
+  background-color: rgba(242, 240, 229, 0.8);
+  border: 2px solid var(--border-color);
+  border-radius: 10px;
+  padding: 1.35rem;
+  backdrop-filter: blur(10px);
+}
+
+.panel-heading {
+  margin-bottom: 1.25rem;
+}
+
+.panel-heading-inline {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.panel-kicker {
+  margin: 0 0 0.35rem;
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted-text);
+}
+
+.resource-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin-top: 1rem;
 }
 
 .section-heading {
@@ -174,11 +204,11 @@ main .container {
 }
 
 form {
-  background-color: var(--surface-color);
+  background-color: transparent;
   border-radius: 8px;
-  padding: 2.5rem;
+  padding: 0;
   box-shadow: none;
-  border: 2px solid var(--border-color);
+  border: none;
 }
 
 .form-row {
@@ -231,9 +261,9 @@ option {
 .confusion-matrix {
   border: 2px solid var(--base-300);
   border-radius: 8px;
-  padding: 1.75rem;
+  padding: 1.25rem;
   margin: 0 0 2rem;
-  background-color: var(--background-color);
+  background-color: rgba(255, 252, 240, 0.9);
 }
 
 .confusion-matrix legend {
@@ -243,7 +273,7 @@ option {
 
 .grid-container {
   display: grid;
-  grid-template-columns: repeat(3, minmax(100px, 1fr));
+  grid-template-columns: 92px repeat(2, minmax(120px, 1fr));
   gap: 0.75rem;
   align-items: stretch;
 }
@@ -254,7 +284,7 @@ option {
   border-radius: 4px;
   font-weight: 600;
   color: var(--background-color);
-  background: var(--primary-color);
+  background: linear-gradient(180deg, var(--primary-color), var(--primary-dark));
 }
 
 .grid-label {
@@ -265,7 +295,7 @@ option {
   border-radius: 4px;
   font-weight: 600;
   color: var(--background-color);
-  background: var(--secondary-color);
+  background: linear-gradient(180deg, var(--secondary-color), var(--cyan));
   text-align: center;
 }
 
@@ -274,7 +304,7 @@ option {
   padding: 0.75rem;
   background-color: var(--background-color);
   border-radius: 4px;
-  border: 1px solid var(--border-color);
+  border: 2px solid var(--border-color);
   box-shadow: none;
   transition: border-color 0.2s ease;
 }
@@ -294,6 +324,7 @@ option {
   box-sizing: border-box;
   transition: border-color 0.2s;
   font-size: 1rem;
+  font-family: inherit;
   background-color: var(--background-color);
 }
 
@@ -314,6 +345,7 @@ button {
   border-radius: 4px;
   cursor: pointer;
   font-size: 1em;
+  font-family: inherit;
   font-weight: 600;
   transition: background-color 0.2s;
 }
@@ -339,6 +371,7 @@ button:hover {
 
 .form-actions {
   display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1rem;
   margin-bottom: 1.5rem;
 }
@@ -357,24 +390,24 @@ button:hover {
 }
 
 .results-section {
-  margin-top: 3rem;
+  margin-top: 0;
 }
 
 .results-actions {
   display: flex;
   justify-content: flex-end;
-  margin: 1rem 0 1.25rem;
+  margin: 0;
 }
 
 .results-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1.5rem;
-  margin-top: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
 }
 
 .probability-chart {
-  background-color: var(--surface-color);
+  background-color: rgba(255, 252, 240, 0.82);
   border-radius: 8px;
   padding: 1.5rem;
   border: 2px solid var(--border-color);
@@ -432,7 +465,7 @@ button:hover {
 }
 
 .result-card {
-  background-color: var(--surface-color);
+  background-color: rgba(255, 252, 240, 0.82);
   border-radius: 8px;
   padding: 1.5rem;
   border: 2px solid var(--border-color);
@@ -465,12 +498,7 @@ button:hover {
 }
 
 .interpretation {
-  margin-top: 3rem;
-  background-color: var(--surface-color);
-  border-radius: 8px;
-  padding: 2.5rem;
-  box-shadow: none;
-  border: 2px solid var(--border-color);
+  margin-top: 0;
 }
 
 .interpretation details {
@@ -545,12 +573,7 @@ button:hover {
 
 /* References Section */
 .references {
-  margin-top: 3rem;
-  background-color: var(--surface-color);
-  border-radius: 8px;
-  padding: 2.5rem;
-  box-shadow: none;
-  border: 2px solid var(--border-color);
+  margin-top: 0;
 }
 
 .references details {
@@ -606,7 +629,7 @@ button:hover {
   transition: opacity 0.3s;
   font-size: 0.85rem;
   line-height: 1.4;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  border: 2px solid var(--base-950);
 }
 
 .tooltip .tooltip-text::after {
@@ -673,14 +696,15 @@ a:hover {
 }
 
 @media (max-width: 720px) {
+  .workspace,
+  .resource-grid {
+    grid-template-columns: 1fr;
+  }
+
   .header-controls {
     position: static;
     justify-content: center;
     margin-bottom: 1rem;
-  }
-
-  form {
-    padding: 1.75rem;
   }
 
   .grid-container {
@@ -712,6 +736,10 @@ a:hover {
     grid-template-columns: 1fr;
   }
 
+  .panel-heading-inline {
+    flex-direction: column;
+  }
+
   .intro-highlights {
     grid-template-columns: 1fr;
   }
@@ -740,9 +768,8 @@ a:hover {
     font-size: 0.8rem;
   }
 
-  .references,
-  .interpretation {
-    padding: 1.75rem;
+  .panel {
+    padding: 1rem;
   }
 
   .reference-list {

@@ -2,6 +2,27 @@
 
 Todas as alterações relevantes deste projeto são registadas aqui. As datas seguem o formato ISO (AAAA-MM-DD).
 
+## [3.2] - 2026-03-13
+
+### Adicionado
+- **TUI para terminal** com navegação por teclado, carregamento de cenários e painel de resultados.
+- **CLI textual** para cálculo direto via argumentos (`--dataset`, `--tp`, `--fp`, `--fn`, `--tn`, `--pre`).
+- **`package.json` e dependência `blessed`** para suportar a experiência em terminal.
+- **Comando curto `diag`** para a CLI/TUI após `npm link` ou instalação global.
+- **Workflow de GitHub Pages** para publicação automática da versão web.
+
+### Alterado
+- A versão web passa a consumir um motor de cálculo partilhado com a CLI e a TUI.
+- Os cenários pré-definidos foram movidos para um módulo partilhado reutilizável.
+- A interface web foi reorganizada num layout de três colunas inspirado na TUI e passou a usar a fonte JetBrains Mono.
+- A TUI passou a ter edição direta no formulário, editor de matriz 2x2 e exportação de relatórios em texto/Markdown.
+
+### Técnico
+- Extração da lógica de validação, métricas, intervalos de confiança e formatação para `lib/diagcalc-core.js`.
+- Criação de `lib/diagcalc-datasets.js` para unificar os dados de exemplo em todas as interfaces.
+- Adição de `bin/diagcalc.js` como ponto de entrada para execução no terminal.
+- Suporte a `--format json` na CLI para integração com scripts e automações.
+
 ## [3.1] - 2025-10-19
 
 ### Adicionado
@@ -40,4 +61,3 @@ Todas as alterações relevantes deste projeto são registadas aqui. As datas se
 
 ## [1.0] - 2023-??-??
 - Versão inicial da DIAGCALC com formulário simples para cálculo das métricas diagnósticas.
-

@@ -1,173 +1,201 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DIAG-CALC</title>
-    <link rel="preconnect" href="https://rsms.me/">
-    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <header class="intro" role="banner">
       <div class="container">
         <div class="header-controls">
-          <button id="themeToggle" class="theme-toggle" aria-label="Alternar modo escuro" type="button">
+          <button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" type="button">
             <span class="theme-icon">◐</span>
           </button>
         </div>
-        <p class="tag">Ferramenta pedagógica</p>
+        <p class="tag">Educational tool</p>
         <h1>DIAGCALC</h1>
         <p class="lead">
-          Calculadora interativa para explorar medidas de desempenho de testes
-          diagnósticos e aplicar o raciocínio bayesiano na prática clínica.
+          Interactive calculator for exploring diagnostic test performance measures
+          and applying Bayesian reasoning in clinical practice.
         </p>
         <div class="intro-highlights" role="list">
           <article class="highlight" role="listitem">
-            <h2>Medidas chave</h2>
-            <p>Sensibilidade, especificidade, VPP, VPN e likelihood ratios com IC&nbsp;95%.</p>
+            <h2>Key measures</h2>
+            <p>Sensitivity, specificity, PPV, NPV, and likelihood ratios with 95%&nbsp;CI.</p>
           </article>
           <article class="highlight" role="listitem">
-            <h2>Probabilidade pós-teste</h2>
-            <p>Converta probabilidade pré-teste em probabilidade pós-teste positiva e negativa.</p>
+            <h2>Post-test probability</h2>
+            <p>Convert pre-test probability into positive and negative post-test probability.</p>
           </article>
           <article class="highlight" role="listitem">
-            <h2>Interpretação guiada</h2>
-            <p>Resultados explicados para apoiar o estudo autónomo.</p>
+            <h2>Guided interpretation</h2>
+            <p>Results explained to support self-directed learning.</p>
           </article>
         </div>
       </div>
     </header>
     <main class="container" id="main" role="main">
-      <section aria-labelledby="form-title">
-        <div class="section-heading">
-          <h2 id="form-title">Preencha a matriz de confusão</h2>
-          <p>
-            Utilize valores inteiros iguais ou superiores a zero. Explore os cenários
-            de exemplo ou introduza dados reais para treinar a interpretação.
-          </p>
-        </div>
-        <form id="inputForm" novalidate>
+      <div class="workspace">
+        <section aria-labelledby="library-title" class="panel panel-library">
+          <div class="panel-heading">
+            <p class="panel-kicker">Library</p>
+            <h2 id="library-title">Load a study scenario</h2>
+          </div>
           <div class="form-row">
-            <label class="full" for="datasetSelect">Carregar cenário de estudo:</label>
+            <label class="full" for="datasetSelect">Scenario</label>
             <select id="datasetSelect" class="full" aria-describedby="dataset-help">
-              <option value="">— Selecionar —</option>
-              <optgroup label="Cenários genéricos">
-                <option value="screening">Programa de rastreio (prevalência baixa)</option>
-                <option value="caseControl">Estudo caso-controlo</option>
-                <option value="clinic">Clínica especializada</option>
+              <option value="">— Select —</option>
+              <optgroup label="Generic scenarios">
+                <option value="screening">Screening programme (low prevalence)</option>
+                <option value="caseControl">Case-control study</option>
+                <option value="clinic">Specialist clinic</option>
               </optgroup>
-              <optgroup label="Casos da literatura médica">
-                <option value="ddimer">D-dímero para embolia pulmonar</option>
-                <option value="troponin">Troponina ultrassensível para EAM</option>
-                <option value="mammography">Mamografia de rastreio</option>
-                <option value="covid_antigen">Teste rápido antigénio COVID-19</option>
-                <option value="hiv_elisa">ELISA para HIV</option>
-                <option value="strep_throat">Teste rápido para Streptococcus</option>
-                <option value="xray_pneumonia">Radiografia de tórax para pneumonia</option>
+              <optgroup label="Medical literature cases">
+                <option value="ddimer">D-dimer for pulmonary embolism</option>
+                <option value="troponin">High-sensitivity troponin for AMI</option>
+                <option value="mammography">Screening mammography</option>
+                <option value="covid_antigen">Rapid COVID-19 antigen test</option>
+                <option value="hiv_elisa">HIV ELISA</option>
+                <option value="strep_throat">Rapid Streptococcus test</option>
+                <option value="xray_pneumonia">Chest X-ray for pneumonia</option>
               </optgroup>
             </select>
             <p id="dataset-help" class="help-text">
-              Os dados são preenchidos automaticamente e pode ajustá-los em seguida.
+              Values are filled in automatically and can be adjusted afterwards.
             </p>
             <div id="dataset-reference" class="dataset-reference" style="display: none;"></div>
           </div>
-          <fieldset class="confusion-matrix">
-            <legend>Matriz de confusão</legend>
-            <div class="grid-container" role="group" aria-label="Resultados do teste diagnóstico">
-              <span class="empty" aria-hidden="true"></span>
-              <span class="grid-header grid-header-pos">Doença +</span>
-              <span class="grid-header grid-header-neg">Doença -</span>
-              <label class="grid-label grid-label-pos" for="tp">Teste +</label>
-              <div class="grid-item">
-                <input type="number" id="tp" inputmode="numeric" min="0" step="1" placeholder="Verdadeiros positivos" required />
-              </div>
-              <div class="grid-item">
-                <input type="number" id="fp" inputmode="numeric" min="0" step="1" placeholder="Falsos positivos" required />
-              </div>
-              <label class="grid-label grid-label-neg" for="fn">Teste -</label>
-              <div class="grid-item">
-                <input type="number" id="fn" inputmode="numeric" min="0" step="1" placeholder="Falsos negativos" required />
-              </div>
-              <div class="grid-item">
-                <input type="number" id="tn" inputmode="numeric" min="0" step="1" placeholder="Verdadeiros negativos" required />
-              </div>
-            </div>
-          </fieldset>
-          <div class="form-row">
-            <label for="preTestProb">Probabilidade pré-teste (%):</label>
-            <input
-              class="preTestProb"
-              type="number"
-              id="preTestProb"
-              inputmode="decimal"
-              min="0"
-              max="100"
-              step="0.1"
-              placeholder="Ex.: 12,5"
-              required
-            />
-            <p class="help-text">
-              Sugestão: estime a prevalência da doença na população estudada ou a probabilidade clínica antes do teste.
+        </section>
+
+        <section aria-labelledby="form-title" class="panel panel-inputs">
+          <div class="panel-heading">
+            <p class="panel-kicker">Editor</p>
+            <h2 id="form-title">Build the confusion matrix</h2>
+            <p>
+              Use non-negative integers and a pre-test probability under 100%.
             </p>
           </div>
-          <div class="form-actions" role="group">
-            <button type="submit">Calcular resultados</button>
-            <button type="reset" id="resetButton" class="secondary">Limpar campos</button>
+          <form id="inputForm" novalidate>
+            <fieldset class="confusion-matrix">
+              <legend>Confusion matrix</legend>
+              <div class="grid-container" role="group" aria-label="Diagnostic test results">
+                <span class="empty" aria-hidden="true"></span>
+                <span class="grid-header grid-header-pos">Disease +</span>
+                <span class="grid-header grid-header-neg">Disease -</span>
+                <label class="grid-label grid-label-pos" for="tp">Test +</label>
+                <div class="grid-item">
+                  <input type="number" id="tp" inputmode="numeric" min="0" step="1"
+                    placeholder="True positives"
+                    aria-label="True positives (TP): disease present, test positive"
+                    required />
+                </div>
+                <div class="grid-item">
+                  <input type="number" id="fp" inputmode="numeric" min="0" step="1"
+                    placeholder="False positives"
+                    aria-label="False positives (FP): disease absent, test positive"
+                    required />
+                </div>
+                <label class="grid-label grid-label-neg" for="fn">Test -</label>
+                <div class="grid-item">
+                  <input type="number" id="fn" inputmode="numeric" min="0" step="1"
+                    placeholder="False negatives"
+                    aria-label="False negatives (FN): disease present, test negative"
+                    required />
+                </div>
+                <div class="grid-item">
+                  <input type="number" id="tn" inputmode="numeric" min="0" step="1"
+                    placeholder="True negatives"
+                    aria-label="True negatives (TN): disease absent, test negative"
+                    required />
+                </div>
+              </div>
+            </fieldset>
+            <div class="form-row">
+              <label for="preTestProb">Pre-test probability (%)</label>
+              <input
+                class="preTestProb"
+                type="number"
+                id="preTestProb"
+                inputmode="decimal"
+                min="0"
+                max="100"
+                step="0.1"
+                placeholder="e.g. 12.5"
+                required
+              />
+              <p class="help-text">
+                Suggestion: estimate the disease prevalence in the study population or the clinical probability before the test.
+              </p>
+            </div>
+            <div class="form-actions" role="group">
+              <button type="submit">Calculate results</button>
+              <button type="reset" id="resetButton" class="secondary">Clear fields</button>
+            </div>
+            <p id="feedback" class="feedback" role="alert" aria-live="polite"></p>
+          </form>
+        </section>
+
+        <section aria-labelledby="results-title" class="panel panel-results results-section">
+          <div class="panel-heading panel-heading-inline">
+            <div>
+              <p class="panel-kicker">Output</p>
+              <h2 id="results-title">Results</h2>
+              <p class="help-text">
+                Values are shown with 95% confidence intervals calculated using the Wilson method.
+              </p>
+            </div>
+            <div class="results-actions" role="group">
+              <button type="button" id="printButton" class="secondary">Print report</button>
+            </div>
           </div>
-          <p id="feedback" class="feedback" role="alert" aria-live="polite"></p>
-        </form>
-      </section>
+          <div id="probabilityChart" class="probability-chart" aria-label="Comparison of pre- and post-test probabilities"></div>
+          <div id="faganNomogram" class="fagan-nomogram" style="display: none;">
+            <h3>Fagan Nomogram</h3>
+            <p class="help-text">Graphical representation of the relationship between pre-test probability, likelihood ratio, and post-test probability.</p>
+            <canvas id="faganCanvas" width="600" height="400" aria-label="Fagan nomogram"></canvas>
+          </div>
+          <div id="results" class="results-grid" aria-live="polite"></div>
+        </section>
+      </div>
 
-      <section aria-labelledby="results-title" class="results-section">
-        <h2 id="results-title">Resultados</h2>
-        <p class="help-text">
-          Os valores são apresentados com intervalos de confiança de 95% calculados pelo método de Wilson.
-        </p>
-        <div class="results-actions" role="group">
-          <button type="button" id="printButton" class="secondary">Imprimir relatório</button>
-        </div>
-        <div id="probabilityChart" class="probability-chart" aria-label="Comparação entre probabilidades pré e pós-teste"></div>
-        <div id="faganNomogram" class="fagan-nomogram" style="display: none;">
-          <h3>Nomograma de Fagan</h3>
-          <p class="help-text">Visualização gráfica da relação entre probabilidade pré-teste, likelihood ratio e probabilidade pós-teste.</p>
-          <canvas id="faganCanvas" width="600" height="400" aria-label="Nomograma de Fagan"></canvas>
-        </div>
-        <div id="results" class="results-grid" aria-live="polite"></div>
-      </section>
-
-      <section aria-labelledby="interpretation-title" class="interpretation">
-        <h2 id="interpretation-title">Guia de interpretação</h2>
+      <div class="resource-grid">
+      <section aria-labelledby="interpretation-title" class="interpretation panel panel-docs">
+        <h2 id="interpretation-title">Interpretation guide</h2>
         <details>
-          <summary>Sensibilidade e especificidade</summary>
+          <summary>Sensitivity and specificity</summary>
           <p>
-            Quantificam a capacidade do teste para identificar corretamente pessoas com e sem a condição. São úteis para compreender o desempenho intrínseco do teste. Saiba mais em <a href="https://en.wikipedia.org/wiki/Sensitivity_and_specificity" target="_blank" rel="noopener noreferrer">Wikipedia (en)</a>.
+            Quantify the test's ability to correctly identify people with and without the condition. Useful for understanding the intrinsic performance of the test. Learn more at <a href="https://en.wikipedia.org/wiki/Sensitivity_and_specificity" target="_blank" rel="noopener noreferrer">Wikipedia</a>.
           </p>
         </details>
         <details>
-          <summary>Valores preditivos</summary>
+          <summary>Predictive values</summary>
           <p>
-            Dependem da prevalência (probabilidade pré-teste). Utilize-os para estimar a probabilidade de a pessoa ter ou não a doença após obter um resultado positivo ou negativo. Consulte <a href="https://en.wikipedia.org/wiki/Positive_and_negative_predictive_values" target="_blank" rel="noopener noreferrer">Wikipedia (en)</a> para aprofundar.
+            Depend on prevalence (pre-test probability). Use them to estimate the probability that a person has or does not have the disease after a positive or negative result. See <a href="https://en.wikipedia.org/wiki/Positive_and_negative_predictive_values" target="_blank" rel="noopener noreferrer">Wikipedia</a> for further reading.
           </p>
         </details>
         <details>
           <summary>Likelihood ratios</summary>
           <p>
-            Relacionam a probabilidade de um resultado em pessoas doentes vs. não doentes e podem ser aplicados diretamente na fórmula de Bayes para atualizar a probabilidade de doença. Referência adicional em <a href="https://en.wikipedia.org/wiki/Likelihood_ratio" target="_blank" rel="noopener noreferrer">Wikipedia (en)</a>.
+            Relate the probability of a result in diseased vs. non-diseased individuals and can be applied directly in Bayes' formula to update the probability of disease. Further reference at <a href="https://en.wikipedia.org/wiki/Likelihood_ratio" target="_blank" rel="noopener noreferrer">Wikipedia</a>.
           </p>
         </details>
         <details>
-          <summary>Probabilidades pós-teste</summary>
+          <summary>Post-test probabilities</summary>
           <p>
-            Resultam da aplicação do LR ao odds pré-teste. São cruciais para decisões clínicas como iniciar terapêutica ou solicitar exames adicionais. Veja também <a href="https://en.wikipedia.org/wiki/Posterior_probability" target="_blank" rel="noopener noreferrer">Wikipedia (en)</a>.
+            Result from applying the LR to pre-test odds. They are crucial for clinical decisions such as initiating treatment or ordering additional tests. See also <a href="https://en.wikipedia.org/wiki/Posterior_probability" target="_blank" rel="noopener noreferrer">Wikipedia</a>.
           </p>
         </details>
       </section>
 
-      <section aria-labelledby="references-title" class="references">
-        <h2 id="references-title">Recursos e referências</h2>
+      <section aria-labelledby="references-title" class="references panel panel-docs">
+        <h2 id="references-title">Resources and references</h2>
         <details>
-          <summary>Literatura de apoio</summary>
+          <summary>Supporting literature</summary>
           <ul class="reference-list">
             <li>
               <strong>Akobeng AK.</strong> Understanding diagnostic tests 1-3: sensitivity, specificity, and predictive values. 
@@ -187,7 +215,7 @@
           </ul>
         </details>
         <details>
-          <summary>Recursos online</summary>
+          <summary>Online resources</summary>
           <ul class="reference-list">
             <li>
               <strong>The Centre for Evidence-Based Medicine (CEBM):</strong> 
@@ -200,12 +228,12 @@
             <li>
               <strong>Deeks JJ, Altman DG.</strong> Diagnostic tests 4: likelihood ratios. 
               <em>BMJ.</em> 2004;329(7458):168-169. 
-              <a href="https://www.bmj.com/content/329/7458/168" target="_blank" rel="noopener noreferrer">Acesso livre</a>
+              <a href="https://www.bmj.com/content/329/7458/168" target="_blank" rel="noopener noreferrer">Open access</a>
             </li>
           </ul>
         </details>
         <details>
-          <summary>Calculadoras complementares</summary>
+          <summary>Complementary calculators</summary>
           <ul class="reference-list">
             <li>
               <strong>MDCalc:</strong> 
@@ -218,18 +246,21 @@
           </ul>
         </details>
       </section>
+      </div>
     </main>
     <footer>
       <p>
-        A DIAGCALC é uma calculadora de medidas de avaliação de testes diagnósticos criada para fins pedagógicos e de treino de estudantes de áreas formativas na saúde.
+        DIAGCALC is a diagnostic test performance calculator created for educational purposes and training of healthcare students.
       </p>
       <p>
-        Quaisquer análises, resultados e conclusões não são passíveis de utilização, interpretação ou generalização para além deste contexto específico.
+        Any analyses, results and conclusions may not be used, interpreted or generalised beyond this specific context.
       </p>
       <p>
-        &copy; 2025 — Licença MIT — Desenvolvido por <a href="http://tiagojacinto.net">Tiago Jacinto</a>. <a href="mailto:tiagojacinto@med.up.pt">Contacto</a>
+        &copy; 2025 — MIT Licence — Developed by <a href="https://tiagojct.eu">Tiago Jacinto</a>. <a href="mailto:tiagojacinto@med.up.pt">Contact</a>
       </p>
     </footer>
+    <script src="lib/diagcalc-datasets.js"></script>
+    <script src="lib/diagcalc-core.js"></script>
     <script src="script.js"></script>
   </body>
 </html>

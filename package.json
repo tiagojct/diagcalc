@@ -1,0 +1,40 @@
+{
+  "name": "diagcalc",
+  "version": "3.2.0",
+  "description": "Diagnostic calculator for the browser, terminal, and plain CLI.",
+  "license": "MIT",
+  "keywords": [
+    "diagnostics",
+    "bayes",
+    "clinical",
+    "cli",
+    "tui"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "files": [
+    "bin",
+    "lib",
+    "tui",
+    "index.html",
+    "script.js",
+    "styles.css",
+    "README.md",
+    "LICENSE"
+  ],
+  "bin": {
+    "diag": "bin/diagcalc.js",
+    "diagcalc": "bin/diagcalc.js"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "tui": "node bin/diagcalc.js --tui",
+    "cli": "node bin/diagcalc.js --help"
+  },
+  "dependencies": {
+    "blessed": "^0.1.81"
+  }
+}
