@@ -2,6 +2,14 @@
   "name": "diagcalc",
   "version": "3.2.0",
   "description": "Diagnostic calculator for the browser, terminal, and plain CLI.",
+  "homepage": "https://tiagojct.github.io/diagcalc/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tiagojct/diagcalc.git"
+  },
+  "bugs": {
+    "url": "https://github.com/tiagojct/diagcalc/issues"
+  },
   "license": "MIT",
   "keywords": [
     "diagnostics",

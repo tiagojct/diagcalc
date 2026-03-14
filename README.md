@@ -10,6 +10,35 @@ Both interfaces use the same calculation engine.
 ## Repository
 
 - GitHub: `https://github.com/tiagojct/diagcalc`
+- Web app: `https://tiagojct.github.io/diagcalc/`
+- npm package: `https://www.npmjs.com/package/diagcalc`
+
+## Description
+
+DIAGCALC is designed for a simple job: start from a confusion matrix, calculate the main diagnostic test measures, and show how the test result changes the probability of disease.
+
+It is built for teaching, self-study, and quick practical use. The web app is useful in the classroom and in browser-based demonstrations. The terminal app is useful for keyboard-driven work, SSH sessions, scripting, and lightweight environments.
+
+## Operating Model
+
+The app follows the same sequence used in many teaching sessions on diagnostic reasoning:
+
+1. define the case or load a reference scenario
+2. inspect the confusion matrix
+3. estimate the pre-test probability
+4. calculate core performance measures
+5. interpret LR+ and LR-
+6. update to post-test probability
+
+The web and terminal interfaces both follow that workflow.
+
+## Philosophy
+
+- keep the calculator simple enough to use during teaching
+- keep the maths explicit and easy to verify
+- keep the interfaces lightweight and dependency-light
+- keep the same results across web, TUI, and CLI
+- support both interactive learning and automation
 
 ## Features
 
@@ -26,6 +55,8 @@ Both interfaces use the same calculation engine.
 ## Web App
 
 The web app is static. It does not need a build step.
+
+It is intended for teaching sessions, demonstrations, and direct interactive exploration.
 
 ### Run locally
 
@@ -52,6 +83,8 @@ http://localhost:8080
 ## Terminal App
 
 The terminal app requires Node.js 18 or newer.
+
+It is intended for keyboard-first use, quick calculations, reproducible terminal workflows, and scripting.
 
 ### Install locally
 
@@ -98,6 +131,8 @@ Get JSON output:
 diag --dataset ddimer --format json
 ```
 
+The CLI is useful when you want a one-shot calculation or when you want to integrate the calculator into scripts or other tooling.
+
 ### TUI controls
 
 - `Tab` / `Ctrl-N`: next panel
@@ -143,6 +178,10 @@ After publishing, users can install it with:
 npm install -g diagcalc
 diag --tui
 ```
+
+Package page:
+
+- `https://www.npmjs.com/package/diagcalc`
 
 ## Project Structure
 
