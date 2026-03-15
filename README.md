@@ -52,6 +52,23 @@ The web and terminal interfaces both follow that workflow.
 - Fagan nomogram in the web app
 - TUI, text CLI, and JSON CLI output in the terminal app
 
+## Case Studies
+
+The app includes both generic teaching scenarios and literature-based examples.
+
+- `screening` - low-prevalence population screening workflow
+- `caseControl` - balanced case-control teaching example
+- `clinic` - specialist clinic setting with intermediate prevalence
+- `ddimer` - D-dimer for pulmonary embolism rule-out
+- `troponin` - high-sensitivity troponin for acute myocardial infarction
+- `mammography` - screening mammography in a low-prevalence setting
+- `covid_antigen` - rapid antigen testing for COVID-19
+- `hiv_elisa` - fourth-generation HIV ELISA screening
+- `strep_throat` - rapid antigen testing for streptococcal pharyngitis
+- `xray_pneumonia` - chest X-ray for community-acquired pneumonia
+
+These cases are included to support teaching across different prevalence settings, screening vs. confirmation logic, and Bayesian interpretation of test results.
+
 ## Web App
 
 The web app is static. It does not need a build step.
