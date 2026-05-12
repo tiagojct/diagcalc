@@ -206,6 +206,11 @@ function main() {
   }
 
   const metrics = core.calculateMetrics(built.input);
+  if (args.format !== undefined && typeof args.format !== "string") {
+    process.stderr.write("Missing value for --format. Use --format text or --format json.\n");
+    process.exitCode = 1;
+    return;
+  }
   const format = typeof args.format === "string" ? args.format.toLowerCase() : "text";
   if (format === "json") {
     printJsonReport(built.dataset, built.input, metrics);

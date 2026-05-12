@@ -1,14 +1,20 @@
 document.addEventListener("DOMContentLoaded", () => {
   const core = window.DiagcalcCore;
   const datasetStore = window.DiagcalcDatasets;
+  const feedbackEl = document.getElementById("feedback");
 
   if (!core || !datasetStore) {
+    const missing = [!core && "DiagcalcCore", !datasetStore && "DiagcalcDatasets"].filter(Boolean).join(" and ");
+    console.error(`DIAGCALC: required script(s) failed to load: ${missing}.`);
+    if (feedbackEl) {
+      feedbackEl.textContent = "Calculator failed to load. Refresh the page or check the network tab for missing scripts.";
+      feedbackEl.classList.add("error");
+    }
     return;
   }
 
   const datasets = datasetStore.datasets;
   const form = document.getElementById("inputForm");
-  const feedbackEl = document.getElementById("feedback");
   const resultsEl = document.getElementById("results");
   const datasetSelect = document.getElementById("datasetSelect");
   const resetButton = document.getElementById("resetButton");
@@ -464,7 +470,7 @@ function renderFaganNomogram(canvas, container, data) {
     drawLrLabel(lrPosY, "LR+", lrPositive, warmColor, true);
   }
 
-  if (Number.isFinite(lrNegative) && lrNegative > 0) {
+  if (lrNegative > 0) {
     const postNegY = probToY(postNegative);
     const lrNegY = midpointY(preY, postNegY);
 

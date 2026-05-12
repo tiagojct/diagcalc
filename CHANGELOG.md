@@ -2,6 +2,17 @@
 
 Todas as alterações relevantes deste projeto são registadas aqui. As datas seguem o formato ISO (AAAA-MM-DD).
 
+## [3.2.4] - 2026-05-12
+
+### Corrigido
+- O nomograma de Fagan deixa de omitir silenciosamente a linha de LR- quando este é infinito (especificidade = 0). Agora a verificação é simétrica à do LR+.
+- `calculateRatio(0, 0)` passa a devolver `NaN` em vez de `Infinity`, evitando que o caso indeterminado 0/0 seja confundido com um rácio infinito.
+- Mensagem de validação da probabilidade pré-teste corrigida — descreve agora o intervalo real (`[0%, 100%)`), em vez do antigo "entre 0 e 99,9%".
+- A versão web deixa de falhar silenciosamente quando algum dos scripts em `lib/` não carrega: regista um erro na consola e mostra mensagem no painel de feedback.
+- Na TUI, `Ctrl-C` passa a terminar a aplicação mesmo com um modal aberto, evitando que o utilizador fique preso na janela de edição ou exportação.
+- Os relatórios exportados (texto e Markdown) passam a usar o mesmo formato de probabilidade pré-teste que a interface (`formatPercentage`), eliminando a discrepância entre "18%" no ficheiro e "18.0%" no ecrã.
+- A CLI rejeita explicitamente `--format` sem valor, em vez de o ignorar silenciosamente e devolver formato `text`.
+
 ## [3.2.2] - 2026-03-14
 
 ### Corrigido

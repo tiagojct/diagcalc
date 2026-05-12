@@ -720,7 +720,10 @@ function runTui() {
   resultsBox.key(["pageup"], () => resultsBox.scroll(-10));
   resultsBox.key(["pagedown"], () => resultsBox.scroll(10));
 
-  screen.key(["q", "C-c"], () => {
+  screen.key(["C-c"], () => {
+    process.exit(0);
+  });
+  screen.key(["q"], () => {
     if (!state.modalOpen) {
       process.exit(0);
     }
@@ -821,6 +824,10 @@ function displayValue(value) {
   return Number.isFinite(value) ? String(value) : "-";
 }
 
+function formatPreTest(value) {
+  return Number.isFinite(value) ? core.formatPercentage(value / 100) : "-";
+}
+
 function buildConfusionMatrixBox(input) {
   const tp = displayValue(input.tp).padStart(5);
   const fp = displayValue(input.fp).padStart(5);
@@ -892,7 +899,7 @@ function buildTextExport(state, metrics, validation) {
     "Confusion matrix",
     `  TP ${displayValue(state.input.tp)}   FP ${displayValue(state.input.fp)}`,
     `  FN ${displayValue(state.input.fn)}   TN ${displayValue(state.input.tn)}`,
-    `  Pre-test probability ${displayValue(state.input.preTestProb)}%`,
+    `  Pre-test probability ${formatPreTest(state.input.preTestProb)}`,
     "",
   ];
 
@@ -916,7 +923,7 @@ function buildMarkdownExport(state, metrics, validation) {
     `| Test +         | ${displayValue(state.input.tp)} | ${displayValue(state.input.fp)} |`,
     `| Test -         | ${displayValue(state.input.fn)} | ${displayValue(state.input.tn)} |`,
     "",
-    `Pre-test probability: ${displayValue(state.input.preTestProb)}%`,
+    `Pre-test probability: ${formatPreTest(state.input.preTestProb)}`,
     "",
   ];
 
