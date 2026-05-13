@@ -2,6 +2,18 @@
 
 Todas as alterações relevantes deste projeto são registadas aqui. As datas seguem o formato ISO (AAAA-MM-DD).
 
+## [3.9.0] - 2026-05-13
+
+### Adicionado
+- Seis cenários clínicos com referências bibliográficas, expandindo o repositório de presets de 10 → 16:
+  - **Wells score (≥2) para TVP** — Wells PS, et al. *N Engl J Med.* 2003;349(13):1227-1235.
+  - **HEART score (≥4) para MACE em dor torácica** — Backus BE, et al. *Int J Cardiol.* 2013;168(3):2153-2158.
+  - **CURB-65 (≥2) para PAC grave** — Lim WS, et al. *Thorax.* 2003;58(5):377-382.
+  - **qSOFA (≥2) para rastreio de sépsis** — Seymour CW, et al. *JAMA.* 2016;315(8):762-774.
+  - **APGAR < 7 aos 5 min para desfecho neonatal grave** — Casey BM, McIntire DD, Leveno KJ. *N Engl J Med.* 2001;344(7):467-471.
+  - **FAST ecografia para trauma abdominal contuso** — Rozycki GS, et al. *Ann Surg.* 1998;228(4):557-567.
+- O preset APGAR é particularmente útil em ensino por ilustrar um teste muito específico mas pouco sensível em prevalência muito baixa — perfeito para demonstrar como o IC do LR− e a probabilidade pós-teste (−) se comportam nesses extremos.
+
 ## [3.8.1] - 2026-05-13
 
 ### Adicionado
