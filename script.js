@@ -713,18 +713,33 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   if (rocFillSyntheticButton) {
     rocFillSyntheticButton.addEventListener("click", () => {
-      const rows = readRocRows();
-      const seed = rows.find((r) =>
-        Number.isInteger(r.tp) && Number.isInteger(r.fp) && Number.isInteger(r.fn) && Number.isInteger(r.tn) &&
-        (r.tp + r.fn > 0) && (r.tn + r.fp > 0)
-      );
+      // Seed from the first non-empty ROC row; fall back to the main form
+      // (where the user just typed TP/FP/FN/TN) so the button works the
+      // moment the panel opens, before any rows are populated.
+      const rocRows = readRocRows();
+      const isValid = (r) =>
+        r &&
+        Number.isInteger(r.tp) && Number.isInteger(r.fp) &&
+        Number.isInteger(r.fn) && Number.isInteger(r.tn) &&
+        (r.tp + r.fn > 0) && (r.tn + r.fp > 0);
+      let seed = rocRows.find(isValid);
+      if (!seed) {
+        const form = readFormValues();
+        if (isValid(form)) seed = form;
+      }
       if (!seed) {
         if (rocReadoutEl) {
-          rocReadoutEl.textContent = "Fill one row with TP / FP / FN / TN first — synthetic cutoffs are derived from it.";
+          rocReadoutEl.textContent = "Need a valid 2×2 (TP / FP / FN / TN) before synthetic cutoffs can be generated — fill the main form or row 1 first.";
         }
         return;
       }
       const synth = core.generateSyntheticRocPoints(seed, 5);
+      if (synth.length === 0) {
+        if (rocReadoutEl) {
+          rocReadoutEl.textContent = "Could not fit a binormal model to that 2×2 — the synthetic scaffold needs at least one diseased and one non-diseased case.";
+        }
+        return;
+      }
       for (const row of synth) {
         addRocRow(row, { synthetic: true });
       }

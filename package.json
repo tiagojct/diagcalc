@@ -1,6 +1,6 @@
 {
   "name": "diagcalc",
-  "version": "4.1.0",
+  "version": "4.1.1",
   "description": "Diagnostic calculator for the browser, terminal, and plain CLI.",
   "homepage": "https://diagcalc.tiagojct.eu/",
   "repository": {

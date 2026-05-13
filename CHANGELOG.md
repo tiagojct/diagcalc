@@ -2,6 +2,12 @@
 
 Todas as alterações relevantes deste projeto são registadas aqui. As datas seguem o formato ISO (AAAA-MM-DD).
 
+## [4.1.1] - 2026-05-14
+
+### Corrigido
+- **"Fill synthetic cutoffs" não fazia nada quando a tabela ROC estava vazia.** O botão tentava semear a partir da primeira linha da tabela e, se essa estivesse vazia (cenário comum logo após abrir o painel sem ter ainda corrido Calculate), saía em silêncio. Agora cai automaticamente nos valores do formulário principal (TP / FP / FN / TN) se a tabela não tiver nenhuma linha válida, e mostra mensagens de erro distintas para "sem dados" vs "dados degenerados" no readout.
+- **Chevron de disclosure menos pesado.** A versão anterior usava um triângulo CSS preenchido (`border-style: solid`) que, embora não fosse o glifo Unicode antigo, lia-se quase idêntico em corpos pequenos. Reescrito como dois traços de 1,5 px (`border-right` + `border-bottom`) rodados 45° — um "›" em outline, fininho, no estilo de chevron moderno. Roda 90° para apontar para baixo em `[open]`.
+
 ## [4.1.0] - 2026-05-14
 
 ### Adicionado

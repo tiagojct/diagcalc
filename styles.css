@@ -967,8 +967,10 @@ button:hover {
 }
 
 /* ── Unified disclosure marker ─────────────────────────────────────────────
-   One thin CSS-drawn chevron for every collapsible panel. Inherits text
-   colour via currentColor, dimmed via opacity. Rotates 90° on [open]. */
+   One thin outlined chevron for every collapsible panel: two 1.5 px strokes
+   (border-right + border-bottom) rotated 45° so they form a right-pointing
+   "›" rather than a filled triangle. Inherits text colour via currentColor.
+   Rotates to point down on [open]. */
 .advanced-settings > summary::before,
 .history-panel > summary::before,
 .roc-panel > summary::before,
@@ -977,13 +979,13 @@ button:hover {
 .prevalence-explorer > summary::before {
   content: "";
   display: inline-block;
-  width: 0;
-  height: 0;
-  margin-right: 0.5em;
-  border-style: solid;
-  border-width: 5px 0 5px 7px;
-  border-color: transparent transparent transparent currentColor;
-  vertical-align: 0.05em;
+  width: 6px;
+  height: 6px;
+  margin: 0 0.65em 2px 2px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(-45deg);
+  vertical-align: middle;
   opacity: 0.55;
   transition: transform 0.15s ease;
 }
@@ -994,7 +996,9 @@ button:hover {
 .threshold-panel[open] > summary::before,
 .sequential-test[open] > summary::before,
 .prevalence-explorer[open] > summary::before {
-  transform: rotate(90deg);
+  transform: rotate(45deg);
+  margin-top: -2px;
+  margin-bottom: 0;
 }
 
 @media (prefers-reduced-motion: reduce) {
