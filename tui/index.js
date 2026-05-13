@@ -201,7 +201,7 @@ function runTui() {
     height: 3,
     tags: true,
     border: "line",
-    content: "{bold}DIAGCALC{/bold}  Arrows move  Enter edit/load  n new ad hoc case  x export txt  m export md  Tab/Ctrl-N next panel  Shift-Tab/Ctrl-P previous  r reset  q quit",
+    content: "{bold}DIAGCALC{/bold}  Arrows move  Enter edit/load  n new  + chain  x export txt  m export md  Tab/Ctrl-N next panel  r reset  q quit",
   });
 
   const datasetList = blessed.list({
@@ -318,6 +318,7 @@ function runTui() {
     content: [
       "Enter   edit/load",
       "n       ad hoc case",
+      "+       chain second test",
       "x       export .txt",
       "m       export .md",
       "Tab     next panel",
@@ -580,6 +581,36 @@ function runTui() {
     screen.render();
   }
 
+  function chainSecondTest() {
+    const validation = core.validateInputs(state.input);
+    if (!validation.valid) {
+      setFeedback("Calculate a valid first test before chaining.");
+      screen.render();
+      return;
+    }
+    const m = core.calculateMetrics(state.input);
+    const posteriorFraction = m.postTestPositive.value;
+    if (!Number.isFinite(posteriorFraction)) {
+      setFeedback("First test's post-test (+) is not finite; cannot chain.");
+      screen.render();
+      return;
+    }
+    const newPrePercent = Math.min(99.9999, Math.max(0, posteriorFraction * 100));
+    const previousLabel = state.activeCaseLabel.replace(/^Chained from: /, "");
+    state.activeCaseLabel = `Chained from: ${previousLabel}`;
+    state.activeDatasetKey = "ad_hoc";
+    state.selectedFieldIndex = 0;
+    resetFieldValues();
+    setFieldValue("preTestProb", newPrePercent.toFixed(2));
+    datasetInfo.setContent(`{bold}Chained second test{/bold}\nPre-test set to ${core.formatPercentage(newPrePercent / 100)} from previous post-test (+).\n\nEnter the new TP/FP/FN/TN, then the result panel will update.`);
+    updateInputForm();
+    resultsBox.setLabel(` Results - ${state.activeCaseLabel} `);
+    resultsBox.setContent(buildPendingResults(state.activeCaseLabel, `Pre-test chained to ${core.formatPercentage(newPrePercent / 100)}. Enter the second test's matrix.`));
+    setFeedback(`Chained: pre-test now ${core.formatPercentage(newPrePercent / 100)} (from previous post-test +).`);
+    inputForm.focus();
+    screen.render();
+  }
+
   function editSelectedField() {
     const selectedIndex = state.selectedFieldIndex;
     const field = fields[selectedIndex];
@@ -745,6 +776,11 @@ function runTui() {
   screen.key(["n"], () => {
     if (!state.modalOpen) {
       startAdHocCase();
+    }
+  });
+  screen.key(["+"], () => {
+    if (!state.modalOpen) {
+      chainSecondTest();
     }
   });
   screen.key(["r"], () => {

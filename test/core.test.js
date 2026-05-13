@@ -329,6 +329,26 @@ test("PPV(p) from sens/spec matches calculateMetrics PPV at same prevalence", ()
   }
 });
 
+// ── Sequential testing identity ─────────────────────────────────────────────
+// Chaining test 1's post-test (+) as test 2's pre-test must equal multiplying
+// the two LRs against the original pre-test odds, under conditional independence.
+
+test("chaining two tests equals multiplying LRs on the pre-test odds", () => {
+  const test1 = { tp: 80, fp: 20, fn: 10, tn: 70, preTestProb: 30 };
+  const test2 = { tp: 90, fp: 10, fn: 10, tn: 90, preTestProb: NaN };
+
+  const m1 = core.calculateMetrics(test1);
+  test2.preTestProb = m1.postTestPositive.value * 100;
+  const m2 = core.calculateMetrics(test2);
+
+  // Independent calculation: pre-odds × LR1+ × LR2+
+  const preOdds = (test1.preTestProb / 100) / (1 - test1.preTestProb / 100);
+  const combinedOdds = preOdds * m1.lrPositive.value * m2.lrPositive.value;
+  const expectedPostProb = combinedOdds / (1 + combinedOdds);
+
+  close(m2.postTestPositive.value, expectedPostProb, 1e-9);
+});
+
 test("every preset validates and computes finite metrics", () => {
   for (const preset of datasetStore.listDatasets()) {
     const v = core.validateInputs(preset);

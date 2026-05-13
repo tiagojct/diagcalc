@@ -626,6 +626,79 @@ button:hover {
   border-radius: 4px;
 }
 
+/* Sequential / chained second test */
+.sequential-test {
+  background-color: var(--surface-color);
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1.25rem 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.sequential-test > summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--heading-strong);
+  font-size: 1.05rem;
+  line-height: 1.4;
+  list-style: none;
+}
+
+.sequential-test > summary::-webkit-details-marker {
+  display: none;
+}
+
+.sequential-test > summary::before {
+  content: "▸ ";
+  display: inline-block;
+  color: var(--crew-daggoo);
+  transition: transform 0.2s ease;
+}
+
+.sequential-test[open] > summary::before {
+  content: "▾ ";
+}
+
+.sequential-controls {
+  margin: 1rem 0 1.25rem;
+}
+
+.sequential-controls label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.sequential-controls select {
+  margin-top: 0.25rem;
+}
+
+.sequential-pretest {
+  margin: 0.85rem 0 0;
+  padding: 0.65rem 0.85rem;
+  background-color: var(--panel-soft-bg);
+  border: 1px solid var(--border-color);
+  border-left: 4px solid var(--crew-daggoo);
+  border-radius: 4px;
+  font-size: 0.9rem;
+  color: var(--text-color);
+}
+
+.sequential-pretest:empty {
+  display: none;
+}
+
+.confusion-matrix.sequential-matrix {
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.sequential-results:empty {
+  display: none;
+}
+
 /* Prevalence sensitivity explorer */
 .prevalence-explorer {
   background-color: var(--surface-color);

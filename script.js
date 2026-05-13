@@ -30,6 +30,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const prevalenceReadoutEl = document.getElementById("prevalenceReadout");
   const prevalenceCanvas = document.getElementById("prevalenceCanvas");
   const prevalenceState = { sens: NaN, spec: NaN };
+  const sequentialTestEl = document.getElementById("sequentialTest");
+  const sequentialFromEl = document.getElementById("sequentialFrom");
+  const sequentialPretestEl = document.getElementById("sequentialPretest");
+  const sequentialCalcButton = document.getElementById("sequentialCalc");
+  const sequentialClearButton = document.getElementById("sequentialClear");
+  const sequentialFeedbackEl = document.getElementById("sequentialFeedback");
+  const sequentialResultsEl = document.getElementById("sequentialResults");
+  const sequentialState = {
+    postPositive: NaN,
+    postNegative: NaN,
+  };
 
   initializeTheme();
 
@@ -72,6 +83,7 @@ document.addEventListener("DOMContentLoaded", () => {
       clearProbabilityChart(probabilityChartEl);
       clearFaganNomogram(faganNomogramEl, faganCanvas);
       hidePrevalenceExplorer();
+      hideSequentialTest();
     });
   });
 
@@ -107,6 +119,7 @@ document.addEventListener("DOMContentLoaded", () => {
       clearProbabilityChart(probabilityChartEl);
       clearFaganNomogram(faganNomogramEl, faganCanvas);
       hidePrevalenceExplorer();
+      hideSequentialTest();
       return;
     }
 
@@ -125,7 +138,110 @@ document.addEventListener("DOMContentLoaded", () => {
       postNegative: metrics.postTestNegative.value,
     });
     showPrevalenceExplorer(metrics.sensitivity.value, metrics.specificity.value, metrics.preTestProbability.value);
+    showSequentialTest(metrics.postTestPositive.value, metrics.postTestNegative.value);
     setFeedback("Calculation complete. Explore the interpretation guide below.", true);
+  }
+
+  function showSequentialTest(postPositive, postNegative) {
+    if (!sequentialTestEl) return;
+    sequentialState.postPositive = postPositive;
+    sequentialState.postNegative = postNegative;
+    sequentialTestEl.style.display = "block";
+    updateSequentialPretestLabel();
+    setSequentialFeedback("", true);
+    sequentialResultsEl.innerHTML = "";
+  }
+
+  function hideSequentialTest() {
+    if (!sequentialTestEl) return;
+    sequentialState.postPositive = NaN;
+    sequentialState.postNegative = NaN;
+    sequentialTestEl.style.display = "none";
+    sequentialTestEl.open = false;
+    setSequentialFeedback("", true);
+    sequentialResultsEl.innerHTML = "";
+    ["tp2", "fp2", "fn2", "tn2"].forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) el.value = "";
+    });
+  }
+
+  function chainedPreTestPercent() {
+    const from = sequentialFromEl ? sequentialFromEl.value : "positive";
+    const fraction = from === "negative" ? sequentialState.postNegative : sequentialState.postPositive;
+    if (!Number.isFinite(fraction)) return NaN;
+    // Clamp away from exactly 100% so validation accepts it; 99.9999 keeps four 9s of fidelity.
+    return Math.min(99.9999, Math.max(0, fraction * 100));
+  }
+
+  function updateSequentialPretestLabel() {
+    if (!sequentialPretestEl) return;
+    const pct = chainedPreTestPercent();
+    if (!Number.isFinite(pct)) {
+      sequentialPretestEl.textContent = "";
+      return;
+    }
+    const fromLabel = sequentialFromEl && sequentialFromEl.value === "negative" ? "negative" : "positive";
+    sequentialPretestEl.textContent = `Test 2 pre-test probability: ${core.formatPercentage(pct / 100)} (from test 1's post-test after a ${fromLabel} result).`;
+  }
+
+  function setSequentialFeedback(message, isSuccess) {
+    if (!sequentialFeedbackEl) return;
+    sequentialFeedbackEl.textContent = message;
+    sequentialFeedbackEl.classList.remove("error", "success");
+    if (!message) return;
+    sequentialFeedbackEl.classList.add(isSuccess ? "success" : "error");
+  }
+
+  function calculateSequentialTest() {
+    if (!sequentialResultsEl) return;
+    const preTestProb = chainedPreTestPercent();
+    if (!Number.isFinite(preTestProb)) {
+      setSequentialFeedback("Calculate test 1 first.", false);
+      return;
+    }
+
+    const input = {
+      tp: core.safeParseInt(document.getElementById("tp2").value),
+      fp: core.safeParseInt(document.getElementById("fp2").value),
+      fn: core.safeParseInt(document.getElementById("fn2").value),
+      tn: core.safeParseInt(document.getElementById("tn2").value),
+      preTestProb,
+    };
+    const validation = core.validateInputs(input);
+    if (!validation.valid) {
+      sequentialResultsEl.innerHTML = "";
+      setSequentialFeedback(validation.message, false);
+      return;
+    }
+
+    const metrics = core.calculateMetrics(input);
+    renderResults(sequentialResultsEl, metrics);
+    setSequentialFeedback(
+      `Test 2 complete. Post-test (+) ${core.formatPercentage(metrics.postTestPositive.value)}, post-test (−) ${core.formatPercentage(metrics.postTestNegative.value)}.`,
+      true
+    );
+  }
+
+  if (sequentialFromEl) {
+    sequentialFromEl.addEventListener("change", () => {
+      updateSequentialPretestLabel();
+      sequentialResultsEl.innerHTML = "";
+      setSequentialFeedback("", true);
+    });
+  }
+  if (sequentialCalcButton) {
+    sequentialCalcButton.addEventListener("click", calculateSequentialTest);
+  }
+  if (sequentialClearButton) {
+    sequentialClearButton.addEventListener("click", () => {
+      ["tp2", "fp2", "fn2", "tn2"].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) el.value = "";
+      });
+      sequentialResultsEl.innerHTML = "";
+      setSequentialFeedback("Test 2 fields cleared.", true);
+    });
   }
 
   function showPrevalenceExplorer(sens, spec, currentPrev) {

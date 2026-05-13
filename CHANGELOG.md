@@ -2,6 +2,15 @@
 
 Todas as alterações relevantes deste projeto são registadas aqui. As datas seguem o formato ISO (AAAA-MM-DD).
 
+## [3.6.0] - 2026-05-13
+
+### Adicionado
+- **Modo encadeado / teste sequencial** nas três interfaces — modela o fluxo clínico real em que um teste alimenta o seguinte (D-dimer → CT-PA, antigénio rápido → PCR, rastreio → confirmatório).
+  - **Web:** secção colapsável "Chain a second test" sob a grelha de resultados, com seletor "follow up on positive/negative result of test 1", matriz 2x2 para o teste 2 e cartas de resultado dedicadas. A pré-teste do teste 2 é calculada automaticamente a partir da probabilidade pós-teste relevante do teste 1 e mostrada num banner com acento Daggoo.
+  - **TUI:** nova tecla `+` que pega no pós-teste (+) do caso actual e arranca um novo caso ad hoc com esse valor como pré-teste, mantendo a sensibilidade/especificidade do teste 2 por preencher. O painel de atalhos foi atualizado.
+  - **CLI:** flags `--chain --tp2 N --fp2 N --fn2 N --tn2 N` para um relatório encadeado no mesmo comando; `--chain-from positive|negative` (default `positive`) escolhe qual ramo do teste 1 seguir; o JSON inclui agora um campo `chained` com o input e as métricas completas do segundo teste.
+- Teste de identidade em `test/core.test.js` que confirma `pre-odds × LR1⁺ × LR2⁺ = post-odds` após encadear duas calculateMetrics (assumindo independência condicional).
+
 ## [3.5.0] - 2026-05-13
 
 ### Adicionado

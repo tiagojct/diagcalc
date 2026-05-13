@@ -161,6 +161,50 @@
             <canvas id="faganCanvas" width="600" height="400" aria-label="Fagan nomogram"></canvas>
           </div>
           <div id="results" class="results-grid" aria-live="polite"></div>
+          <details id="sequentialTest" class="sequential-test" style="display: none;">
+            <summary><strong>Chain a second test</strong> — feed the post-test probability of this test into a follow-up</summary>
+            <p class="help-text">
+              Real diagnostic workflows often chain tests (e.g. D-dimer → CT-PA, rapid antigen → PCR, screen → confirm). Choose which result of the first test you are following up on, then enter the second test's confusion matrix. The second test's pre-test probability is set automatically.
+            </p>
+            <div class="sequential-controls">
+              <label for="sequentialFrom">
+                <span>Follow up on test 1 result</span>
+                <select id="sequentialFrom">
+                  <option value="positive">Positive (use post-test (+) as pre-test for test 2)</option>
+                  <option value="negative">Negative (use post-test (−) as pre-test for test 2)</option>
+                </select>
+              </label>
+              <p class="sequential-pretest" id="sequentialPretest"></p>
+            </div>
+            <fieldset class="confusion-matrix sequential-matrix">
+              <legend>Test 2 — confusion matrix</legend>
+              <div class="grid-container" role="group" aria-label="Diagnostic test 2 results">
+                <span class="empty" aria-hidden="true"></span>
+                <span class="grid-header">Disease +</span>
+                <span class="grid-header">Disease −</span>
+                <label class="grid-label" for="tp2">Test +</label>
+                <div class="grid-item">
+                  <input type="number" id="tp2" inputmode="numeric" min="0" step="1" placeholder="True positives" aria-label="Test 2 true positives" />
+                </div>
+                <div class="grid-item">
+                  <input type="number" id="fp2" inputmode="numeric" min="0" step="1" placeholder="False positives" aria-label="Test 2 false positives" />
+                </div>
+                <label class="grid-label" for="fn2">Test −</label>
+                <div class="grid-item">
+                  <input type="number" id="fn2" inputmode="numeric" min="0" step="1" placeholder="False negatives" aria-label="Test 2 false negatives" />
+                </div>
+                <div class="grid-item">
+                  <input type="number" id="tn2" inputmode="numeric" min="0" step="1" placeholder="True negatives" aria-label="Test 2 true negatives" />
+                </div>
+              </div>
+            </fieldset>
+            <div class="form-actions">
+              <button type="button" id="sequentialCalc">Calculate test 2 result</button>
+              <button type="button" id="sequentialClear" class="secondary">Clear test 2</button>
+            </div>
+            <p id="sequentialFeedback" class="feedback" role="alert" aria-live="polite"></p>
+            <div id="sequentialResults" class="results-grid sequential-results" aria-live="polite"></div>
+          </details>
           <details id="prevalenceExplorer" class="prevalence-explorer" style="display: none;">
             <summary><strong>Explore prevalence sensitivity</strong> — see how PPV, NPV and post-test probabilities shift when prevalence changes</summary>
             <p class="help-text">

@@ -40,6 +40,7 @@ function printHelp() {
     "  diag --dataset hiv_elisa",
     "  diag --tp 199 --fp 1 --fn 1 --tn 9799 --pre 2",
     "  diag --dataset ddimer --pre 18",
+    "  diag --dataset ddimer --chain --tp2 90 --fp2 10 --fn2 10 --tn2 90",
     "  diag --list-datasets",
     "",
     "Options:",
@@ -50,6 +51,9 @@ function printHelp() {
     "  --fn <n>          False negatives",
     "  --tn <n>          True negatives",
     "  --pre <n>         Pre-test probability (%)",
+    "  --chain           Compute a second test using test 1's post-test as pre-test",
+    "  --tp2 --fp2 --fn2 --tn2  Second test's confusion matrix (with --chain)",
+    "  --chain-from <r>  positive (default) | negative — which test 1 result to follow",
     "  --format <type>   Output format: text or json",
     "  --list-datasets   Show available dataset keys",
     "  --help            Show this help message",
@@ -70,13 +74,20 @@ function serialiseMetric(metric) {
   };
 }
 
-function printJsonReport(dataset, input, metrics) {
+function printJsonReport(dataset, input, metrics, chained) {
   const payload = {
     case: dataset ? dataset.name : "Ad hoc case",
     datasetKey: dataset ? dataset.key || null : null,
     input,
     metrics: Object.fromEntries(Object.entries(metrics).map(([key, metric]) => [key, serialiseMetric(metric)])),
   };
+  if (chained) {
+    payload.chained = {
+      from: chained.from,
+      input: chained.input,
+      metrics: Object.fromEntries(Object.entries(chained.metrics).map(([key, metric]) => [key, serialiseMetric(metric)])),
+    };
+  }
 
   process.stdout.write(`${JSON.stringify(payload, null, 2)}\n`);
 }
@@ -212,8 +223,19 @@ function main() {
     return;
   }
   const format = typeof args.format === "string" ? args.format.toLowerCase() : "text";
+
+  let chained = null;
+  if (args.chain) {
+    chained = buildChainedTest(args, metrics);
+    if (chained.error) {
+      process.stderr.write(`${chained.error}\n`);
+      process.exitCode = 1;
+      return;
+    }
+  }
+
   if (format === "json") {
-    printJsonReport(built.dataset, built.input, metrics);
+    printJsonReport(built.dataset, built.input, metrics, chained);
     return;
   }
 
@@ -224,6 +246,57 @@ function main() {
   }
 
   printReport(built.dataset, metrics);
+  if (chained) {
+    printChainedReport(chained);
+  }
+}
+
+function buildChainedTest(args, firstMetrics) {
+  const from = typeof args["chain-from"] === "string" ? args["chain-from"].toLowerCase() : "positive";
+  if (from !== "positive" && from !== "negative") {
+    return { error: "Invalid --chain-from. Use 'positive' or 'negative'." };
+  }
+  const sourceProb = from === "negative" ? firstMetrics.postTestNegative.value : firstMetrics.postTestPositive.value;
+  if (!Number.isFinite(sourceProb)) {
+    return { error: "Test 1's post-test probability is not finite; cannot chain." };
+  }
+  const preTestProb = Math.min(99.9999, Math.max(0, sourceProb * 100));
+
+  const input = {
+    tp: typeof args.tp2 === "string" ? core.safeParseInt(args.tp2) : NaN,
+    fp: typeof args.fp2 === "string" ? core.safeParseInt(args.fp2) : NaN,
+    fn: typeof args.fn2 === "string" ? core.safeParseInt(args.fn2) : NaN,
+    tn: typeof args.tn2 === "string" ? core.safeParseInt(args.tn2) : NaN,
+    preTestProb,
+  };
+  const validation = core.validateInputs(input);
+  if (!validation.valid) {
+    return { error: `Test 2 validation failed: ${validation.message}` };
+  }
+  return {
+    from,
+    input,
+    metrics: core.calculateMetrics(input),
+  };
+}
+
+function printChainedReport(chained) {
+  process.stdout.write(`\n— Chained second test (following test 1's ${chained.from} result) —\n`);
+  process.stdout.write(`Test 2 pre-test probability: ${core.formatPercentage(chained.input.preTestProb / 100)}\n\n`);
+  const entries = [
+    chained.metrics.sensitivity,
+    chained.metrics.specificity,
+    chained.metrics.ppv,
+    chained.metrics.npv,
+    chained.metrics.lrPositive,
+    chained.metrics.lrNegative,
+    chained.metrics.postTestPositive,
+    chained.metrics.postTestNegative,
+  ];
+  entries.forEach((metric) => {
+    process.stdout.write(`${renderMetricLine(metric)}\n`);
+  });
+  process.stdout.write("\n");
 }
 
 main();
