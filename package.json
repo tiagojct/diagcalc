@@ -1,6 +1,6 @@
 {
   "name": "diagcalc",
-  "version": "3.16.0",
+  "version": "3.16.1",
   "description": "Diagnostic calculator for the browser, terminal, and plain CLI.",
   "homepage": "https://diagcalc.tiagojct.eu/",
   "repository": {
@@ -41,7 +41,7 @@
   "scripts": {
     "tui": "node bin/diagcalc.js --tui",
     "cli": "node bin/diagcalc.js --help",
-    "test": "node --test test/core.test.js"
+    "test": "node --test test/core.test.js test/smoke.test.js"
   },
   "dependencies": {
     "blessed": "^0.1.81"

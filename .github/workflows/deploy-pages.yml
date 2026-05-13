@@ -28,7 +28,7 @@ jobs:
           node-version: 20
 
       - name: Run tests
-        run: node --test test/core.test.js
+        run: node --test test/core.test.js test/smoke.test.js
 
   deploy:
     needs: test

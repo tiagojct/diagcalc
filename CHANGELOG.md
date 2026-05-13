@@ -2,6 +2,22 @@
 
 Todas as alterações relevantes deste projeto são registadas aqui. As datas seguem o formato ISO (AAAA-MM-DD).
 
+## [3.16.1] - 2026-05-13
+
+### Adicionado
+- **Testes de smoke do bundle de deploy** em `test/smoke.test.js` — 8 testes adicionais, sem dependências externas (sem browser, sem Playwright):
+  - Cada `<script src>` e `<link rel="stylesheet" href>` local no `index.html` aponta para um ficheiro existente.
+  - `script.js` é carregado depois de todos os scripts em `lib/` de que depende.
+  - O conjunto de ficheiros que o workflow do GitHub Pages copia (index.html, script.js, styles.css, `lib/`) cobre todos os assets locais referenciados.
+  - O motor partilhado (`lib/diagcalc-core.js`) expõe as 17 funções que a UI consome — qualquer renomeação ou remoção falha o build.
+  - O módulo de datasets expõe `datasets`, `getDataset`, `listDatasets`.
+  - O módulo de i18n expõe o seu API público e contém as duas tabelas (`en`, `pt-PT`).
+  - Cada chave `data-i18n` / `data-i18n-attr` no HTML resolve em ambas as locales.
+- O workflow de GitHub Pages corre o suite alargado (`node --test test/core.test.js test/smoke.test.js`) — 77 testes que têm de passar antes do deploy.
+
+### Notas técnicas
+- A escolha foi não trazer Playwright / Puppeteer (~100 MB+ com browsers) só para um smoke test: a maioria dos modos de falha que o plano destacava ("regressions in `<script>` order or asset paths") são puramente estruturais e são cobertos por inspecção estática do HTML.
+
 ## [3.16.0] - 2026-05-13
 
 ### Adicionado
