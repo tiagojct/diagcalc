@@ -465,6 +465,53 @@ test("calculateROC returns null on empty or all-invalid input", () => {
   assert.equal(core.calculateROC([{ tp: 0, fp: 0, fn: 0, tn: 0 }]), null);
 });
 
+// ── Normal distribution helpers + synthetic ROC scaffold ───────────────────
+
+test("stdNormalCdf hits well-known values within polynomial tolerance", () => {
+  close(core.stdNormalCdf(0), 0.5, 1e-6);
+  close(core.stdNormalCdf(1.96), 0.975, 5e-4);
+  close(core.stdNormalCdf(-1.96), 0.025, 5e-4);
+});
+
+test("invStdNormal is the inverse of stdNormalCdf at key probabilities", () => {
+  close(core.invStdNormal(0.5), 0, 1e-8);
+  close(core.invStdNormal(0.975), 1.95996, 1e-4);
+  close(core.invStdNormal(0.025), -1.95996, 1e-4);
+});
+
+test("generateSyntheticRocPoints returns the requested count of synthetic rows", () => {
+  const rows = core.generateSyntheticRocPoints({ tp: 195, fp: 87, fn: 5, tn: 413 }, 5);
+  assert.equal(rows.length, 5);
+  for (const r of rows) {
+    assert.ok(Number.isInteger(r.tp) && Number.isInteger(r.fp));
+    assert.ok(Number.isInteger(r.fn) && Number.isInteger(r.tn));
+    assert.equal(r.tp + r.fn, 200);
+    assert.equal(r.fp + r.tn, 500);
+    assert.equal(r.synthetic, true);
+  }
+});
+
+test("generateSyntheticRocPoints reproduces an ROC that monotonically climbs", () => {
+  const rows = core.generateSyntheticRocPoints({ tp: 90, fp: 20, fn: 10, tn: 80 }, 6);
+  const roc = core.calculateROC(rows);
+  assert.ok(roc);
+  // ROC should climb (or hold) in sensitivity as FPR rises.
+  for (let i = 1; i < roc.points.length; i += 1) {
+    assert.ok(roc.points[i].fpr >= roc.points[i - 1].fpr - 1e-9);
+    assert.ok(roc.points[i].sens >= roc.points[i - 1].sens - 1e-9);
+  }
+  // Binormal AUC for this observed point should be around 0.9 — synthetic
+  // scaffolding shouldn't drift far from that, and a no-skill curve would
+  // produce AUC ≈ 0.5.
+  assert.ok(roc.auc > 0.75 && roc.auc < 1.0, `expected synthetic AUC in (0.75, 1.0), got ${roc.auc}`);
+});
+
+test("generateSyntheticRocPoints rejects degenerate input", () => {
+  assert.deepEqual(core.generateSyntheticRocPoints(null, 5), []);
+  assert.deepEqual(core.generateSyntheticRocPoints({ tp: 0, fp: 0, fn: 0, tn: 0 }, 5), []);
+  assert.deepEqual(core.generateSyntheticRocPoints({ tp: 5, fp: 5 }, 5), []);
+});
+
 // ── Diagnostic odds ratio ───────────────────────────────────────────────────
 
 test("calcDOR on D-dimer (195·413 / (87·5)) matches definition", () => {

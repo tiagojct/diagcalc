@@ -966,6 +966,48 @@ button:hover {
   color: var(--text);
 }
 
+/* ── Unified disclosure marker ─────────────────────────────────────────────
+   One thin CSS-drawn chevron for every collapsible panel. Inherits text
+   colour via currentColor, dimmed via opacity. Rotates 90° on [open]. */
+.advanced-settings > summary::before,
+.history-panel > summary::before,
+.roc-panel > summary::before,
+.threshold-panel > summary::before,
+.sequential-test > summary::before,
+.prevalence-explorer > summary::before {
+  content: "";
+  display: inline-block;
+  width: 0;
+  height: 0;
+  margin-right: 0.5em;
+  border-style: solid;
+  border-width: 5px 0 5px 7px;
+  border-color: transparent transparent transparent currentColor;
+  vertical-align: 0.05em;
+  opacity: 0.55;
+  transition: transform 0.15s ease;
+}
+
+.advanced-settings[open] > summary::before,
+.history-panel[open] > summary::before,
+.roc-panel[open] > summary::before,
+.threshold-panel[open] > summary::before,
+.sequential-test[open] > summary::before,
+.prevalence-explorer[open] > summary::before {
+  transform: rotate(90deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .advanced-settings > summary::before,
+  .history-panel > summary::before,
+  .roc-panel > summary::before,
+  .threshold-panel > summary::before,
+  .sequential-test > summary::before,
+  .prevalence-explorer > summary::before {
+    transition: none;
+  }
+}
+
 /* Advanced settings (inside the form panel) */
 .advanced-settings {
   margin-bottom: 1.25rem;
@@ -987,15 +1029,6 @@ button:hover {
 
 .advanced-settings > summary::-webkit-details-marker {
   display: none;
-}
-
-.advanced-settings > summary::before {
-  content: "▸ ";
-  color: var(--crew-ishmael);
-}
-
-.advanced-settings[open] > summary::before {
-  content: "▾ ";
 }
 
 .advanced-settings .form-row {
@@ -1022,16 +1055,6 @@ button:hover {
 
 .history-panel > summary::-webkit-details-marker {
   display: none;
-}
-
-.history-panel > summary::before {
-  content: "▸ ";
-  display: inline-block;
-  color: var(--crew-ishmael);
-}
-
-.history-panel[open] > summary::before {
-  content: "▾ ";
 }
 
 .history-list {
@@ -1280,16 +1303,6 @@ button:hover {
   display: none;
 }
 
-.roc-panel > summary::before {
-  content: "▸ ";
-  display: inline-block;
-  color: var(--crew-queequeg);
-}
-
-.roc-panel[open] > summary::before {
-  content: "▾ ";
-}
-
 .roc-table-wrapper {
   overflow-x: auto;
   margin: 1rem 0;
@@ -1352,10 +1365,19 @@ button:hover {
 }
 
 .roc-panel .form-actions {
-  grid-template-columns: auto auto;
+  display: flex;
+  flex-wrap: wrap;
   justify-content: flex-start;
   gap: 0.75rem;
   margin: 0.5rem 0 1rem;
+}
+
+/* Synthetic rows are scaffolding — fainter so the user can still tell them
+   apart from rows they typed themselves. They become first-class as soon as
+   the user edits any cell (the JS strips the class on input). */
+.roc-row--synthetic input[type="number"] {
+  color: var(--text-muted);
+  border-style: dashed;
 }
 
 .roc-panel .form-actions button {
@@ -1467,16 +1489,6 @@ button:hover {
 
 .threshold-panel > summary::-webkit-details-marker {
   display: none;
-}
-
-.threshold-panel > summary::before {
-  content: "▸ ";
-  display: inline-block;
-  color: var(--crew-pip);
-}
-
-.threshold-panel[open] > summary::before {
-  content: "▾ ";
 }
 
 .threshold-input {
@@ -1706,17 +1718,6 @@ button:hover {
   display: none;
 }
 
-.sequential-test > summary::before {
-  content: "▸ ";
-  display: inline-block;
-  color: var(--crew-daggoo);
-  transition: transform 0.2s ease;
-}
-
-.sequential-test[open] > summary::before {
-  content: "▾ ";
-}
-
 .sequential-controls {
   margin: 1rem 0 1.25rem;
 }
@@ -1777,17 +1778,6 @@ button:hover {
 
 .prevalence-explorer > summary::-webkit-details-marker {
   display: none;
-}
-
-.prevalence-explorer > summary::before {
-  content: "▸ ";
-  display: inline-block;
-  color: var(--primary);
-  transition: transform 0.2s ease;
-}
-
-.prevalence-explorer[open] > summary::before {
-  content: "▾ ";
 }
 
 .prevalence-explorer .help-text {

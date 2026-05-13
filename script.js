@@ -123,6 +123,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const rocPanelEl = document.getElementById("rocPanel");
   const rocRowsEl = document.getElementById("rocRows");
   const rocAddRowButton = document.getElementById("rocAddRow");
+  const rocFillSyntheticButton = document.getElementById("rocFillSynthetic");
   const rocResetButton = document.getElementById("rocReset");
   const rocCanvas = document.getElementById("rocCanvas");
   const rocReadoutEl = document.getElementById("rocReadout");
@@ -493,8 +494,12 @@ document.addEventListener("DOMContentLoaded", () => {
     if (rocReadoutEl) rocReadoutEl.innerHTML = "";
   }
 
-  function addRocRow(prefill) {
+  function addRocRow(prefill, opts) {
     const tr = document.createElement("tr");
+    if (opts && opts.synthetic) {
+      tr.classList.add("roc-row--synthetic");
+      tr.title = "Synthetic cutoff — generated from a binormal fit of the first row.";
+    }
     const fields = ["cutoff", "tp", "fp", "fn", "tn"];
     for (const field of fields) {
       const td = document.createElement("td");
@@ -507,7 +512,11 @@ document.addEventListener("DOMContentLoaded", () => {
       if (prefill && prefill[field] !== undefined && prefill[field] !== "") {
         input.value = prefill[field];
       }
-      input.addEventListener("input", recomputeRoc);
+      input.addEventListener("input", () => {
+        tr.classList.remove("roc-row--synthetic");
+        tr.removeAttribute("title");
+        recomputeRoc();
+      });
       input.setAttribute("aria-label", `ROC row ${field}`);
       td.appendChild(input);
       tr.appendChild(td);
@@ -701,6 +710,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (rocAddRowButton) {
     rocAddRowButton.addEventListener("click", () => addRocRow());
+  }
+  if (rocFillSyntheticButton) {
+    rocFillSyntheticButton.addEventListener("click", () => {
+      const rows = readRocRows();
+      const seed = rows.find((r) =>
+        Number.isInteger(r.tp) && Number.isInteger(r.fp) && Number.isInteger(r.fn) && Number.isInteger(r.tn) &&
+        (r.tp + r.fn > 0) && (r.tn + r.fp > 0)
+      );
+      if (!seed) {
+        if (rocReadoutEl) {
+          rocReadoutEl.textContent = "Fill one row with TP / FP / FN / TN first — synthetic cutoffs are derived from it.";
+        }
+        return;
+      }
+      const synth = core.generateSyntheticRocPoints(seed, 5);
+      for (const row of synth) {
+        addRocRow(row, { synthetic: true });
+      }
+      recomputeRoc();
+    });
   }
   if (rocResetButton) {
     rocResetButton.addEventListener("click", () => {

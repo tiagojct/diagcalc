@@ -2,6 +2,16 @@
 
 Todas as alterações relevantes deste projeto são registadas aqui. As datas seguem o formato ISO (AAAA-MM-DD).
 
+## [4.1.0] - 2026-05-14
+
+### Adicionado
+- **Construtor ROC ganha "Fill synthetic cutoffs"** — botão que toma a primeira linha válida da tabela (TP/FP/FN/TN), ajusta um modelo binormal de variância igual (`d = Φ⁻¹(sens) + Φ⁻¹(spec)`) e enche cinco linhas adicionais com cutoffs sintéticos espaçados uniformemente em FPR. Os totais P e N são preservados, pelo que as contagens sintéticas vivem na mesma escala que o caso observado. As linhas sintéticas aparecem com border tracejado e texto esbatido para serem distinguíveis das que o utilizador inseriu; clicar e editar qualquer célula promove-as a linhas "reais". Útil quando se tem um único 2×2 e se quer visualizar a curva implícita sem ter de procurar (ou inventar) sete pontos.
+- `core.stdNormalCdf(x)` e `core.invStdNormal(p)` — aproximações polinomiais (Abramowitz–Stegun 7.1.26 para Φ, Acklam para Φ⁻¹). Publicadas no `module.exports` para reutilização em ferramentas futuras (p.ex. intervalos de credibilidade bayesianos).
+- `core.generateSyntheticRocPoints(observed, count)` — gerador determinístico de cutoffs sintéticos a partir de um único 2×2 observado.
+
+### Alterado
+- **Markers de disclosure unificados.** Os seis painéis colapsáveis (advanced settings, history, ROC, decision threshold, sequential test, prevalence explorer) usavam glifos Unicode "▸"/"▾" que renderizavam bloqueados e pesados em macOS. Substituídos por uma única chevron desenhada em CSS (`border-style` triangle) que herda a cor do texto via `currentColor`, gira 90° em `[open]` e respeita `prefers-reduced-motion`. Resultado: marker mais magro, mais consistente entre browsers, e um único bloco em vez de seis pares de regras `::before`.
+
 ## [4.0.3] - 2026-05-13
 
 ### Corrigido
