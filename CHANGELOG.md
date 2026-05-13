@@ -2,6 +2,13 @@
 
 Todas as alterações relevantes deste projeto são registadas aqui. As datas seguem o formato ISO (AAAA-MM-DD).
 
+## [3.14.2] - 2026-05-13
+
+### Adicionado
+- **`lib/README.md`** — referência completa da API pública do motor partilhado, agrupada por categoria (cálculo, IC, primitivas matemáticas, formatadores, parsers de input) com a assinatura, retorno e notas de cada export. Pensado para contribuidores e agentes AI que tenham de manter ou estender o motor.
+- **`lastReviewed: "2026-05-13"`** em cada um dos 13 presets com referência bibliográfica em `lib/diagcalc-datasets.js`. Marca a data em que a entrada foi auditada — útil quando estimativas de desempenho ficam desactualizadas (e.g., antigénios COVID vs novas variantes).
+- **Nota de privacidade** no rodapé da versão web — "🔒 All calculations run locally in your browser. No inputs, datasets, or results leave this device." — sinal de confiança para utilização clínica/académica.
+
 ## [3.14.1] - 2026-05-13
 
 ### Adicionado

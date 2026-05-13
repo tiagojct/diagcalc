@@ -101,6 +101,18 @@ footer {
   color: var(--muted-text);
 }
 
+footer .privacy-note {
+  display: inline-block;
+  margin: 0.5rem auto;
+  padding: 0.45rem 0.9rem;
+  border-radius: 4px;
+  background-color: var(--panel-soft-bg);
+  border: 1px solid var(--border-color);
+  color: var(--text-color);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
 .intro {
   background: linear-gradient(180deg, var(--surface-color), var(--intro-gradient-end));
   border-bottom: 2px solid var(--base-300);
