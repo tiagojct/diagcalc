@@ -700,6 +700,37 @@ button:hover {
   margin: 0.75rem 0 0;
 }
 
+/* STARD critical-appraisal panel */
+.stard-panel .panel-kicker {
+  color: var(--crew-pip);
+}
+
+.stard-panel details {
+  border: 2px solid var(--base-300);
+  border-radius: 4px;
+  padding: 0.85rem 1.1rem;
+  margin-bottom: 0.75rem;
+  background-color: var(--background-color);
+}
+
+.stard-panel summary {
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--text-color);
+}
+
+.stard-panel details p {
+  margin: 0.6rem 0 0;
+  color: var(--muted-text);
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+.stard-panel details em {
+  font-style: italic;
+  color: var(--text-color);
+}
+
 /* Cohen's kappa companion panel */
 .kappa-panel .panel-kicker {
   color: var(--crew-tashtego);

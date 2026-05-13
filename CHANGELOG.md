@@ -2,6 +2,18 @@
 
 Todas as alterações relevantes deste projeto são registadas aqui. As datas seguem o formato ISO (AAAA-MM-DD).
 
+## [3.14.1] - 2026-05-13
+
+### Adicionado
+- **Painel "STARD essentials"** na resource-grid — checklist condensada (6 itens) inspirada no STARD 2015 que nudges o utilizador a interrogar a origem dos números antes de os interpretar:
+  1. Padrão de referência (incorporation bias).
+  2. Espectro de doentes (recrutamento consecutivo/aleatório).
+  3. Verificação parcial vs total do gold standard.
+  4. Cegamento entre teste índice e referência.
+  5. Resultados indeterminados — para onde foram os "?"s.
+  6. Subgrupos clinicamente significativos.
+- Inclui hiperligação para o checklist completo no EQUATOR Network. Pensado para uso em sessões de critical appraisal sem deixar o aluno isolado nos números do 2×2.
+
 ## [3.14.0] - 2026-05-13
 
 ### Adicionado
