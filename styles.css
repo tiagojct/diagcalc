@@ -538,108 +538,193 @@ button:hover {
   margin: 0;
 }
 
-.results-grid {
+/* ── Results hierarchy (v4.0) ───────────────────────────────────────────── */
+
+/* Headline strip — sens, spec, post-test (+), post-test (−). Large cards. */
+.results-headline {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-  gap: 1rem;
-  margin-top: 1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
 }
 
-.probability-chart {
-  background-color: var(--surface-soft);
-  border-radius: 8px;
-  padding: 1.5rem;
-  border: 2px solid var(--border);
-  box-shadow: none;
+@media (min-width: 540px) {
+  .results-headline {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* Secondary grid — PPV, NPV, LR+, LR−, DOR, NNS. Smaller cards. */
+.results-secondary {
   display: grid;
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--space-3);
 }
 
-.probability-chart:empty {
-  display: none;
-}
-
-.chart-row {
-  display: grid;
-  grid-template-columns: 120px 1fr 70px;
-  align-items: center;
-  gap: 1rem;
-  font-size: 0.95rem;
-}
-
-.chart-label {
-  font-weight: 600;
-  color: var(--text-muted);
-}
-
-.chart-bar {
-  position: relative;
-  height: 16px;
-  background-color: var(--log-150);
-  border-radius: 2px;
-  overflow: hidden;
-}
-
-.chart-fill {
-  position: absolute;
-  inset: 0;
-  background: var(--primary);
-  border-radius: 2px;
-  transform-origin: left center;
-  transform: scaleX(0);
-  transition: transform 0.4s ease-in-out;
-}
-
-.chart-fill.positive {
-  background: var(--accent-warm);
-}
-
-.chart-fill.negative {
-  background: var(--success);
-}
-
-.chart-value {
-  font-variant-numeric: tabular-nums;
-  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
-  font-weight: 600;
-}
-
+/* Result cards: shared base, size + accent variants. */
 .result-card {
   background-color: var(--surface-soft);
-  border-radius: 8px;
-  padding: 1.5rem;
-  border: 2px solid var(--border);
-  box-shadow: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-2);
+  padding: var(--space-4);
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--space-1);
+  position: relative;
+  transition: border-color var(--duration-fast) var(--ease-out);
+}
+
+.result-card:empty {
+  display: none;
 }
 
 .result-card h3 {
   margin: 0;
-  font-size: 1.05rem;
-  color: var(--text-strong);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+  color: var(--text-muted);
 }
 
 .result-value {
-  font-size: 1.9rem;
+  font-size: var(--text-xl);
   font-weight: 700;
   font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
+  color: var(--text-strong);
+  margin: 0;
+  line-height: 1.1;
 }
 
 .result-ci {
-  font-size: 0.9rem;
+  font-size: var(--text-xs);
   color: var(--text-muted);
   font-variant-numeric: tabular-nums;
+  margin: 0;
 }
 
 .result-note {
   margin-top: auto;
-  font-size: 0.85rem;
+  font-size: var(--text-xs);
   color: var(--text-muted);
 }
+
+/* Headline-sized cards are larger and use an accent left border. */
+.result-card--lg {
+  padding: var(--space-5);
+  gap: var(--space-2);
+  background-color: var(--surface);
+  border-width: 1px;
+}
+
+.result-card--lg .result-value {
+  font-size: var(--text-2xl);
+}
+
+.result-card--warm  { border-left: 3px solid var(--accent-warm); }
+.result-card--cool  { border-left: 3px solid var(--success); }
+.result-card--neutral { border-left: 3px solid var(--log-200); }
+[data-theme="dark"] .result-card--neutral { border-left-color: var(--log-700); }
+
+/* Secondary cards keep tight rhythm. */
+.result-card--sm .result-value { font-size: var(--text-lg); }
+
+/* ── Bayesian update strip ─────────────────────────────────────────────── */
+.bayesian-update {
+  background-color: var(--surface-soft);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-2);
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.bayesian-update:empty {
+  display: none;
+}
+
+.bayesian-update-heading {
+  margin: 0;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  letter-spacing: 0.02em;
+}
+
+.bayesian-row {
+  display: grid;
+  grid-template-columns: 7rem 1fr 4.5rem 4rem;
+  gap: var(--space-3);
+  align-items: center;
+  font-size: var(--text-sm);
+}
+
+@media (max-width: 540px) {
+  .bayesian-row {
+    grid-template-columns: 1fr;
+    gap: var(--space-1);
+  }
+}
+
+.bayesian-row-label {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.bayesian-row-lr,
+.bayesian-row-result {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+  text-align: right;
+}
+
+.bayesian-row-result {
+  color: var(--text-strong);
+  font-weight: 700;
+}
+
+.bayesian-row-bar {
+  position: relative;
+  height: 10px;
+  border-radius: var(--radius-pill);
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  overflow: visible;
+}
+
+.bayesian-row-bar-track {
+  position: absolute;
+  top: 50%;
+  height: 4px;
+  transform: translateY(-50%);
+  border-radius: var(--radius-pill);
+  background-color: var(--text-muted);
+  opacity: 0.45;
+}
+
+.bayesian-row--warm .bayesian-row-bar-track { background-color: var(--accent-warm); opacity: 0.7; }
+.bayesian-row--cool .bayesian-row-bar-track { background-color: var(--success); opacity: 0.7; }
+
+.bayesian-row-bar-from,
+.bayesian-row-bar-to {
+  position: absolute;
+  top: 50%;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  border: 2px solid var(--surface);
+}
+
+.bayesian-row-bar-from {
+  background-color: var(--text-muted);
+}
+
+.bayesian-row--warm .bayesian-row-bar-to { background-color: var(--accent-warm); }
+.bayesian-row--cool .bayesian-row-bar-to { background-color: var(--success); }
 
 .interpretation {
   margin-top: 0;
@@ -2042,27 +2127,37 @@ a:hover {
     display: none;
   }
 
-  .results-grid {
+  .results-headline,
+  .results-secondary {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 0.4rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .results-secondary {
+    grid-template-columns: repeat(3, 1fr);
   }
 
   .result-card {
     background: #FFFFFF;
     border: 1px solid #BBB;
-    padding: 0.5rem 0.75rem;
+    padding: 0.4rem 0.6rem;
     page-break-inside: avoid;
     box-shadow: none;
   }
 
   .result-card h3 {
-    font-size: 9pt;
+    font-size: 8pt;
     color: #000;
   }
 
-  .result-value {
+  .result-card--lg .result-value {
     font-size: 13pt;
+  }
+
+  .result-value {
+    font-size: 11pt;
   }
 
   .result-ci,
@@ -2071,11 +2166,16 @@ a:hover {
     font-size: 8.5pt;
   }
 
-  .probability-chart {
+  .bayesian-update {
     page-break-inside: avoid;
     background: #FFF;
     border: 1px solid #BBB;
+    padding: 0.4rem 0.6rem;
+    margin: 0.4rem 0;
   }
+
+  .bayesian-row-bar { background: #EEE; border-color: #CCC; }
+  .bayesian-row-bar-track { background: #444 !important; opacity: 1; }
 
   .fagan-nomogram {
     page-break-inside: avoid;

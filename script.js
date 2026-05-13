@@ -59,10 +59,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const datasets = datasetStore.datasets;
   const form = document.getElementById("inputForm");
-  const resultsEl = document.getElementById("results");
+  const resultsHeadlineEl = document.getElementById("resultsHeadline");
+  const resultsSecondaryEl = document.getElementById("resultsSecondary");
+  const bayesianUpdateEl = document.getElementById("bayesianUpdate");
   const datasetSelect = document.getElementById("datasetSelect");
   const resetButton = document.getElementById("resetButton");
-  const probabilityChartEl = document.getElementById("probabilityChart");
   const biasWarningsEl = document.getElementById("biasWarnings");
   const continuityModeEl = document.getElementById("continuityModeSelect");
   const historyPanelEl = document.getElementById("historyPanel");
@@ -162,12 +163,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   form.addEventListener("reset", () => {
     window.requestAnimationFrame(() => {
-      resultsEl.innerHTML = "";
+      clearMainResults();
       datasetSelect.value = "";
       datasetReferenceEl.style.display = "none";
       setCase("empty");
       setFeedback(tr("feedback.cleared"), true);
-      clearProbabilityChart(probabilityChartEl);
       clearFaganNomogram(faganNomogramEl, faganCanvas);
       hidePrevalenceExplorer();
       hideSequentialTest();
@@ -229,9 +229,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const validation = core.validateInputs(data);
 
     if (!validation.valid) {
-      resultsEl.innerHTML = "";
+      clearMainResults();
       setFeedback(validation.message, false);
-      clearProbabilityChart(probabilityChartEl);
       clearFaganNomogram(faganNomogramEl, faganCanvas);
       hidePrevalenceExplorer();
       hideSequentialTest();
@@ -246,12 +245,9 @@ document.addEventListener("DOMContentLoaded", () => {
       setCase("adhoc");
     }
     renderBiasWarnings(core.buildBiasWarnings(data));
-    renderResults(resultsEl, metrics);
-    renderProbabilityChart(probabilityChartEl, {
-      pre: metrics.preTestProbability.value,
-      postPositive: metrics.postTestPositive.value,
-      postNegative: metrics.postTestNegative.value,
-    });
+    renderHeadline(resultsHeadlineEl, metrics);
+    renderSecondary(resultsSecondaryEl, metrics);
+    renderBayesianUpdate(bayesianUpdateEl, metrics);
     renderFaganNomogram(faganCanvas, faganNomogramEl, {
       preTest: metrics.preTestProbability.value,
       lrPositive: metrics.lrPositive.value,
@@ -778,6 +774,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  function clearMainResults() {
+    if (resultsHeadlineEl) resultsHeadlineEl.innerHTML = "";
+    if (resultsSecondaryEl) resultsSecondaryEl.innerHTML = "";
+    if (bayesianUpdateEl) bayesianUpdateEl.innerHTML = "";
+  }
+
   function renderBiasWarnings(warnings) {
     if (!biasWarningsEl) return;
     biasWarningsEl.innerHTML = "";
@@ -1211,103 +1213,144 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-function renderResults(container, metrics) {
-  if (!container) {
-    return;
+// Renders a single metric as a result card. Shared by the headline strip,
+// the secondary grid, and the chained-test panel.
+function renderMetricCard(metric, opts) {
+  const card = document.createElement("article");
+  card.className = "result-card";
+  if (opts && opts.size) card.classList.add(`result-card--${opts.size}`);
+  if (opts && opts.accent) card.classList.add(`result-card--${opts.accent}`);
+
+  const title = document.createElement("h3");
+  title.textContent = metric.label;
+  card.appendChild(title);
+
+  const value = document.createElement("p");
+  value.className = "result-value";
+  value.textContent = window.DiagcalcCore.formatValue(metric.value, metric.formatter);
+  card.appendChild(value);
+
+  if (metric.ci) {
+    const ci = document.createElement("p");
+    ci.className = "result-ci";
+    const fmt = window.DiagcalcCore.formatValue;
+    ci.textContent = `95% CI: ${fmt(metric.ci.lower, metric.formatter)} – ${fmt(metric.ci.upper, metric.formatter)}`;
+    card.appendChild(ci);
   }
 
-  container.innerHTML = "";
-  const entries = Object.entries(metrics);
-  entries.forEach(([, data]) => {
-    const card = document.createElement("article");
-    card.className = "result-card";
+  if (metric.note && !(opts && opts.hideNote)) {
+    const note = document.createElement("p");
+    note.className = "result-note";
+    note.textContent = metric.note;
+    card.appendChild(note);
+  }
 
-    const title = document.createElement("h3");
-    title.textContent = data.label;
-    card.appendChild(title);
-
-    const value = document.createElement("p");
-    value.className = "result-value";
-    value.textContent = window.DiagcalcCore.formatValue(data.value, data.formatter);
-    card.appendChild(value);
-
-    if (data.ci) {
-      const ci = document.createElement("p");
-      ci.className = "result-ci";
-      const fmt = window.DiagcalcCore.formatValue;
-      ci.textContent = `95% CI: ${fmt(data.ci.lower, data.formatter)} – ${fmt(data.ci.upper, data.formatter)}`;
-      card.appendChild(ci);
-    }
-
-    if (data.note) {
-      const note = document.createElement("p");
-      note.className = "result-note";
-      note.textContent = data.note;
-      card.appendChild(note);
-    }
-
-    container.appendChild(card);
-  });
+  return card;
 }
 
-function renderProbabilityChart(container, values) {
-  if (!container) {
-    return;
-  }
-
+// Headline strip — the four numbers a clinician actually quotes: sens, spec,
+// post-test (+), post-test (−). Rendered large; post-test pair gets accent
+// borders so the Bayesian outcome is visually distinct from the intrinsic
+// test performance.
+function renderHeadline(container, metrics) {
+  if (!container) return;
   container.innerHTML = "";
-  container.setAttribute("role", "list");
+  const items = [
+    { metric: metrics.sensitivity, accent: "neutral" },
+    { metric: metrics.specificity, accent: "neutral" },
+    { metric: metrics.postTestPositive, accent: "warm" },
+    { metric: metrics.postTestNegative, accent: "cool" },
+  ];
+  for (const { metric, accent } of items) {
+    container.appendChild(renderMetricCard(metric, { size: "lg", accent, hideNote: true }));
+  }
+}
 
+// Secondary grid — predictive values + likelihood ratios + DOR + NNS. Smaller
+// card weight; same data, less foregrounded.
+function renderSecondary(container, metrics) {
+  if (!container) return;
+  container.innerHTML = "";
+  const items = [
+    metrics.ppv,
+    metrics.npv,
+    metrics.lrPositive,
+    metrics.lrNegative,
+    metrics.dor,
+    metrics.numberNeededToScreen,
+  ];
+  for (const metric of items) {
+    container.appendChild(renderMetricCard(metric, { size: "sm" }));
+  }
+}
+
+// Bayesian update strip — pre-test → post-test (+) and pre-test → post-test (−)
+// as inline mini-bars, with the LR jump annotated in the middle. Replaces the
+// old separate .probability-chart block.
+function renderBayesianUpdate(container, metrics) {
+  if (!container) return;
+  container.innerHTML = "";
+  const fmtPct = window.DiagcalcCore.formatPercentage;
+  const fmtLR = window.DiagcalcCore.formatLikelihood;
+  const pre = metrics.preTestProbability.value;
   const rows = [
-    { label: "Pre-test", value: values.pre, variant: "baseline" },
-    { label: "Post-test (+)", value: values.postPositive, variant: "positive" },
-    { label: "Post-test (-)", value: values.postNegative, variant: "negative" },
+    { from: pre, to: metrics.postTestPositive.value, label: "Positive test", lr: metrics.lrPositive.value, variant: "warm" },
+    { from: pre, to: metrics.postTestNegative.value, label: "Negative test", lr: metrics.lrNegative.value, variant: "cool" },
   ];
 
-  rows.forEach((row) => {
-    container.appendChild(createChartRow(row));
-  });
-}
+  const heading = document.createElement("p");
+  heading.className = "bayesian-update-heading";
+  heading.textContent = `Pre-test ${fmtPct(pre)} → post-test`;
+  container.appendChild(heading);
 
-function clearProbabilityChart(container) {
-  if (container) {
-    container.innerHTML = "";
-    container.removeAttribute("role");
+  for (const row of rows) {
+    const node = document.createElement("div");
+    node.className = `bayesian-row bayesian-row--${row.variant}`;
+    const label = document.createElement("span");
+    label.className = "bayesian-row-label";
+    label.textContent = row.label;
+    const lr = document.createElement("span");
+    lr.className = "bayesian-row-lr";
+    lr.textContent = `× LR ${fmtLR(row.lr)}`;
+    const result = document.createElement("span");
+    result.className = "bayesian-row-result";
+    result.textContent = fmtPct(row.to);
+
+    const bar = document.createElement("div");
+    bar.className = "bayesian-row-bar";
+    const fillFrom = document.createElement("span");
+    fillFrom.className = "bayesian-row-bar-from";
+    fillFrom.style.left = `${Math.min(100, Math.max(0, (pre || 0) * 100))}%`;
+    const fillTo = document.createElement("span");
+    fillTo.className = "bayesian-row-bar-to";
+    fillTo.style.left = `${Math.min(100, Math.max(0, (row.to || 0) * 100))}%`;
+    const track = document.createElement("span");
+    track.className = "bayesian-row-bar-track";
+    const fromVal = Number.isFinite(pre) ? pre : 0;
+    const toVal = Number.isFinite(row.to) ? row.to : 0;
+    const lo = Math.min(fromVal, toVal);
+    const hi = Math.max(fromVal, toVal);
+    track.style.left = `${lo * 100}%`;
+    track.style.width = `${(hi - lo) * 100}%`;
+    bar.appendChild(track);
+    bar.appendChild(fillFrom);
+    bar.appendChild(fillTo);
+
+    node.appendChild(label);
+    node.appendChild(bar);
+    node.appendChild(lr);
+    node.appendChild(result);
+    container.appendChild(node);
   }
 }
 
-function createChartRow({ label, value, variant }) {
-  const row = document.createElement("div");
-  row.className = "chart-row";
-  row.setAttribute("role", "listitem");
-
-  const labelEl = document.createElement("span");
-  labelEl.className = "chart-label";
-  labelEl.textContent = label;
-
-  const bar = document.createElement("div");
-  bar.className = "chart-bar";
-
-  const fill = document.createElement("span");
-  fill.className = "chart-fill";
-  if (variant === "positive") {
-    fill.classList.add("positive");
-  } else if (variant === "negative") {
-    fill.classList.add("negative");
+// Compat: still used by the chained-test panel which uses a simple grid.
+function renderResults(container, metrics) {
+  if (!container) return;
+  container.innerHTML = "";
+  for (const [, data] of Object.entries(metrics)) {
+    container.appendChild(renderMetricCard(data, { size: "sm" }));
   }
-  const safeValue = Number.isFinite(value) ? window.DiagcalcCore.clamp(value, 0, 1) : 0;
-  fill.style.transform = `scaleX(${safeValue})`;
-
-  const valueEl = document.createElement("span");
-  valueEl.className = "chart-value";
-  valueEl.textContent = window.DiagcalcCore.formatPercentage(value);
-
-  bar.appendChild(fill);
-  row.appendChild(labelEl);
-  row.appendChild(bar);
-  row.appendChild(valueEl);
-
-  return row;
 }
 
 // Theme Management

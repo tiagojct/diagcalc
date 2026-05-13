@@ -2,6 +2,45 @@
 
 Todas as alterações relevantes deste projeto são registadas aqui. As datas seguem o formato ISO (AAAA-MM-DD).
 
+## [4.0.0] - 2026-05-13 — "Clinical Dashboard"
+
+Versão maior dedicada ao **facelift visual** da aplicação web. A álgebra de diagnóstico, a CLI e a TUI mantêm-se inalteradas; toda a mudança ocorre na "casca" que rodeia o motor.
+
+### Adicionado
+- **Barra de aplicação compacta (`.app-bar`)** sticky no topo da página com a marca DIAGCALC, uma faixa "Case: …" em tempo real (sai de "No case yet" → "Case: HIV ELISA" → "Ad-hoc case" conforme o estado), e os controlos de idioma + tema. Substitui a hero "intro" anterior que ocupava ~6rem.
+- **Workspace de duas colunas** a ≥ 960 px (formulário à esquerda em ~34 %, resultados à direita), a colapsar para uma única coluna abaixo. O painel de resultados fica sticky-top no desktop, mantendo as métricas-chave visíveis enquanto se rola até aos painéis auxiliares.
+- **Hierarquia visual nos resultados:**
+  - `#resultsHeadline` — quatro cartas grandes com sensibilidade, especificidade, probabilidade pós-teste (+) e pós-teste (−), com bordas-acento Stubb / Tashtego nas pós-teste.
+  - `#bayesianUpdate` — barra horizontal compacta com a actualização Bayesiana inline (pré-teste → pós-teste positivo / negativo com a "saltada" do LR anotada).
+  - `#resultsSecondary` — grelha de seis cartas menores com PPV, NPV, LR+, LR−, DOR e NNS.
+- **Tokens de design** explícitos no `:root`: `--space-1`..`--space-8` (grelha de 4 px), `--text-xs`..`--text-3xl`, `--radius-1`..`--radius-3` + `--radius-pill`, `--duration-fast/base/slow`, `--ease-out`, `--shadow-1/--shadow-2`.
+- Painel "About DIAGCALC" na resource-grid acomodando os três destaques que viviam na hero. Mantém as chaves i18n existentes (`intro.tag`, `intro.lead`, `intro.highlight*`).
+- Novas chaves i18n: `app.case.empty`, `app.case.prefix`, `app.case.adhoc`, `about.h` (en + pt-PT).
+
+### Alterado
+- O painel `.panel-library` (selector de dataset) e o painel `.panel-inputs` (matriz 2×2 + pré-teste + Calculate) fundem-se num único `.panel-form`, eliminando a duplicação de bordas e títulos. Tudo cabe agora num único cartão à esquerda.
+- A função `renderResults` foi factorizada em três renderers (`renderHeadline`, `renderSecondary`, `renderBayesianUpdate`) que partilham um helper `renderMetricCard(metric, opts)` com variantes `size: "lg" | "sm"` e `accent: "warm" | "cool" | "neutral"`. O painel de teste encadeado continua a usar a versão simples `renderResults`.
+- Botões e controlos passam a usar uma escala de espaçamento consistente, anel de foco visível em `--secondary` (Starbuck) e transições subordinadas a `prefers-reduced-motion`.
+
+### Removido / Breaking
+- **Aliases CSS legacy removidos.** Forks que sobrescrevam variáveis de tema têm de migrar:
+  - `--base-100`..`--base-1000` → use `--log-50`..`--log-950` directamente.
+  - `--red`, `--orange`, `--yellow`, `--green`, `--cyan`, `--blue`, `--purple`, `--magenta` → use `--crew-{ahab,stubb,pip,tashtego,starbuck,queequeg,daggoo}` directamente.
+  - `--background-color` → `--bg`.
+  - `--surface-color`, `--panel-bg`, `--panel-soft-bg`, `--matrix-bg`, `--highlight-bg`, `--reference-bg` → colapsados em `--surface` e `--surface-soft`.
+  - `--text-color` → `--text`; `--muted-text`, `--reference-muted` → `--text-muted`; `--heading-strong` → `--text-strong`.
+  - `--border-color` → `--border`.
+  - `--primary-color` → `--primary`; `--primary-dark` → `--primary-strong`; `--secondary-color` → `--secondary`; `--success-color` → `--success`.
+  - `--page-accent-cool`, `--page-accent-warm`, `--intro-gradient-end` → removidos (a nova app-bar não usa o gradiente da hero).
+  - Novos: `--warning`, `--error`, `--axis` (anteriormente acedido como `--base-600` em `script.js`).
+- `.intro`, `.intro-highlights`, `.highlight`, `.tag`, `.lead`, `.header-controls`, `.results-grid`, `.probability-chart`, `.chart-row`, `.chart-fill`, `.chart-bar` removidos do CSS. Funções correspondentes (`renderProbabilityChart`, `clearProbabilityChart`, `createChartRow`) removidas de `script.js`.
+- Elemento `#probabilityChart` e `#results` removidos do `index.html`. Quem dependa destes IDs (extensões, screenshots automáticos, scripts externos) tem de actualizar para `#resultsHeadline`, `#resultsSecondary` e `#bayesianUpdate`.
+
+### Notas técnicas
+- Os 77 testes (`core.test.js` + `smoke.test.js`) continuam a passar. O smoke-test de cobertura de chaves i18n validou automaticamente que as novas chaves `app.case.*` e `about.h` existem nas duas locales.
+- O motor partilhado (`lib/diagcalc-core.js`), a CLI (`bin/diagcalc.js`) e a TUI (`tui/index.js`) ficaram intactos — `node bin/diagcalc.js --dataset ddimer` produz os mesmos números.
+- A estilização das colapsáveis auxiliares (prevalence explorer, decision thresholds, ROC builder, sequential test, kappa, history, STARD, interpretation guide) **fica preservada** mas adopta passivamente os novos tokens de espaçamento. A revisão estética painel-a-painel está planeada para **4.1**.
+
 ## [3.16.1] - 2026-05-13
 
 ### Adicionado
