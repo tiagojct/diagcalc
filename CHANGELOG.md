@@ -2,6 +2,18 @@
 
 Todas as alterações relevantes deste projeto são registadas aqui. As datas seguem o formato ISO (AAAA-MM-DD).
 
+## [3.10.0] - 2026-05-13
+
+### Adicionado
+- **Reconstrução de curvas ROC** a partir de múltiplos cutoffs na versão web — painel colapsável "Build an ROC curve" sob os resultados que aceita uma tabela editável de linhas `(cutoff, TP, FP, FN, TN)`, recalcula em tempo real à medida que o utilizador escreve, e desenha:
+  - Linha ROC ligando os pontos do utilizador, com extensão automática para (0,0) e (1,1) na cor `--primary-color` (Queequeg).
+  - Diagonal de oportunidade tracejada em cinzento Ishmael.
+  - Ponto óptimo de Youden destacado em Pip, com o valor do cutoff inscrito ao lado.
+  - AUC trapezoidal inscrita no canto da área de plot e replicada num cartão de resumo abaixo com sens/spec/J do óptimo.
+- A primeira linha é pré-preenchida automaticamente com o 2×2 do teste actual após `Calculate`, permitindo ao utilizador adicionar progressivamente mais cutoffs sem reintroduzir dados.
+- Nova função pública: `calculateROC(rows)` → `{ points, auc, optimalIndex, optimalPoint }`. Ignora linhas inválidas, ordena por FPR ascendente (sens descendente em empates), e calcula a AUC pela regra dos trapézios incluindo os ancoradouros (0,0) e (1,1).
+- 4 testes adicionais (classificador perfeito → AUC=1, classificador aleatório → AUC=0.5, ordem ascendente da FPR + Youden no meio, entrada vazia → null).
+
 ## [3.9.0] - 2026-05-13
 
 ### Adicionado

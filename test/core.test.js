@@ -329,6 +329,53 @@ test("PPV(p) from sens/spec matches calculateMetrics PPV at same prevalence", ()
   }
 });
 
+// ── ROC reconstruction ──────────────────────────────────────────────────────
+
+test("calculateROC: perfect classifier yields AUC = 1", () => {
+  // Perfect separation: at the optimal cutoff sens=1, spec=1.
+  const roc = core.calculateROC([
+    { cutoff: 5, tp: 50, fp: 0,  fn: 0,  tn: 50 },
+  ]);
+  assert.ok(roc);
+  close(roc.auc, 1, 1e-9);
+  assert.equal(roc.optimalIndex, 0);
+  close(roc.optimalPoint.youden, 1, 1e-9);
+});
+
+test("calculateROC: random classifier (single mid-point) yields AUC ≈ 0.5", () => {
+  // A single (FPR=0.5, TPR=0.5) point combined with the (0,0) and (1,1)
+  // anchors gives exactly AUC = 0.5 under trapezoidal integration.
+  const roc = core.calculateROC([
+    { cutoff: 5, tp: 25, fp: 25, fn: 25, tn: 25 },
+  ]);
+  close(roc.auc, 0.5, 1e-9);
+});
+
+test("calculateROC: three cutoffs ascend correctly and Youden picks the middle", () => {
+  // Classic example: three cutoffs from strict to lax.
+  // c=high: sens=0.6 spec=0.95 → fpr=0.05, J=0.55
+  // c=mid : sens=0.85 spec=0.85 → fpr=0.15, J=0.70
+  // c=low : sens=0.98 spec=0.50 → fpr=0.50, J=0.48
+  const roc = core.calculateROC([
+    { cutoff: 3, tp: 60,  fp: 5,  fn: 40, tn: 95 },
+    { cutoff: 2, tp: 85,  fp: 15, fn: 15, tn: 85 },
+    { cutoff: 1, tp: 98,  fp: 50, fn: 2,  tn: 50 },
+  ]);
+  assert.equal(roc.points.length, 3);
+  // Sorted by FPR ascending
+  assert.ok(roc.points[0].fpr <= roc.points[1].fpr);
+  assert.ok(roc.points[1].fpr <= roc.points[2].fpr);
+  // AUC must be above the chance line
+  assert.ok(roc.auc > 0.5 && roc.auc < 1);
+  // Middle cutoff has the largest Youden's J
+  assert.equal(roc.optimalPoint.cutoff, 2);
+});
+
+test("calculateROC returns null on empty or all-invalid input", () => {
+  assert.equal(core.calculateROC([]), null);
+  assert.equal(core.calculateROC([{ tp: 0, fp: 0, fn: 0, tn: 0 }]), null);
+});
+
 // ── Diagnostic odds ratio ───────────────────────────────────────────────────
 
 test("calcDOR on D-dimer (195·413 / (87·5)) matches definition", () => {

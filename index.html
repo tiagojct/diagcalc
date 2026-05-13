@@ -262,6 +262,33 @@
             </div>
             <div id="thresholdReadout" class="threshold-readout"></div>
           </details>
+          <details id="rocPanel" class="roc-panel" style="display: none;">
+            <summary><strong>Build an ROC curve</strong> — combine multiple cutoffs of a continuous test</summary>
+            <p class="help-text">
+              For a continuous test (e.g. troponin, D-dimer, score), each candidate cutoff defines its own 2×2 table. Add one row per cutoff and the plot draws sensitivity vs (1 − specificity), the trapezoidal AUC, and highlights the cutoff with the largest Youden's J (sens + spec − 1).
+            </p>
+            <div class="roc-table-wrapper">
+              <table class="roc-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Cutoff</th>
+                    <th scope="col">TP</th>
+                    <th scope="col">FP</th>
+                    <th scope="col">FN</th>
+                    <th scope="col">TN</th>
+                    <th scope="col" aria-label="Remove row"></th>
+                  </tr>
+                </thead>
+                <tbody id="rocRows"></tbody>
+              </table>
+            </div>
+            <div class="form-actions">
+              <button type="button" id="rocAddRow">+ Add cutoff row</button>
+              <button type="button" id="rocReset" class="secondary">Reset rows</button>
+            </div>
+            <canvas id="rocCanvas" width="480" height="480" role="img" aria-label="Receiver operating characteristic curve" aria-describedby="rocReadout"></canvas>
+            <div id="rocReadout" class="roc-readout"></div>
+          </details>
           <details id="prevalenceExplorer" class="prevalence-explorer" style="display: none;">
             <summary><strong>Explore prevalence sensitivity</strong> — see how PPV, NPV and post-test probabilities shift when prevalence changes</summary>
             <p class="help-text">

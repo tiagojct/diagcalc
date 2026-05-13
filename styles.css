@@ -664,6 +664,156 @@ button:hover {
   color: var(--text-color);
 }
 
+/* ROC reconstruction panel */
+.roc-panel {
+  background-color: var(--surface-color);
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1.25rem 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.roc-panel > summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--heading-strong);
+  font-size: 1.05rem;
+  line-height: 1.4;
+  list-style: none;
+}
+
+.roc-panel > summary::-webkit-details-marker {
+  display: none;
+}
+
+.roc-panel > summary::before {
+  content: "▸ ";
+  display: inline-block;
+  color: var(--crew-queequeg);
+}
+
+.roc-panel[open] > summary::before {
+  content: "▾ ";
+}
+
+.roc-table-wrapper {
+  overflow-x: auto;
+  margin: 1rem 0;
+}
+
+.roc-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.roc-table th,
+.roc-table td {
+  padding: 0.45rem 0.5rem;
+  text-align: center;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.roc-table th {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted-text);
+  font-weight: 700;
+  border-bottom-width: 2px;
+}
+
+.roc-table input[type="number"] {
+  width: 100%;
+  min-width: 60px;
+  padding: 0.4rem 0.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.9rem;
+}
+
+.roc-table input[type="number"]:focus {
+  border-color: var(--primary-color);
+  outline: none;
+}
+
+.roc-remove {
+  width: auto;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--crew-ahab);
+  padding: 0.25rem 0.55rem;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.roc-remove:hover {
+  background-color: var(--crew-ahab);
+  color: var(--log-50);
+}
+
+.roc-panel .form-actions {
+  grid-template-columns: auto auto;
+  justify-content: flex-start;
+  gap: 0.75rem;
+  margin: 0.5rem 0 1rem;
+}
+
+.roc-panel .form-actions button {
+  width: auto;
+  padding: 0.6rem 1rem;
+}
+
+.roc-panel canvas {
+  display: block;
+  width: 100%;
+  max-width: 480px;
+  aspect-ratio: 1 / 1;
+  height: auto;
+  margin: 0 auto 1rem;
+  border: 1px solid var(--base-300);
+  border-radius: 4px;
+  background: var(--background-color);
+}
+
+.roc-readout {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+}
+
+.roc-stat {
+  background-color: var(--panel-soft-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 0.6rem 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.roc-stat-label {
+  font-size: 0.72rem;
+  color: var(--muted-text);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+}
+
+.roc-stat-value {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
 /* Bias warnings callout */
 .bias-warnings {
   display: none;

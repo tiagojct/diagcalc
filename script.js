@@ -50,6 +50,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const thresholdMarkerPreEl = document.getElementById("thresholdMarkerPre");
   const thresholdReadoutEl = document.getElementById("thresholdReadout");
   const thresholdState = { lrPositive: NaN, lrNegative: NaN, preTest: NaN };
+  const rocPanelEl = document.getElementById("rocPanel");
+  const rocRowsEl = document.getElementById("rocRows");
+  const rocAddRowButton = document.getElementById("rocAddRow");
+  const rocResetButton = document.getElementById("rocReset");
+  const rocCanvas = document.getElementById("rocCanvas");
+  const rocReadoutEl = document.getElementById("rocReadout");
 
   initializeTheme();
 
@@ -94,6 +100,7 @@ document.addEventListener("DOMContentLoaded", () => {
       hidePrevalenceExplorer();
       hideSequentialTest();
       hideThresholdPanel();
+      hideRocPanel();
       renderBiasWarnings([]);
     });
   });
@@ -132,6 +139,7 @@ document.addEventListener("DOMContentLoaded", () => {
       hidePrevalenceExplorer();
       hideSequentialTest();
       hideThresholdPanel();
+      hideRocPanel();
       renderBiasWarnings([]);
       return;
     }
@@ -154,7 +162,250 @@ document.addEventListener("DOMContentLoaded", () => {
     showPrevalenceExplorer(metrics.sensitivity.value, metrics.specificity.value, metrics.preTestProbability.value);
     showSequentialTest(metrics.postTestPositive.value, metrics.postTestNegative.value);
     showThresholdPanel(metrics.lrPositive.value, metrics.lrNegative.value, metrics.preTestProbability.value);
+    showRocPanel(data);
     setFeedback("Calculation complete. Explore the interpretation guide below.", true);
+  }
+
+  function showRocPanel(firstRow) {
+    if (!rocPanelEl) return;
+    rocPanelEl.style.display = "block";
+    if (rocRowsEl.children.length === 0) {
+      addRocRow({ cutoff: "", tp: firstRow.tp, fp: firstRow.fp, fn: firstRow.fn, tn: firstRow.tn });
+      addRocRow();
+    }
+    recomputeRoc();
+  }
+
+  function hideRocPanel() {
+    if (!rocPanelEl) return;
+    rocPanelEl.style.display = "none";
+    rocPanelEl.open = false;
+    rocRowsEl.innerHTML = "";
+    if (rocCanvas) {
+      const ctx = rocCanvas.getContext("2d");
+      if (ctx) {
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.clearRect(0, 0, rocCanvas.width, rocCanvas.height);
+      }
+    }
+    if (rocReadoutEl) rocReadoutEl.innerHTML = "";
+  }
+
+  function addRocRow(prefill) {
+    const tr = document.createElement("tr");
+    const fields = ["cutoff", "tp", "fp", "fn", "tn"];
+    for (const field of fields) {
+      const td = document.createElement("td");
+      const input = document.createElement("input");
+      input.type = "number";
+      input.inputMode = field === "cutoff" ? "decimal" : "numeric";
+      input.step = field === "cutoff" ? "any" : "1";
+      if (field !== "cutoff") input.min = "0";
+      input.dataset.field = field;
+      if (prefill && prefill[field] !== undefined && prefill[field] !== "") {
+        input.value = prefill[field];
+      }
+      input.addEventListener("input", recomputeRoc);
+      input.setAttribute("aria-label", `ROC row ${field}`);
+      td.appendChild(input);
+      tr.appendChild(td);
+    }
+    const removeTd = document.createElement("td");
+    const removeBtn = document.createElement("button");
+    removeBtn.type = "button";
+    removeBtn.className = "roc-remove";
+    removeBtn.textContent = "×";
+    removeBtn.setAttribute("aria-label", "Remove this cutoff row");
+    removeBtn.addEventListener("click", () => {
+      tr.remove();
+      recomputeRoc();
+    });
+    removeTd.appendChild(removeBtn);
+    tr.appendChild(removeTd);
+    rocRowsEl.appendChild(tr);
+  }
+
+  function readRocRows() {
+    return Array.from(rocRowsEl.children).map((tr) => {
+      const obj = {};
+      for (const input of tr.querySelectorAll("input")) {
+        const f = input.dataset.field;
+        if (f === "cutoff") {
+          const v = parseFloat(input.value);
+          obj.cutoff = Number.isFinite(v) ? v : input.value || null;
+        } else {
+          obj[f] = core.safeParseInt(input.value);
+        }
+      }
+      return obj;
+    });
+  }
+
+  function recomputeRoc() {
+    if (!rocReadoutEl) return;
+    const rows = readRocRows();
+    const validRows = rows.filter((r) =>
+      Number.isInteger(r.tp) && Number.isInteger(r.fp) && Number.isInteger(r.fn) && Number.isInteger(r.tn) &&
+      (r.tp + r.fn > 0) && (r.tn + r.fp > 0)
+    );
+
+    if (validRows.length === 0) {
+      rocReadoutEl.textContent = "Add at least one complete cutoff row (TP, FP, FN, TN) to plot.";
+      const ctx = rocCanvas.getContext("2d");
+      if (ctx) {
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.clearRect(0, 0, rocCanvas.width, rocCanvas.height);
+      }
+      return;
+    }
+
+    const roc = core.calculateROC(validRows);
+    if (!roc) {
+      rocReadoutEl.textContent = "Could not compute ROC from these rows.";
+      return;
+    }
+    drawRocCurve(roc);
+    renderRocReadout(roc);
+  }
+
+  function renderRocReadout(roc) {
+    rocReadoutEl.innerHTML = "";
+    const stats = [
+      ["AUC (trapezoid)", roc.auc.toFixed(3)],
+      ["Cutoffs", String(roc.points.length)],
+      ["Youden optimum", roc.optimalPoint
+        ? `cutoff ${roc.optimalPoint.cutoff ?? "—"} (sens ${core.formatPercentage(roc.optimalPoint.sens)}, spec ${core.formatPercentage(roc.optimalPoint.spec)}, J=${roc.optimalPoint.youden.toFixed(3)})`
+        : "—"],
+    ];
+    for (const [label, value] of stats) {
+      const cell = document.createElement("div");
+      cell.className = "roc-stat";
+      const lab = document.createElement("span");
+      lab.className = "roc-stat-label";
+      lab.textContent = label;
+      const val = document.createElement("span");
+      val.className = "roc-stat-value";
+      val.textContent = value;
+      cell.appendChild(lab);
+      cell.appendChild(val);
+      rocReadoutEl.appendChild(cell);
+    }
+  }
+
+  function drawRocCurve(roc) {
+    if (!rocCanvas) return;
+    const ctx = rocCanvas.getContext("2d");
+    if (!ctx) return;
+
+    const dpr = window.devicePixelRatio || 1;
+    const rect = rocCanvas.getBoundingClientRect();
+    rocCanvas.width = rect.width * dpr;
+    rocCanvas.height = rect.height * dpr;
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.scale(dpr, dpr);
+
+    const W = rect.width;
+    const H = rect.height;
+    const margin = { top: 28, right: 24, bottom: 44, left: 50 };
+    const plotW = W - margin.left - margin.right;
+    const plotH = H - margin.top - margin.bottom;
+    ctx.clearRect(0, 0, W, H);
+
+    const styles = getComputedStyle(document.documentElement);
+    const axisColor = styles.getPropertyValue("--base-600").trim();
+    const textColor = styles.getPropertyValue("--text-color").trim();
+    const mutedColor = styles.getPropertyValue("--muted-text").trim();
+    const primaryColor = styles.getPropertyValue("--primary-color").trim();
+    const warningColor = styles.getPropertyValue("--crew-pip").trim();
+
+    const px = (f) => margin.left + f * plotW;
+    const py = (s) => margin.top + (1 - s) * plotH;
+
+    // Axes
+    ctx.strokeStyle = axisColor;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(margin.left, margin.top);
+    ctx.lineTo(margin.left, margin.top + plotH);
+    ctx.lineTo(margin.left + plotW, margin.top + plotH);
+    ctx.stroke();
+
+    // Chance diagonal
+    ctx.strokeStyle = mutedColor;
+    ctx.lineWidth = 1;
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath();
+    ctx.moveTo(px(0), py(0));
+    ctx.lineTo(px(1), py(1));
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Tick labels
+    ctx.fillStyle = mutedColor;
+    ctx.font = "10px 'JetBrains Mono', ui-monospace, monospace";
+    for (const t of [0, 0.25, 0.5, 0.75, 1]) {
+      ctx.textAlign = "center";
+      ctx.fillText(`${(t * 100).toFixed(0)}`, px(t), margin.top + plotH + 14);
+      ctx.textAlign = "right";
+      ctx.fillText(`${(t * 100).toFixed(0)}`, margin.left - 5, py(t) + 3);
+    }
+
+    ctx.fillStyle = textColor;
+    ctx.font = "11px 'Atkinson Hyperlegible Next', system-ui, sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("1 − specificity (FPR, %)", margin.left + plotW / 2, H - 8);
+    ctx.save();
+    ctx.translate(14, margin.top + plotH / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillText("Sensitivity (TPR, %)", 0, 0);
+    ctx.restore();
+
+    // ROC line from (0,0) through points (sorted) to (1,1)
+    const pts = [{ fpr: 0, sens: 0 }, ...roc.points, { fpr: 1, sens: 1 }];
+    ctx.strokeStyle = primaryColor;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    pts.forEach((p, i) => {
+      const x = px(p.fpr);
+      const y = py(p.sens);
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+
+    // Plot the user's data points
+    for (let i = 0; i < roc.points.length; i += 1) {
+      const p = roc.points[i];
+      const isOptimal = i === roc.optimalIndex;
+      ctx.fillStyle = isOptimal ? warningColor : primaryColor;
+      ctx.beginPath();
+      ctx.arc(px(p.fpr), py(p.sens), isOptimal ? 7 : 4, 0, 2 * Math.PI);
+      ctx.fill();
+      if (isOptimal) {
+        ctx.fillStyle = textColor;
+        ctx.textAlign = "left";
+        ctx.font = "10px 'JetBrains Mono', ui-monospace, monospace";
+        const label = `${p.cutoff !== null && p.cutoff !== "" ? p.cutoff : "best"}`;
+        ctx.fillText(label, px(p.fpr) + 10, py(p.sens) - 4);
+      }
+    }
+
+    // AUC label inside plot
+    ctx.fillStyle = textColor;
+    ctx.textAlign = "right";
+    ctx.font = "12px 'JetBrains Mono', ui-monospace, monospace";
+    ctx.fillText(`AUC = ${roc.auc.toFixed(3)}`, margin.left + plotW - 8, margin.top + plotH - 10);
+  }
+
+  if (rocAddRowButton) {
+    rocAddRowButton.addEventListener("click", () => addRocRow());
+  }
+  if (rocResetButton) {
+    rocResetButton.addEventListener("click", () => {
+      rocRowsEl.innerHTML = "";
+      addRocRow();
+      recomputeRoc();
+    });
   }
 
   function renderBiasWarnings(warnings) {
