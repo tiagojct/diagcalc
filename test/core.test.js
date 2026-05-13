@@ -329,6 +329,35 @@ test("PPV(p) from sens/spec matches calculateMetrics PPV at same prevalence", ()
   }
 });
 
+// ── Pauker–Kassirer decision thresholds ─────────────────────────────────────
+
+test("calculateThresholds: Pt=0.3, LR+=10, LR-=0.1 yields plausible thresholds", () => {
+  const t = core.calculateThresholds({ treatmentThreshold: 0.3, lrPositive: 10, lrNegative: 0.1 });
+  // P_low = 0.3 / (0.3 + 0.7 × 10) = 0.3 / 7.3 ≈ 0.0411
+  close(t.testingThreshold, 0.3 / 7.3, 1e-6);
+  // P_high = 0.3 / (0.3 + 0.7 × 0.1) = 0.3 / 0.37 ≈ 0.8108
+  close(t.testTreatmentThreshold, 0.3 / 0.37, 1e-6);
+  // Pt always sits between P_low and P_high (when LR+>1 and LR-<1)
+  assert.ok(t.testingThreshold < t.treatmentThreshold);
+  assert.ok(t.treatmentThreshold < t.testTreatmentThreshold);
+});
+
+test("calculateThresholds: infinite LR+ collapses testing threshold to 0", () => {
+  const t = core.calculateThresholds({ treatmentThreshold: 0.4, lrPositive: Infinity, lrNegative: 0.1 });
+  assert.equal(t.testingThreshold, 0);
+});
+
+test("calculateThresholds: zero LR- collapses test-treatment threshold to 1", () => {
+  const t = core.calculateThresholds({ treatmentThreshold: 0.4, lrPositive: 5, lrNegative: 0 });
+  assert.equal(t.testTreatmentThreshold, 1);
+});
+
+test("calculateThresholds rejects Pt outside (0, 1)", () => {
+  assert.equal(core.calculateThresholds({ treatmentThreshold: 0, lrPositive: 5, lrNegative: 0.1 }), null);
+  assert.equal(core.calculateThresholds({ treatmentThreshold: 1, lrPositive: 5, lrNegative: 0.1 }), null);
+  assert.equal(core.calculateThresholds({ treatmentThreshold: NaN, lrPositive: 5, lrNegative: 0.1 }), null);
+});
+
 // ── Sequential testing identity ─────────────────────────────────────────────
 // Chaining test 1's post-test (+) as test 2's pre-test must equal multiplying
 // the two LRs against the original pre-test odds, under conditional independence.

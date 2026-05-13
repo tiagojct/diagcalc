@@ -41,6 +41,14 @@ document.addEventListener("DOMContentLoaded", () => {
     postPositive: NaN,
     postNegative: NaN,
   };
+  const thresholdPanelEl = document.getElementById("thresholdPanel");
+  const treatmentThresholdInputEl = document.getElementById("treatmentThresholdInput");
+  const treatmentThresholdValueEl = document.getElementById("treatmentThresholdValue");
+  const thresholdGaugeEl = document.getElementById("thresholdGauge");
+  const thresholdMarkerPtEl = document.getElementById("thresholdMarkerPt");
+  const thresholdMarkerPreEl = document.getElementById("thresholdMarkerPre");
+  const thresholdReadoutEl = document.getElementById("thresholdReadout");
+  const thresholdState = { lrPositive: NaN, lrNegative: NaN, preTest: NaN };
 
   initializeTheme();
 
@@ -84,6 +92,7 @@ document.addEventListener("DOMContentLoaded", () => {
       clearFaganNomogram(faganNomogramEl, faganCanvas);
       hidePrevalenceExplorer();
       hideSequentialTest();
+      hideThresholdPanel();
     });
   });
 
@@ -120,6 +129,7 @@ document.addEventListener("DOMContentLoaded", () => {
       clearFaganNomogram(faganNomogramEl, faganCanvas);
       hidePrevalenceExplorer();
       hideSequentialTest();
+      hideThresholdPanel();
       return;
     }
 
@@ -139,7 +149,97 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     showPrevalenceExplorer(metrics.sensitivity.value, metrics.specificity.value, metrics.preTestProbability.value);
     showSequentialTest(metrics.postTestPositive.value, metrics.postTestNegative.value);
+    showThresholdPanel(metrics.lrPositive.value, metrics.lrNegative.value, metrics.preTestProbability.value);
     setFeedback("Calculation complete. Explore the interpretation guide below.", true);
+  }
+
+  function showThresholdPanel(lrPositive, lrNegative, preTest) {
+    if (!thresholdPanelEl) return;
+    thresholdState.lrPositive = lrPositive;
+    thresholdState.lrNegative = lrNegative;
+    thresholdState.preTest = preTest;
+    thresholdPanelEl.style.display = "block";
+    updateThresholdView();
+  }
+
+  function hideThresholdPanel() {
+    if (!thresholdPanelEl) return;
+    thresholdPanelEl.style.display = "none";
+    thresholdPanelEl.open = false;
+    thresholdState.lrPositive = NaN;
+    thresholdState.lrNegative = NaN;
+    thresholdState.preTest = NaN;
+  }
+
+  function updateThresholdView() {
+    if (!thresholdReadoutEl) return;
+    const Ptpercent = parseFloat(treatmentThresholdInputEl.value);
+    if (!Number.isFinite(Ptpercent)) return;
+    const Pt = Ptpercent / 100;
+    treatmentThresholdValueEl.textContent = `${Ptpercent.toFixed(0)}%`;
+
+    const t = core.calculateThresholds({
+      treatmentThreshold: Pt,
+      lrPositive: thresholdState.lrPositive,
+      lrNegative: thresholdState.lrNegative,
+    });
+    if (!t) {
+      thresholdReadoutEl.textContent = "Thresholds unavailable for this test (LR+ or LR− is undefined).";
+      return;
+    }
+
+    const Plow = Number.isFinite(t.testingThreshold) ? t.testingThreshold : 0;
+    const Phigh = Number.isFinite(t.testTreatmentThreshold) ? t.testTreatmentThreshold : 1;
+    const lowPct = core.clamp(Plow * 100, 0, 100);
+    const highPct = core.clamp(Phigh * 100, lowPct, 100);
+
+    const zones = thresholdGaugeEl.querySelectorAll(".threshold-zone");
+    if (zones.length === 3) {
+      zones[0].style.flexBasis = `${lowPct}%`;
+      zones[1].style.flexBasis = `${Math.max(0, highPct - lowPct)}%`;
+      zones[2].style.flexBasis = `${Math.max(0, 100 - highPct)}%`;
+    }
+
+    thresholdMarkerPtEl.style.left = `${Ptpercent}%`;
+    const prePct = Number.isFinite(thresholdState.preTest) ? thresholdState.preTest * 100 : NaN;
+    if (Number.isFinite(prePct)) {
+      thresholdMarkerPreEl.style.left = `${core.clamp(prePct, 0, 100)}%`;
+      thresholdMarkerPreEl.style.display = "block";
+    } else {
+      thresholdMarkerPreEl.style.display = "none";
+    }
+
+    thresholdReadoutEl.innerHTML = "";
+    const stats = [
+      ["Testing threshold (don't test below)", core.formatPercentage(Plow)],
+      ["Treatment threshold (Pt)", core.formatPercentage(Pt)],
+      ["Test-treatment threshold (just treat above)", core.formatPercentage(Phigh)],
+      ["Decision at current pre-test", classifyPreTest(prePct, lowPct, highPct, Ptpercent)],
+    ];
+    for (const [label, value] of stats) {
+      const cell = document.createElement("div");
+      cell.className = "threshold-stat";
+      const lab = document.createElement("span");
+      lab.className = "threshold-stat-label";
+      lab.textContent = label;
+      const val = document.createElement("span");
+      val.className = "threshold-stat-value";
+      val.textContent = value;
+      cell.appendChild(lab);
+      cell.appendChild(val);
+      thresholdReadoutEl.appendChild(cell);
+    }
+  }
+
+  function classifyPreTest(prePct, lowPct, highPct, Ptpct) {
+    if (!Number.isFinite(prePct)) return "—";
+    if (prePct < lowPct) return "Don't test — even a positive result wouldn't reach Pt.";
+    if (prePct > highPct) return "Treat without testing — even a negative result stays above Pt.";
+    return `Test useful — result can move you across the Pt=${Ptpct.toFixed(0)}% line.`;
+  }
+
+  if (treatmentThresholdInputEl) {
+    treatmentThresholdInputEl.addEventListener("input", updateThresholdView);
   }
 
   function showSequentialTest(postPositive, postNegative) {

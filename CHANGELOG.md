@@ -2,6 +2,17 @@
 
 Todas as alterações relevantes deste projeto são registadas aqui. As datas seguem o formato ISO (AAAA-MM-DD).
 
+## [3.7.0] - 2026-05-13
+
+### Adicionado
+- **Limiares de decisão de Pauker–Kassirer** (1980) — painel colapsável "Decision thresholds" na versão web com slider para a probabilidade de ação (treatment threshold, Pt, default 30%) e barra horizontal com três zonas coloridas:
+  - **Vermelha (Ahab)** — "não testar": pré-teste tão baixo que mesmo um resultado positivo não atinge Pt.
+  - **Amarela (Pip)** — "teste útil": o resultado do teste pode atravessar Pt.
+  - **Verde (Tashtego)** — "tratar sem testar": pré-teste tão alto que mesmo um resultado negativo se mantém acima de Pt.
+- Marcadores na barra para Pt (preto, com etiqueta) e para a probabilidade pré-teste actual (azul Queequeg, com seta). Resumo numérico em cartas com `testingThreshold`, `Pt`, `testTreatmentThreshold` e a classificação textual do pré-teste actual.
+- Nova função pública no motor: `calculateThresholds({ treatmentThreshold, lrPositive, lrNegative })` → `{ treatmentThreshold, testingThreshold, testTreatmentThreshold }`. Resolve `P = Pt / (Pt + (1 − Pt) · LR)` para LR+ e LR− respectivamente, com tratamento explícito de LR+ = ∞ (testingThreshold → 0) e LR− = 0 (testTreatmentThreshold → 1).
+- 4 testes adicionais cobrindo o cálculo numérico, casos infinitos/zero e rejeição de Pt fora de (0, 1).
+
 ## [3.6.0] - 2026-05-13
 
 ### Adicionado

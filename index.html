@@ -205,6 +205,34 @@
             <p id="sequentialFeedback" class="feedback" role="alert" aria-live="polite"></p>
             <div id="sequentialResults" class="results-grid sequential-results" aria-live="polite"></div>
           </details>
+          <details id="thresholdPanel" class="threshold-panel" style="display: none;">
+            <summary><strong>Decision thresholds</strong> — when to test, when to treat without testing</summary>
+            <p class="help-text">
+              Pauker–Kassirer (1980) framework. Set the treatment threshold (the post-test probability at which you would act). Below the <em>testing</em> threshold even a positive result keeps you below the action level — testing changes nothing. Above the <em>test-treatment</em> threshold even a negative result keeps you above the action level — just treat. The "test is useful" zone is the interval between them.
+            </p>
+            <div class="threshold-input">
+              <label for="treatmentThresholdInput">
+                <span>Treatment threshold</span>
+                <output id="treatmentThresholdValue" for="treatmentThresholdInput">30%</output>
+              </label>
+              <input type="range" id="treatmentThresholdInput" min="1" max="99" step="1" value="30" />
+            </div>
+            <div id="thresholdGauge" class="threshold-gauge" aria-hidden="true">
+              <div class="threshold-zone threshold-zone-no"></div>
+              <div class="threshold-zone threshold-zone-test"></div>
+              <div class="threshold-zone threshold-zone-treat"></div>
+              <div class="threshold-marker threshold-marker-pt" id="thresholdMarkerPt"></div>
+              <div class="threshold-marker threshold-marker-pre" id="thresholdMarkerPre"></div>
+            </div>
+            <div class="threshold-legend">
+              <span><span class="threshold-swatch threshold-zone-no"></span>Don't test</span>
+              <span><span class="threshold-swatch threshold-zone-test"></span>Test useful</span>
+              <span><span class="threshold-swatch threshold-zone-treat"></span>Treat without testing</span>
+              <span><span class="threshold-swatch threshold-swatch-pt"></span>Pt (treatment threshold)</span>
+              <span><span class="threshold-swatch threshold-swatch-pre"></span>Current pre-test</span>
+            </div>
+            <div id="thresholdReadout" class="threshold-readout"></div>
+          </details>
           <details id="prevalenceExplorer" class="prevalence-explorer" style="display: none;">
             <summary><strong>Explore prevalence sensitivity</strong> — see how PPV, NPV and post-test probabilities shift when prevalence changes</summary>
             <p class="help-text">
