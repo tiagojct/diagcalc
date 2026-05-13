@@ -2,6 +2,18 @@
 
 Todas as alterações relevantes deste projeto são registadas aqui. As datas seguem o formato ISO (AAAA-MM-DD).
 
+## [4.0.2] - 2026-05-13
+
+### Alterado
+- **Tira Bayesiana com setas inequívocas e layout mais legível.** Cada linha passa a ter cinco colunas em desktop: rótulo da linha → valor pré-teste à esquerda → eixo 0–100 % → valor pós-teste à direita → "LR × N". A direcção do teste é evidente porque os dois valores estão fisicamente em lados opostos da seta, e a seta em si tem agora 11 px de largura (era 7) e ponta-em-X. Para teste negativo o eixo ganha a classe `rtl` e a seta inverte-se. As marcas de tick em 0/25/50/75 foram retiradas — eram ruído sem retorno.
+- **Passagem geral por "mais minimalismo".** Os cartões de resultado perdem o fundo, o border e o padding interno: passam a ser pura tipografia + indicador visual (barra ou banda). A grelha de resultados secundária ganha uma divisória horizontal de 1 px no topo em vez de cada carta ter o seu próprio cartão. O painel `.panel` deixa de ter fundo e raio — o workspace dual-pane separa-se por uma única linha vertical entre formulário e resultados. A barra inline reduz de 6 px para 3 px e perde o border; o indicador de banda reduz de 10 px para 6 px com opacidades mais suaves e marcador mais discreto (3 × 12 px).
+- O resultado é um painel direito que parece um *dashboard* de leitura rápida: número grande, indicador visual fininho, IC e nota em texto. Menos tinta por carta, mesma informação.
+
+### Notas técnicas
+- `renderBayesianUpdate` foi reescrita: passa a emitir 5 nós DOM por linha (label, from, axis, to, lr) em vez de um axis com sub-labels posicionadas absolutamente. Mais robusto contra overflow e mais fácil de adaptar em mobile (`grid-template-areas`).
+- A heading "Pre-test X % → post-test" foi removida; o valor pré-teste aparece agora directamente em cada linha.
+- Print stylesheet revisto para os novos selectores (`.bayesian-axis-trail`, `.bayesian-axis-pre`, `.bayesian-axis-post`).
+
 ## [4.0.1] - 2026-05-13
 
 ### Alterado

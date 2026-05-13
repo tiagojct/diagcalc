@@ -1373,11 +1373,6 @@ function renderBayesianUpdate(container, metrics) {
     { to: metrics.postTestNegative.value, label: "Negative test", lr: metrics.lrNegative.value, variant: "cool" },
   ];
 
-  const heading = document.createElement("p");
-  heading.className = "bayesian-update-heading";
-  heading.textContent = `From pre-test probability of ${fmtPct(pre)}, a single test result moves you to:`;
-  container.appendChild(heading);
-
   const preVal = Number.isFinite(pre) ? Math.min(1, Math.max(0, pre)) : 0;
   const prePct = preVal * 100;
 
@@ -1391,62 +1386,53 @@ function renderBayesianUpdate(container, metrics) {
 
     const lr = document.createElement("span");
     lr.className = "bayesian-row-lr";
-    lr.textContent = `LR ${fmtLR(row.lr)}`;
+    lr.textContent = `LR × ${fmtLR(row.lr)}`;
 
-    // Axis with tick markers and a labelled pre→post arrow.
+    const toVal = Number.isFinite(row.to) ? Math.min(1, Math.max(0, row.to)) : 0;
+    const toPct = toVal * 100;
+
+    // Axis: a 0–100% rail with pre marker, arrow trail, post marker.
     const axis = document.createElement("div");
     axis.className = "bayesian-axis";
+    if (toPct < prePct) axis.classList.add("rtl");
     axis.setAttribute("role", "img");
     axis.setAttribute(
       "aria-label",
       `${row.label}: pre-test ${fmtPct(pre)}, post-test ${fmtPct(row.to)}, likelihood ratio ${fmtLR(row.lr)}.`
     );
 
-    // 0 / 50 / 100% tick rail
-    for (const t of [0, 25, 50, 75, 100]) {
-      const tick = document.createElement("span");
-      tick.className = "bayesian-axis-tick";
-      tick.style.left = `${t}%`;
-      axis.appendChild(tick);
-    }
-
-    const toVal = Number.isFinite(row.to) ? Math.min(1, Math.max(0, row.to)) : 0;
-    const toPct = toVal * 100;
     const lo = Math.min(prePct, toPct);
     const hi = Math.max(prePct, toPct);
 
-    // Movement trail between pre and post
     const trail = document.createElement("span");
     trail.className = "bayesian-axis-trail";
     trail.style.left = `${lo}%`;
     trail.style.width = `${Math.max(0.001, hi - lo)}%`;
-    if (toPct < prePct) trail.classList.add("rtl");
     axis.appendChild(trail);
 
-    // Pre marker — small hollow ring
     const preMarker = document.createElement("span");
     preMarker.className = "bayesian-axis-pre";
     preMarker.style.left = `${prePct}%`;
-    const preLabel = document.createElement("span");
-    preLabel.className = "bayesian-axis-pre-label";
-    preLabel.textContent = `pre ${fmtPct(pre)}`;
-    if (prePct > 60) preLabel.classList.add("flip");
-    preMarker.appendChild(preLabel);
+    preMarker.title = `Pre-test ${fmtPct(pre)}`;
     axis.appendChild(preMarker);
 
-    // Post marker — large filled dot with value
     const postMarker = document.createElement("span");
     postMarker.className = "bayesian-axis-post";
     postMarker.style.left = `${toPct}%`;
-    const postLabel = document.createElement("span");
-    postLabel.className = "bayesian-axis-post-label";
-    postLabel.textContent = fmtPct(row.to);
-    if (toPct > 70) postLabel.classList.add("flip");
-    postMarker.appendChild(postLabel);
+    postMarker.title = `Post-test ${fmtPct(row.to)}`;
     axis.appendChild(postMarker);
 
+    const fromLabel = document.createElement("span");
+    fromLabel.className = "bayesian-row-from";
+    fromLabel.textContent = fmtPct(pre);
+    const toLabel = document.createElement("span");
+    toLabel.className = "bayesian-row-to";
+    toLabel.textContent = fmtPct(row.to);
+
     node.appendChild(label);
+    node.appendChild(fromLabel);
     node.appendChild(axis);
+    node.appendChild(toLabel);
     node.appendChild(lr);
     container.appendChild(node);
   }

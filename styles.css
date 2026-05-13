@@ -285,17 +285,30 @@ h2 {
 }
 
 .panel {
-  background-color: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-3);
-  padding: var(--space-5);
+  background-color: transparent;
+  border-radius: 0;
+  padding: var(--space-4) 0;
+}
+
+.panel-form {
+  border-right: 1px solid var(--border);
+  padding-right: var(--space-5);
+}
+
+@media (max-width: 959px) {
+  .panel-form {
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    padding-right: 0;
+    padding-bottom: var(--space-5);
+  }
 }
 
 .panel-form,
 .panel-results {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: var(--space-5);
 }
 
 .panel-heading {
@@ -540,11 +553,11 @@ button:hover {
 
 /* ── Results hierarchy (v4.0) ───────────────────────────────────────────── */
 
-/* Headline strip — sens, spec, post-test (+), post-test (−). Large cards. */
 .results-headline {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-3);
+  column-gap: var(--space-5);
+  row-gap: var(--space-4);
 }
 
 @media (min-width: 540px) {
@@ -553,36 +566,36 @@ button:hover {
   }
 }
 
-/* Secondary grid — PPV, NPV, LR+, LR−, DOR, NNS. Smaller cards. */
 .results-secondary {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: var(--space-3);
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  column-gap: var(--space-5);
+  row-gap: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border);
 }
 
-/* Result cards: shared base, size + accent variants. */
+/* Result cards: no fills, no borders — typography and the inline bar/band
+   carry the visual signal. Minimal. */
 .result-card {
-  background-color: var(--surface-soft);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-2);
-  padding: var(--space-4);
+  background-color: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: var(--space-2);
   position: relative;
-  transition: border-color var(--duration-fast) var(--ease-out);
 }
 
-.result-card:empty {
-  display: none;
-}
+.result-card:empty { display: none; }
 
 .result-card h3 {
   margin: 0;
   font-size: var(--text-xs);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  font-weight: 700;
+  letter-spacing: 0.06em;
+  font-weight: 600;
   color: var(--text-muted);
 }
 
@@ -594,7 +607,7 @@ button:hover {
   letter-spacing: -0.02em;
   color: var(--text-strong);
   margin: 0;
-  line-height: 1.1;
+  line-height: 1.05;
 }
 
 .result-ci {
@@ -605,71 +618,72 @@ button:hover {
 }
 
 .result-note {
-  margin-top: auto;
+  margin: var(--space-1) 0 0;
   font-size: var(--text-xs);
   color: var(--text-muted);
 }
 
-/* Headline-sized cards are larger and use an accent left border. */
-.result-card--lg {
-  padding: var(--space-5);
-  gap: var(--space-2);
-  background-color: var(--surface);
-  border-width: 1px;
-}
-
-.result-card--lg .result-value {
-  font-size: var(--text-2xl);
-}
-
-.result-card--warm  { border-left: 3px solid var(--accent-warm); }
-.result-card--cool  { border-left: 3px solid var(--success); }
-.result-card--neutral { border-left: 3px solid var(--log-200); }
-[data-theme="dark"] .result-card--neutral { border-left-color: var(--log-700); }
-
-/* Secondary cards keep tight rhythm. */
+.result-card--lg .result-value { font-size: var(--text-2xl); }
 .result-card--sm .result-value { font-size: var(--text-lg); }
 
 /* ── Bayesian update strip ─────────────────────────────────────────────── */
 .bayesian-update {
-  background-color: var(--surface-soft);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-2);
-  padding: var(--space-4) var(--space-5);
   display: flex;
   flex-direction: column;
-  gap: var(--space-5);
+  gap: var(--space-4);
+  padding: var(--space-4) 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
 }
 
 .bayesian-update:empty {
   display: none;
 }
 
-.bayesian-update-heading {
-  margin: 0;
-  font-size: var(--text-sm);
-  color: var(--text-muted);
-  letter-spacing: 0.01em;
-}
-
 .bayesian-row {
   display: grid;
-  grid-template-columns: 6.5rem 1fr 4rem;
-  column-gap: var(--space-4);
-  row-gap: var(--space-2);
+  grid-template-columns: 6rem auto 1fr auto 4.5rem;
+  column-gap: var(--space-3);
   align-items: center;
   font-size: var(--text-sm);
 }
 
-@media (max-width: 540px) {
+@media (max-width: 600px) {
   .bayesian-row {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr auto auto;
+    grid-template-areas:
+      "label label lr"
+      "from axis to";
+    row-gap: var(--space-1);
   }
+  .bayesian-row-label { grid-area: label; }
+  .bayesian-row-lr    { grid-area: lr; }
+  .bayesian-row-from  { grid-area: from; }
+  .bayesian-axis      { grid-area: axis; }
+  .bayesian-row-to    { grid-area: to; }
 }
 
 .bayesian-row-label {
   font-weight: 700;
   color: var(--text);
+}
+
+.bayesian-row-from,
+.bayesian-row-to {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  font-variant-numeric: tabular-nums;
+  font-size: var(--text-sm);
+}
+
+.bayesian-row-from {
+  color: var(--text-muted);
+  text-align: right;
+}
+
+.bayesian-row-to {
+  color: var(--text-strong);
+  font-weight: 700;
+  text-align: left;
 }
 
 .bayesian-row-lr {
@@ -683,8 +697,7 @@ button:hover {
 
 .bayesian-axis {
   position: relative;
-  height: 2.5rem;
-  margin: var(--space-2) 0 var(--space-4);
+  height: 1.5rem;
 }
 
 .bayesian-axis::before {
@@ -698,56 +711,43 @@ button:hover {
   transform: translateY(-50%);
 }
 
-.bayesian-axis-tick {
-  position: absolute;
-  top: calc(50% - 4px);
-  width: 1px;
-  height: 8px;
-  background-color: var(--border);
-  transform: translateX(-50%);
-}
-
 .bayesian-axis-trail {
   position: absolute;
   top: 50%;
-  height: 4px;
-  border-radius: var(--radius-pill);
+  height: 2px;
   transform: translateY(-50%);
   background-color: var(--text-muted);
 }
 
-.bayesian-row--warm .bayesian-axis-trail { background: linear-gradient(90deg, var(--text-muted) 0%, var(--accent-warm) 100%); }
-.bayesian-row--cool .bayesian-axis-trail { background: linear-gradient(90deg, var(--success) 0%, var(--text-muted) 100%); }
-.bayesian-row--warm .bayesian-axis-trail.rtl { background: linear-gradient(90deg, var(--accent-warm) 0%, var(--text-muted) 100%); }
-.bayesian-row--cool .bayesian-axis-trail.rtl { background: linear-gradient(90deg, var(--text-muted) 0%, var(--success) 100%); }
+.bayesian-row--warm .bayesian-axis-trail { background-color: var(--accent-warm); height: 3px; }
+.bayesian-row--cool .bayesian-axis-trail { background-color: var(--success);     height: 3px; }
 
-/* Add a tiny arrowhead at the post end of the trail */
-.bayesian-row--warm .bayesian-axis-trail::after,
-.bayesian-row--cool .bayesian-axis-trail::after {
+/* Big, clearly visible arrowhead at the post end of the trail. */
+.bayesian-axis-trail::after {
   content: "";
   position: absolute;
   top: 50%;
-  right: -1px;
+  right: -10px;
   width: 0;
   height: 0;
-  border-top: 5px solid transparent;
-  border-bottom: 5px solid transparent;
+  border-top: 7px solid transparent;
+  border-bottom: 7px solid transparent;
   transform: translateY(-50%);
 }
 
-.bayesian-row--warm .bayesian-axis-trail::after { border-left: 7px solid var(--accent-warm); }
-.bayesian-row--cool .bayesian-axis-trail::after { border-left: 7px solid var(--success); }
+.bayesian-row--warm .bayesian-axis-trail::after { border-left: 11px solid var(--accent-warm); }
+.bayesian-row--cool .bayesian-axis-trail::after { border-left: 11px solid var(--success); }
 
-.bayesian-row--warm .bayesian-axis-trail.rtl::after,
-.bayesian-row--cool .bayesian-axis-trail.rtl::after {
+/* RTL: arrow points left when post-test < pre-test (e.g. negative test). */
+.bayesian-axis.rtl .bayesian-axis-trail::after {
   right: auto;
-  left: -1px;
+  left: -10px;
   border-left: none;
-  border-right: 7px solid;
+  border-right: 11px solid;
 }
 
-.bayesian-row--warm .bayesian-axis-trail.rtl::after { border-right-color: var(--accent-warm); }
-.bayesian-row--cool .bayesian-axis-trail.rtl::after { border-right-color: var(--success); }
+.bayesian-row--warm .bayesian-axis.rtl .bayesian-axis-trail::after { border-right-color: var(--accent-warm); }
+.bayesian-row--cool .bayesian-axis.rtl .bayesian-axis-trail::after { border-right-color: var(--success); }
 
 .bayesian-axis-pre,
 .bayesian-axis-post {
@@ -755,71 +755,34 @@ button:hover {
   top: 50%;
   transform: translate(-50%, -50%);
   border-radius: 50%;
-  border: 2px solid var(--surface-soft);
 }
 
 .bayesian-axis-pre {
-  width: 12px;
-  height: 12px;
-  background: var(--surface);
-  border-color: var(--text-muted);
+  width: 10px;
+  height: 10px;
+  background: var(--bg);
+  border: 2px solid var(--text-muted);
   z-index: 2;
 }
 
 .bayesian-axis-post {
-  width: 16px;
-  height: 16px;
+  width: 12px;
+  height: 12px;
   z-index: 3;
+  border: 2px solid var(--bg);
 }
 
-.bayesian-row--warm .bayesian-axis-post { background-color: var(--accent-warm); border-color: var(--surface); }
-.bayesian-row--cool .bayesian-axis-post { background-color: var(--success); border-color: var(--surface); }
-
-.bayesian-axis-pre-label,
-.bayesian-axis-post-label {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
-  font-variant-numeric: tabular-nums;
-  font-size: var(--text-xs);
-  white-space: nowrap;
-  pointer-events: none;
-}
-
-.bayesian-axis-pre-label {
-  bottom: calc(100% + 6px);
-  color: var(--text-muted);
-  font-weight: 600;
-}
-
-.bayesian-axis-post-label {
-  top: calc(100% + 6px);
-  font-weight: 700;
-  color: var(--text-strong);
-}
-
-.bayesian-axis-pre-label.flip {
-  left: auto;
-  right: 50%;
-  transform: translateX(50%);
-}
-
-.bayesian-axis-post-label.flip {
-  left: auto;
-  right: 50%;
-  transform: translateX(50%);
-}
+.bayesian-row--warm .bayesian-axis-post { background-color: var(--accent-warm); }
+.bayesian-row--cool .bayesian-axis-post { background-color: var(--success); }
 
 /* ── Inline fill bar on percentage result cards ────────────────────────── */
 .result-bar {
   position: relative;
-  height: 6px;
+  height: 3px;
   border-radius: var(--radius-pill);
-  background-color: var(--surface);
-  border: 1px solid var(--border);
+  background-color: var(--border);
   overflow: hidden;
-  margin: var(--space-1) 0;
+  margin: var(--space-1) 0 0;
 }
 
 .result-bar-fill {
@@ -838,11 +801,10 @@ button:hover {
 .result-band {
   position: relative;
   display: flex;
-  height: 10px;
+  height: 6px;
   border-radius: var(--radius-pill);
   overflow: hidden;
-  margin: var(--space-2) 0 var(--space-1);
-  border: 1px solid var(--border);
+  margin: var(--space-1) 0 0;
 }
 
 .result-band-zone {
@@ -850,40 +812,38 @@ button:hover {
   position: relative;
 }
 
-/* LR+: weak → limited → useful → rule-in (red → orange → yellow → green) */
-.result-band--lr-plus .result-band-zone--0 { background-color: rgba(168, 55, 50, 0.45); }
-.result-band--lr-plus .result-band-zone--1 { background-color: rgba(202, 100, 53, 0.45); }
-.result-band--lr-plus .result-band-zone--2 { background-color: rgba(106, 74, 0, 0.45); }
-.result-band--lr-plus .result-band-zone--3 { background-color: rgba(23, 124, 85, 0.50); }
+/* LR+: weak → limited → useful → rule-in */
+.result-band--lr-plus .result-band-zone--0 { background-color: rgba(168, 55, 50, 0.35); }
+.result-band--lr-plus .result-band-zone--1 { background-color: rgba(202, 100, 53, 0.35); }
+.result-band--lr-plus .result-band-zone--2 { background-color: rgba(106, 74, 0, 0.35); }
+.result-band--lr-plus .result-band-zone--3 { background-color: rgba(23, 124, 85, 0.40); }
 
-/* LR-: rule-out → useful → limited → weak (low value = good, mirrors LR+ reversed) */
-.result-band--lr-minus .result-band-zone--0 { background-color: rgba(23, 124, 85, 0.50); }
-.result-band--lr-minus .result-band-zone--1 { background-color: rgba(106, 74, 0, 0.45); }
-.result-band--lr-minus .result-band-zone--2 { background-color: rgba(202, 100, 53, 0.45); }
-.result-band--lr-minus .result-band-zone--3 { background-color: rgba(168, 55, 50, 0.45); }
+/* LR-: rule-out → useful → limited → weak */
+.result-band--lr-minus .result-band-zone--0 { background-color: rgba(23, 124, 85, 0.40); }
+.result-band--lr-minus .result-band-zone--1 { background-color: rgba(106, 74, 0, 0.35); }
+.result-band--lr-minus .result-band-zone--2 { background-color: rgba(202, 100, 53, 0.35); }
+.result-band--lr-minus .result-band-zone--3 { background-color: rgba(168, 55, 50, 0.35); }
 
 /* DOR: poor → limited → useful → very strong */
-.result-band--dor .result-band-zone--0 { background-color: rgba(168, 55, 50, 0.45); }
-.result-band--dor .result-band-zone--1 { background-color: rgba(202, 100, 53, 0.45); }
-.result-band--dor .result-band-zone--2 { background-color: rgba(106, 74, 0, 0.45); }
-.result-band--dor .result-band-zone--3 { background-color: rgba(23, 124, 85, 0.50); }
+.result-band--dor .result-band-zone--0 { background-color: rgba(168, 55, 50, 0.35); }
+.result-band--dor .result-band-zone--1 { background-color: rgba(202, 100, 53, 0.35); }
+.result-band--dor .result-band-zone--2 { background-color: rgba(106, 74, 0, 0.35); }
+.result-band--dor .result-band-zone--3 { background-color: rgba(23, 124, 85, 0.40); }
 
 .result-band-marker {
   position: absolute;
   top: 50%;
-  width: 10px;
-  height: 18px;
+  width: 3px;
+  height: 12px;
   transform: translate(-50%, -50%);
-  border-radius: 2px;
+  border-radius: 1px;
   background-color: var(--text-strong);
-  border: 2px solid var(--surface);
   pointer-events: none;
   z-index: 1;
 }
 
 [data-theme="dark"] .result-band-marker {
   background-color: var(--log-50);
-  border-color: var(--log-900);
 }
 
 .interpretation {
