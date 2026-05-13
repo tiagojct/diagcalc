@@ -635,10 +635,10 @@ button:hover {
   background-color: var(--surface-soft);
   border: 1px solid var(--border);
   border-radius: var(--radius-2);
-  padding: var(--space-4);
+  padding: var(--space-4) var(--space-5);
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  gap: var(--space-5);
 }
 
 .bayesian-update:empty {
@@ -647,16 +647,16 @@ button:hover {
 
 .bayesian-update-heading {
   margin: 0;
-  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
   font-size: var(--text-sm);
   color: var(--text-muted);
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
 }
 
 .bayesian-row {
   display: grid;
-  grid-template-columns: 7rem 1fr 4.5rem 4rem;
-  gap: var(--space-3);
+  grid-template-columns: 6.5rem 1fr 4rem;
+  column-gap: var(--space-4);
+  row-gap: var(--space-2);
   align-items: center;
   font-size: var(--text-sm);
 }
@@ -664,67 +664,227 @@ button:hover {
 @media (max-width: 540px) {
   .bayesian-row {
     grid-template-columns: 1fr;
-    gap: var(--space-1);
   }
 }
 
 .bayesian-row-label {
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text);
 }
 
-.bayesian-row-lr,
-.bayesian-row-result {
+.bayesian-row-lr {
   font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
   font-variant-numeric: tabular-nums;
   color: var(--text-muted);
   text-align: right;
+  font-size: var(--text-xs);
+  white-space: nowrap;
 }
 
-.bayesian-row-result {
-  color: var(--text-strong);
-  font-weight: 700;
-}
-
-.bayesian-row-bar {
+.bayesian-axis {
   position: relative;
-  height: 10px;
-  border-radius: var(--radius-pill);
-  background-color: var(--surface);
-  border: 1px solid var(--border);
-  overflow: visible;
+  height: 2.5rem;
+  margin: var(--space-2) 0 var(--space-4);
 }
 
-.bayesian-row-bar-track {
+.bayesian-axis::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background-color: var(--border);
+  transform: translateY(-50%);
+}
+
+.bayesian-axis-tick {
+  position: absolute;
+  top: calc(50% - 4px);
+  width: 1px;
+  height: 8px;
+  background-color: var(--border);
+  transform: translateX(-50%);
+}
+
+.bayesian-axis-trail {
   position: absolute;
   top: 50%;
   height: 4px;
-  transform: translateY(-50%);
   border-radius: var(--radius-pill);
+  transform: translateY(-50%);
   background-color: var(--text-muted);
-  opacity: 0.45;
 }
 
-.bayesian-row--warm .bayesian-row-bar-track { background-color: var(--accent-warm); opacity: 0.7; }
-.bayesian-row--cool .bayesian-row-bar-track { background-color: var(--success); opacity: 0.7; }
+.bayesian-row--warm .bayesian-axis-trail { background: linear-gradient(90deg, var(--text-muted) 0%, var(--accent-warm) 100%); }
+.bayesian-row--cool .bayesian-axis-trail { background: linear-gradient(90deg, var(--success) 0%, var(--text-muted) 100%); }
+.bayesian-row--warm .bayesian-axis-trail.rtl { background: linear-gradient(90deg, var(--accent-warm) 0%, var(--text-muted) 100%); }
+.bayesian-row--cool .bayesian-axis-trail.rtl { background: linear-gradient(90deg, var(--text-muted) 0%, var(--success) 100%); }
 
-.bayesian-row-bar-from,
-.bayesian-row-bar-to {
+/* Add a tiny arrowhead at the post end of the trail */
+.bayesian-row--warm .bayesian-axis-trail::after,
+.bayesian-row--cool .bayesian-axis-trail::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: -1px;
+  width: 0;
+  height: 0;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  transform: translateY(-50%);
+}
+
+.bayesian-row--warm .bayesian-axis-trail::after { border-left: 7px solid var(--accent-warm); }
+.bayesian-row--cool .bayesian-axis-trail::after { border-left: 7px solid var(--success); }
+
+.bayesian-row--warm .bayesian-axis-trail.rtl::after,
+.bayesian-row--cool .bayesian-axis-trail.rtl::after {
+  right: auto;
+  left: -1px;
+  border-left: none;
+  border-right: 7px solid;
+}
+
+.bayesian-row--warm .bayesian-axis-trail.rtl::after { border-right-color: var(--accent-warm); }
+.bayesian-row--cool .bayesian-axis-trail.rtl::after { border-right-color: var(--success); }
+
+.bayesian-axis-pre,
+.bayesian-axis-post {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 2px solid var(--surface-soft);
+}
+
+.bayesian-axis-pre {
+  width: 12px;
+  height: 12px;
+  background: var(--surface);
+  border-color: var(--text-muted);
+  z-index: 2;
+}
+
+.bayesian-axis-post {
+  width: 16px;
+  height: 16px;
+  z-index: 3;
+}
+
+.bayesian-row--warm .bayesian-axis-post { background-color: var(--accent-warm); border-color: var(--surface); }
+.bayesian-row--cool .bayesian-axis-post { background-color: var(--success); border-color: var(--surface); }
+
+.bayesian-axis-pre-label,
+.bayesian-axis-post-label {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  font-variant-numeric: tabular-nums;
+  font-size: var(--text-xs);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.bayesian-axis-pre-label {
+  bottom: calc(100% + 6px);
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.bayesian-axis-post-label {
+  top: calc(100% + 6px);
+  font-weight: 700;
+  color: var(--text-strong);
+}
+
+.bayesian-axis-pre-label.flip {
+  left: auto;
+  right: 50%;
+  transform: translateX(50%);
+}
+
+.bayesian-axis-post-label.flip {
+  left: auto;
+  right: 50%;
+  transform: translateX(50%);
+}
+
+/* ── Inline fill bar on percentage result cards ────────────────────────── */
+.result-bar {
+  position: relative;
+  height: 6px;
+  border-radius: var(--radius-pill);
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  margin: var(--space-1) 0;
+}
+
+.result-bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-pill);
+  background-color: var(--text-muted);
+  transition: width var(--duration-base) var(--ease-out);
+}
+
+.result-bar--neutral .result-bar-fill { background-color: var(--secondary); }
+.result-bar--warm .result-bar-fill    { background-color: var(--accent-warm); }
+.result-bar--cool .result-bar-fill    { background-color: var(--success); }
+
+/* ── Clinical-utility band indicators on LR / DOR cards ────────────────── */
+.result-band {
+  position: relative;
+  display: flex;
+  height: 10px;
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  margin: var(--space-2) 0 var(--space-1);
+  border: 1px solid var(--border);
+}
+
+.result-band-zone {
+  flex: 1 1 0;
+  position: relative;
+}
+
+/* LR+: weak → limited → useful → rule-in (red → orange → yellow → green) */
+.result-band--lr-plus .result-band-zone--0 { background-color: rgba(168, 55, 50, 0.45); }
+.result-band--lr-plus .result-band-zone--1 { background-color: rgba(202, 100, 53, 0.45); }
+.result-band--lr-plus .result-band-zone--2 { background-color: rgba(106, 74, 0, 0.45); }
+.result-band--lr-plus .result-band-zone--3 { background-color: rgba(23, 124, 85, 0.50); }
+
+/* LR-: rule-out → useful → limited → weak (low value = good, mirrors LR+ reversed) */
+.result-band--lr-minus .result-band-zone--0 { background-color: rgba(23, 124, 85, 0.50); }
+.result-band--lr-minus .result-band-zone--1 { background-color: rgba(106, 74, 0, 0.45); }
+.result-band--lr-minus .result-band-zone--2 { background-color: rgba(202, 100, 53, 0.45); }
+.result-band--lr-minus .result-band-zone--3 { background-color: rgba(168, 55, 50, 0.45); }
+
+/* DOR: poor → limited → useful → very strong */
+.result-band--dor .result-band-zone--0 { background-color: rgba(168, 55, 50, 0.45); }
+.result-band--dor .result-band-zone--1 { background-color: rgba(202, 100, 53, 0.45); }
+.result-band--dor .result-band-zone--2 { background-color: rgba(106, 74, 0, 0.45); }
+.result-band--dor .result-band-zone--3 { background-color: rgba(23, 124, 85, 0.50); }
+
+.result-band-marker {
   position: absolute;
   top: 50%;
   width: 10px;
-  height: 10px;
-  border-radius: 50%;
+  height: 18px;
   transform: translate(-50%, -50%);
+  border-radius: 2px;
+  background-color: var(--text-strong);
   border: 2px solid var(--surface);
+  pointer-events: none;
+  z-index: 1;
 }
 
-.bayesian-row-bar-from {
-  background-color: var(--text-muted);
+[data-theme="dark"] .result-band-marker {
+  background-color: var(--log-50);
+  border-color: var(--log-900);
 }
-
-.bayesian-row--warm .bayesian-row-bar-to { background-color: var(--accent-warm); }
-.bayesian-row--cool .bayesian-row-bar-to { background-color: var(--success); }
 
 .interpretation {
   margin-top: 0;
@@ -2174,8 +2334,17 @@ a:hover {
     margin: 0.4rem 0;
   }
 
-  .bayesian-row-bar { background: #EEE; border-color: #CCC; }
-  .bayesian-row-bar-track { background: #444 !important; opacity: 1; }
+  .bayesian-axis-trail { background: #444 !important; }
+  .bayesian-axis-pre { background: #FFF; border-color: #444; }
+  .bayesian-axis-post { background: #000 !important; border-color: #FFF; }
+  .bayesian-axis-pre-label, .bayesian-axis-post-label { color: #000; }
+
+  .result-bar { background: #EEE; border-color: #CCC; }
+  .result-bar-fill { background: #444 !important; }
+
+  .result-band { border-color: #CCC; }
+  .result-band-zone { background: #EEE !important; }
+  .result-band-marker { background: #000 !important; border-color: #FFF; }
 
   .fagan-nomogram {
     page-break-inside: avoid;

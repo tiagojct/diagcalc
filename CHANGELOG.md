@@ -2,6 +2,18 @@
 
 Todas as alterações relevantes deste projeto são registadas aqui. As datas seguem o formato ISO (AAAA-MM-DD).
 
+## [4.0.1] - 2026-05-13
+
+### Alterado
+- **Tira Bayesiana redesenhada.** Cada linha mostra agora um eixo 0–100 % com tick marks em 0/25/50/75/100, um marcador pré-teste (anel pequeno e oco, etiquetado "pre X %" por cima) e um marcador pós-teste (disco grande preenchido com o acento da linha, etiquetado com o valor em baixo). O trilho entre os dois é um gradiente direccional com setinha — o olho segue claramente a "saltada" sem ter de adivinhar qual dos pontos é qual. Etiquetas saltam para o lado oposto quando o valor cai perto da extremidade direita.
+- **Cartas de percentagem ganham barras de preenchimento inline** (sensibilidade, especificidade, PPV, NPV, pós-teste +, pós-teste −). 6 px de altura, debaixo do valor numérico, preenchidas com o acento da carta (Stubb / Tashtego / Starbuck conforme o caso). A magnitude da medida passa a ser legível em meio segundo sem ter de descodificar dígitos.
+- **Cartas LR+ / LR− / DOR ganham indicadores de banda.** Quatro segmentos coloridos representando os escalões clínicos (LR+: weak / limited / useful / rule-in; LR−: rule-out / useful / limited / weak; DOR: poor / limited / useful / very strong) com um marcador vertical na posição interpolada do valor actual. Mostra de imediato em que escalão clínico o resultado cai, sem o leitor ter de memorizar os limiares.
+
+### Notas técnicas
+- Novas helpers em `script.js`: `renderInlineBar(value, variant)`, `renderBand(metric, kind)`, `bandPosition(value, stops)`. `BAND_DEFS` define os stops e labels para os três tipos de banda (`lr-plus`, `lr-minus`, `dor`).
+- Stops das bandas espelham os escalões já existentes em `interpretLRPositive` / `interpretLRNegative` / `interpretDOR` no motor — o visual e o texto estão a contar a mesma história.
+- Tira Bayesiana e novos indicadores são print-safe (escalas de cinzentos no `@media print`) e respeitam `prefers-reduced-motion` através do transition global.
+
 ## [4.0.0] - 2026-05-13 — "Clinical Dashboard"
 
 Versão maior dedicada ao **facelift visual** da aplicação web. A álgebra de diagnóstico, a CLI e a TUI mantêm-se inalteradas; toda a mudança ocorre na "casca" que rodeia o motor.
