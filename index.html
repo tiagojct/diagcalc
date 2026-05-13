@@ -322,6 +322,42 @@
       </div>
 
       <div class="resource-grid">
+      <section aria-labelledby="kappa-title" class="panel panel-docs kappa-panel">
+        <div class="panel-heading">
+          <p class="panel-kicker">Companion tool</p>
+          <h2 id="kappa-title">Inter-rater agreement (Cohen's κ)</h2>
+          <p class="help-text">
+            Two raters classify the same items as positive / negative. Enter the four counts to get Cohen's κ with 95% CI (Fleiss 1969) and a Landis–Koch qualitative label. Useful for imaging or pathology cases where the "test" is a human judgement.
+          </p>
+        </div>
+        <fieldset class="confusion-matrix kappa-matrix">
+          <legend>Rater 1 × Rater 2</legend>
+          <div class="grid-container" role="group" aria-label="Inter-rater agreement matrix">
+            <span class="empty" aria-hidden="true"></span>
+            <span class="grid-header">Rater 2 +</span>
+            <span class="grid-header">Rater 2 −</span>
+            <label class="grid-label" for="kappaBothPos">Rater 1 +</label>
+            <div class="grid-item">
+              <input type="number" id="kappaBothPos" inputmode="numeric" min="0" step="1" placeholder="Both +" aria-label="Both raters positive" />
+            </div>
+            <div class="grid-item">
+              <input type="number" id="kappaOnly1Pos" inputmode="numeric" min="0" step="1" placeholder="Only rater 1 +" aria-label="Only rater 1 positive" />
+            </div>
+            <label class="grid-label" for="kappaOnly2Pos">Rater 1 −</label>
+            <div class="grid-item">
+              <input type="number" id="kappaOnly2Pos" inputmode="numeric" min="0" step="1" placeholder="Only rater 2 +" aria-label="Only rater 2 positive" />
+            </div>
+            <div class="grid-item">
+              <input type="number" id="kappaBothNeg" inputmode="numeric" min="0" step="1" placeholder="Both −" aria-label="Both raters negative" />
+            </div>
+          </div>
+        </fieldset>
+        <div class="form-actions">
+          <button type="button" id="kappaCalc">Compute κ</button>
+          <button type="button" id="kappaClear" class="secondary">Clear</button>
+        </div>
+        <div id="kappaResult" class="kappa-result" aria-live="polite"></div>
+      </section>
       <section aria-labelledby="interpretation-title" class="interpretation panel panel-docs">
         <h2 id="interpretation-title">Interpretation guide</h2>
         <details>

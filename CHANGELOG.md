@@ -2,6 +2,17 @@
 
 Todas as alterações relevantes deste projeto são registadas aqui. As datas seguem o formato ISO (AAAA-MM-DD).
 
+## [3.13.0] - 2026-05-13
+
+### Adicionado
+- **Painel "Inter-rater agreement (Cohen's κ)"** como ferramenta companheira na resource-grid — útil quando o "teste" é um juízo humano (imagiologia, anatomia patológica, classificação clínica). Aceita os quatro cell counts da tabela rater 1 × rater 2 e devolve:
+  - κ com IC 95% (variância de Fleiss 1969).
+  - Concordância observada (`p_o`) e esperada (`p_e`).
+  - N total.
+  - Interpretação qualitativa segundo Landis & Koch 1977 (Poor / Slight / Fair / Moderate / Substantial / Almost perfect).
+- Nova função pública: `calcCohenKappa({ bothPos, only1Pos, only2Pos, bothNeg })` → `{ value, ci, observed, expected, n, interpretation }` ou `null` em entradas inválidas; `interpretKappa(value)` para o rótulo qualitativo.
+- 5 testes adicionais (concordância perfeita → κ=1, raters independentes → κ≈0, exemplo derivado, entrada vazia/negativa → null, mapeamento Landis-Koch dos seis intervalos).
+
 ## [3.12.0] - 2026-05-13
 
 ### Adicionado

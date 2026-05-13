@@ -350,6 +350,46 @@ test("PPV(p) from sens/spec matches calculateMetrics PPV at same prevalence", ()
   }
 });
 
+// ── Cohen's kappa ───────────────────────────────────────────────────────────
+
+test("calcCohenKappa on a perfect-agreement table returns 1", () => {
+  const r = core.calcCohenKappa({ bothPos: 50, only1Pos: 0, only2Pos: 0, bothNeg: 50 });
+  close(r.value, 1, 1e-9);
+  assert.match(r.interpretation, /Almost perfect/);
+});
+
+test("calcCohenKappa on independent raters returns ≈ 0", () => {
+  // Each rater calls 50% positive, but disagreements are 50/50 → kappa ≈ 0.
+  const r = core.calcCohenKappa({ bothPos: 25, only1Pos: 25, only2Pos: 25, bothNeg: 25 });
+  close(r.value, 0, 1e-9);
+});
+
+test("calcCohenKappa on classic Fleiss textbook example yields ~0.40", () => {
+  // 100 items; po = (45 + 15) / 100 = 0.60
+  // pe = (50/100)(60/100) + (50/100)(40/100) = 0.30 + 0.20 = 0.50
+  // kappa = (0.60 - 0.50) / (1 - 0.50) = 0.20
+  // (illustrative — keeps the maths reproducible without a copyrighted table)
+  const r = core.calcCohenKappa({ bothPos: 45, only1Pos: 5, only2Pos: 15, bothNeg: 35 });
+  close(r.observed, 0.80, 1e-9);
+  // expected = (50/100)(60/100) + (50/100)(40/100) = 0.50
+  close(r.expected, 0.50, 1e-9);
+  close(r.value, (0.80 - 0.50) / (1 - 0.50), 1e-9);
+});
+
+test("calcCohenKappa returns null on empty or invalid input", () => {
+  assert.equal(core.calcCohenKappa({ bothPos: 0, only1Pos: 0, only2Pos: 0, bothNeg: 0 }), null);
+  assert.equal(core.calcCohenKappa({ bothPos: -1, only1Pos: 0, only2Pos: 0, bothNeg: 5 }), null);
+});
+
+test("interpretKappa maps to Landis-Koch bins", () => {
+  assert.match(core.interpretKappa(-0.1), /Poor/);
+  assert.match(core.interpretKappa(0.10), /Slight/);
+  assert.match(core.interpretKappa(0.30), /Fair/);
+  assert.match(core.interpretKappa(0.50), /Moderate/);
+  assert.match(core.interpretKappa(0.70), /Substantial/);
+  assert.match(core.interpretKappa(0.95), /Almost perfect/);
+});
+
 // ── Number needed to screen ─────────────────────────────────────────────────
 
 test("calculateMetrics exposes NNS = 1 / (sens × prevalence)", () => {

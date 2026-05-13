@@ -426,6 +426,70 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // Cohen's κ companion tool — independent of the main diagnostic test workflow.
+  const kappaCalcButton = document.getElementById("kappaCalc");
+  const kappaClearButton = document.getElementById("kappaClear");
+  const kappaResultEl = document.getElementById("kappaResult");
+  const kappaFields = ["kappaBothPos", "kappaOnly1Pos", "kappaOnly2Pos", "kappaBothNeg"];
+
+  if (kappaCalcButton) {
+    kappaCalcButton.addEventListener("click", computeKappa);
+  }
+  if (kappaClearButton) {
+    kappaClearButton.addEventListener("click", () => {
+      for (const id of kappaFields) {
+        const el = document.getElementById(id);
+        if (el) el.value = "";
+      }
+      if (kappaResultEl) kappaResultEl.innerHTML = "";
+    });
+  }
+  for (const id of kappaFields) {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener("keydown", (e) => { if (e.key === "Enter") computeKappa(); });
+  }
+
+  function computeKappa() {
+    if (!kappaResultEl) return;
+    const inputs = {
+      bothPos: core.safeParseInt(document.getElementById("kappaBothPos").value),
+      only1Pos: core.safeParseInt(document.getElementById("kappaOnly1Pos").value),
+      only2Pos: core.safeParseInt(document.getElementById("kappaOnly2Pos").value),
+      bothNeg: core.safeParseInt(document.getElementById("kappaBothNeg").value),
+    };
+    if (Object.values(inputs).some((v) => !Number.isInteger(v) || v < 0)) {
+      kappaResultEl.innerHTML = `<p class="kappa-error">Enter non-negative integers in all four cells.</p>`;
+      return;
+    }
+    const result = core.calcCohenKappa(inputs);
+    if (!result) {
+      kappaResultEl.innerHTML = `<p class="kappa-error">Total cannot be zero.</p>`;
+      return;
+    }
+    kappaResultEl.innerHTML = "";
+    const stats = [
+      ["κ", Number.isFinite(result.value) ? result.value.toFixed(3) : "—"],
+      ["95% CI", result.ci ? `${result.ci.lower.toFixed(3)} to ${result.ci.upper.toFixed(3)}` : "—"],
+      ["Observed agreement (p_o)", core.formatPercentage(result.observed)],
+      ["Expected agreement (p_e)", core.formatPercentage(result.expected)],
+      ["N", String(result.n)],
+      ["Interpretation", result.interpretation],
+    ];
+    for (const [label, value] of stats) {
+      const cell = document.createElement("div");
+      cell.className = "kappa-stat";
+      const lab = document.createElement("span");
+      lab.className = "kappa-stat-label";
+      lab.textContent = label;
+      const val = document.createElement("span");
+      val.className = "kappa-stat-value";
+      val.textContent = value;
+      cell.appendChild(lab);
+      cell.appendChild(val);
+      kappaResultEl.appendChild(cell);
+    }
+  }
+
   function renderBiasWarnings(warnings) {
     if (!biasWarningsEl) return;
     biasWarningsEl.innerHTML = "";
