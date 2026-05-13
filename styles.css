@@ -626,6 +626,45 @@ button:hover {
   border-radius: 4px;
 }
 
+/* Bias warnings callout */
+.bias-warnings {
+  display: none;
+  margin: 0 0 1rem;
+  padding: 0.9rem 1.1rem;
+  background-color: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-left: 4px solid var(--crew-pip);
+  border-radius: 6px;
+  color: var(--text-color);
+  font-size: 0.92rem;
+}
+
+.bias-warnings.visible {
+  display: block;
+}
+
+.bias-warnings-heading {
+  margin: 0 0 0.4rem;
+  font-weight: 700;
+  color: var(--crew-pip);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.78rem;
+}
+
+.bias-warnings-list {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+.bias-warnings-list li {
+  margin-bottom: 0.35rem;
+}
+
+.bias-warnings-list li:last-child {
+  margin-bottom: 0;
+}
+
 /* Pauker–Kassirer decision thresholds */
 .threshold-panel {
   background-color: var(--surface-color);

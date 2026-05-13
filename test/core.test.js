@@ -329,6 +329,50 @@ test("PPV(p) from sens/spec matches calculateMetrics PPV at same prevalence", ()
   }
 });
 
+// ── Diagnostic odds ratio ───────────────────────────────────────────────────
+
+test("calcDOR on D-dimer (195·413 / (87·5)) matches definition", () => {
+  const r = core.calcDOR(195, 87, 5, 413);
+  close(r.value, (195 * 413) / (87 * 5), 1e-9);
+  assert.ok(r.ci);
+  assert.ok(r.ci.lower < r.value && r.value < r.ci.upper);
+});
+
+test("calcDOR applies continuity correction when any cell is 0", () => {
+  const r = core.calcDOR(0, 5, 5, 10);
+  assert.ok(Number.isFinite(r.value));
+  assert.ok(r.ci !== null);
+});
+
+test("calculateMetrics exposes the DOR card with a CI and an interpretation note", () => {
+  const m = core.calculateMetrics({ tp: 195, fp: 87, fn: 5, tn: 413, preTestProb: 28.6 });
+  assert.ok(m.dor);
+  assert.ok(Number.isFinite(m.dor.value));
+  assert.ok(m.dor.ci);
+  assert.equal(typeof m.dor.note, "string");
+  assert.equal(m.dor.formatter, core.formatLikelihood);
+});
+
+// ── Bias warnings ───────────────────────────────────────────────────────────
+
+test("buildBiasWarnings is silent on a well-powered preset matching the pre-test", () => {
+  const w = core.buildBiasWarnings({ tp: 195, fp: 87, fn: 5, tn: 413, preTestProb: 28.6 });
+  assert.deepEqual(w, []);
+});
+
+test("buildBiasWarnings flags small diseased and non-diseased groups", () => {
+  const w = core.buildBiasWarnings({ tp: 3, fp: 1, fn: 1, tn: 5, preTestProb: 40 });
+  assert.equal(w.length, 2);
+  assert.match(w[0], /Small diseased group/);
+  assert.match(w[1], /Small non-diseased group/);
+});
+
+test("buildBiasWarnings flags pre-test vs study-prevalence mismatch", () => {
+  // 50% study prevalence, but user enters 2% pre-test → > 20% gap
+  const w = core.buildBiasWarnings({ tp: 50, fp: 5, fn: 50, tn: 95, preTestProb: 2 });
+  assert.ok(w.some((msg) => /Study prevalence/.test(msg)));
+});
+
 // ── Pauker–Kassirer decision thresholds ─────────────────────────────────────
 
 test("calculateThresholds: Pt=0.3, LR+=10, LR-=0.1 yields plausible thresholds", () => {

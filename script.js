@@ -19,6 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const datasetSelect = document.getElementById("datasetSelect");
   const resetButton = document.getElementById("resetButton");
   const probabilityChartEl = document.getElementById("probabilityChart");
+  const biasWarningsEl = document.getElementById("biasWarnings");
   const printButton = document.getElementById("printButton");
   const datasetReferenceEl = document.getElementById("dataset-reference");
   const themeToggle = document.getElementById("themeToggle");
@@ -93,6 +94,7 @@ document.addEventListener("DOMContentLoaded", () => {
       hidePrevalenceExplorer();
       hideSequentialTest();
       hideThresholdPanel();
+      renderBiasWarnings([]);
     });
   });
 
@@ -130,10 +132,12 @@ document.addEventListener("DOMContentLoaded", () => {
       hidePrevalenceExplorer();
       hideSequentialTest();
       hideThresholdPanel();
+      renderBiasWarnings([]);
       return;
     }
 
     const metrics = core.calculateMetrics(data);
+    renderBiasWarnings(core.buildBiasWarnings(data));
     renderResults(resultsEl, metrics);
     renderProbabilityChart(probabilityChartEl, {
       pre: metrics.preTestProbability.value,
@@ -151,6 +155,28 @@ document.addEventListener("DOMContentLoaded", () => {
     showSequentialTest(metrics.postTestPositive.value, metrics.postTestNegative.value);
     showThresholdPanel(metrics.lrPositive.value, metrics.lrNegative.value, metrics.preTestProbability.value);
     setFeedback("Calculation complete. Explore the interpretation guide below.", true);
+  }
+
+  function renderBiasWarnings(warnings) {
+    if (!biasWarningsEl) return;
+    biasWarningsEl.innerHTML = "";
+    if (!Array.isArray(warnings) || warnings.length === 0) {
+      biasWarningsEl.classList.remove("visible");
+      return;
+    }
+    biasWarningsEl.classList.add("visible");
+    const heading = document.createElement("p");
+    heading.className = "bias-warnings-heading";
+    heading.textContent = warnings.length === 1 ? "Heads up" : "Heads up";
+    biasWarningsEl.appendChild(heading);
+    const list = document.createElement("ul");
+    list.className = "bias-warnings-list";
+    for (const msg of warnings) {
+      const li = document.createElement("li");
+      li.textContent = msg;
+      list.appendChild(li);
+    }
+    biasWarningsEl.appendChild(list);
   }
 
   function showThresholdPanel(lrPositive, lrNegative, preTest) {

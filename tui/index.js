@@ -10,6 +10,7 @@ function renderResults(metrics) {
     renderMetricLine(metrics.specificity, "specificity"),
     renderMetricLine(metrics.ppv, "ppv"),
     renderMetricLine(metrics.npv, "npv"),
+    renderMetricLine(metrics.dor, "dor"),
   ];
 
   const bayes = [
@@ -105,6 +106,19 @@ function metricTone(kind, value) {
       return { colour: CREW.pip, badge: "LIMITED" };
     }
     return { colour: CREW.ahab, badge: "WEAK" };
+  }
+
+  if (kind === "dor") {
+    if (value >= 100) {
+      return { colour: CREW.tashtego, badge: "VERY STRONG" };
+    }
+    if (value >= 10) {
+      return { colour: CREW.tashtego, badge: "USEFUL" };
+    }
+    if (value > 1) {
+      return { colour: CREW.pip, badge: "LIMITED" };
+    }
+    return { colour: CREW.ahab, badge: "POOR" };
   }
 
   if (kind === "lrNegative") {
@@ -526,10 +540,11 @@ function runTui() {
     }
 
     const metrics = core.calculateMetrics(state.input);
+    const warnings = core.buildBiasWarnings(state.input);
     resultsBox.setLabel(` Results - ${state.activeCaseLabel} `);
-    resultsBox.setContent(buildResultSummary(state.activeCaseLabel, state.input, metrics));
+    resultsBox.setContent(buildResultSummary(state.activeCaseLabel, state.input, metrics, warnings));
     resultsBox.setScrollPerc(0);
-    setFeedback("Calculation complete.");
+    setFeedback(warnings.length > 0 ? `Calculation complete (${warnings.length} warning${warnings.length === 1 ? "" : "s"}).` : "Calculation complete.");
     screen.render();
   }
 
@@ -837,8 +852,11 @@ function buildPendingResults(caseLabel, message) {
   ].join("\n");
 }
 
-function buildResultSummary(caseLabel, input, metrics) {
+function buildResultSummary(caseLabel, input, metrics, warnings) {
   const totals = buildTotals(input);
+  const warningsBlock = Array.isArray(warnings) && warnings.length > 0
+    ? `\n{${"#DEC577"}-fg}{bold}Heads up:{/bold}{/}\n${warnings.map((w) => `  • ${w}`).join("\n")}\n`
+    : "";
   const caseSummary = [
     buildStatusStrip({
       caseLabel,
@@ -846,7 +864,7 @@ function buildResultSummary(caseLabel, input, metrics) {
       statusColour: "green",
       summary: `LR+ ${core.formatValue(metrics.lrPositive.value, metrics.lrPositive.formatter)} | LR- ${core.formatValue(metrics.lrNegative.value, metrics.lrNegative.formatter)} | Post+ ${core.formatValue(metrics.postTestPositive.value)} | Post- ${core.formatValue(metrics.postTestNegative.value)}`,
     }),
-    "",
+    warningsBlock,
     "{bold}Case Overview{/bold}",
     buildConfusionMatrixBox(input),
     `Diseased ${totals.diseased}   Non-diseased ${totals.nonDiseased}   Total ${totals.total}`,

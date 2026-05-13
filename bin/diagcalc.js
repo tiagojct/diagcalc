@@ -74,12 +74,13 @@ function serialiseMetric(metric) {
   };
 }
 
-function printJsonReport(dataset, input, metrics, chained) {
+function printJsonReport(dataset, input, metrics, chained, warnings) {
   const payload = {
     case: dataset ? dataset.name : "Ad hoc case",
     datasetKey: dataset ? dataset.key || null : null,
     input,
     metrics: Object.fromEntries(Object.entries(metrics).map(([key, metric]) => [key, serialiseMetric(metric)])),
+    warnings: Array.isArray(warnings) && warnings.length ? warnings : [],
   };
   if (chained) {
     payload.chained = {
@@ -144,12 +145,13 @@ function renderMetricLine(metric) {
   return `${metric.label}: ${value}${ci}`;
 }
 
-function printReport(dataset, metrics) {
+function printReport(dataset, metrics, warnings) {
   const entries = [
     metrics.sensitivity,
     metrics.specificity,
     metrics.ppv,
     metrics.npv,
+    metrics.dor,
     metrics.lrPositive,
     metrics.lrNegative,
     metrics.preTestProbability,
@@ -163,6 +165,13 @@ function printReport(dataset, metrics) {
     lines.push(dataset.name);
   }
   lines.push("");
+  if (Array.isArray(warnings) && warnings.length > 0) {
+    lines.push("Heads up:");
+    for (const w of warnings) {
+      lines.push(`  - ${w}`);
+    }
+    lines.push("");
+  }
   entries.forEach((metric) => {
     lines.push(renderMetricLine(metric));
   });
@@ -234,8 +243,10 @@ function main() {
     }
   }
 
+  const warnings = core.buildBiasWarnings(built.input);
+
   if (format === "json") {
-    printJsonReport(built.dataset, built.input, metrics, chained);
+    printJsonReport(built.dataset, built.input, metrics, chained, warnings);
     return;
   }
 
@@ -245,7 +256,7 @@ function main() {
     return;
   }
 
-  printReport(built.dataset, metrics);
+  printReport(built.dataset, metrics, warnings);
   if (chained) {
     printChainedReport(chained);
   }

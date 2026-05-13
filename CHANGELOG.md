@@ -2,6 +2,22 @@
 
 Todas as alterações relevantes deste projeto são registadas aqui. As datas seguem o formato ISO (AAAA-MM-DD).
 
+## [3.8.0] - 2026-05-13
+
+### Adicionado
+- **Razão de probabilidades de diagnóstico (DOR)** como nova métrica em todas as interfaces — `DOR = (TP · TN) / (FP · FN)` com IC 95% log-normal (`SE = √(1/TP + 1/FP + 1/FN + 1/TN)`) e correcção de continuidade `+0,5` quando alguma célula é zero. Interpretação automática (≥100 muito forte, ≥10 útil, >1 limitada, ≤1 problemática).
+- **Avisos de viés** no painel de resultados sempre que o motor detecta:
+  - Grupo de doentes com `N < 30` (sensibilidade imprecisa).
+  - Grupo de não-doentes com `N < 30` (especificidade imprecisa).
+  - Prevalência do estudo a divergir mais de 20 pontos percentuais da probabilidade pré-teste do utilizador — recorda que PPV/NPV reflectem a prevalência do estudo, e que para o paciente concreto se deve ler as probabilidades pós-teste.
+- Novas funções públicas: `calcDOR(tp, fp, fn, tn)`, `interpretDOR(value)` e `buildBiasWarnings({ tp, fp, fn, tn, preTestProb })`.
+- 6 novos testes (cálculo do DOR, correcção de continuidade, presença da carta DOR no `calculateMetrics`, comportamento dos avisos em três cenários).
+
+### Alterado
+- Versão web: carta DOR adicionada à grelha de resultados (entre NPV e LR+); avisos surgem num callout amarelo (acento Pip) acima dos cartões.
+- TUI: DOR renderizado no bloco "Performance Measures" com tonalidade própria (Tashtego ≥10, Pip 1–10, Ahab ≤1); avisos aparecem como bloco "Heads up" no painel de resultados.
+- CLI texto: secção "Heads up" no topo do relatório quando há avisos; linha DOR adicionada à secção de métricas. `--format json` ganha um campo `warnings` (array de strings).
+
 ## [3.7.0] - 2026-05-13
 
 ### Adicionado
