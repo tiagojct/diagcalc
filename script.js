@@ -586,10 +586,10 @@ document.addEventListener("DOMContentLoaded", () => {
     ctx.clearRect(0, 0, W, H);
 
     const styles = getComputedStyle(document.documentElement);
-    const axisColor = styles.getPropertyValue("--base-600").trim();
-    const textColor = styles.getPropertyValue("--text-color").trim();
-    const mutedColor = styles.getPropertyValue("--muted-text").trim();
-    const primaryColor = styles.getPropertyValue("--primary-color").trim();
+    const axisColor = styles.getPropertyValue("--axis").trim();
+    const textColor = styles.getPropertyValue("--text").trim();
+    const mutedColor = styles.getPropertyValue("--text-muted").trim();
+    const primaryColor = styles.getPropertyValue("--primary").trim();
     const warningColor = styles.getPropertyValue("--crew-pip").trim();
 
     const px = (f) => margin.left + f * plotW;
@@ -1044,12 +1044,12 @@ document.addEventListener("DOMContentLoaded", () => {
     ctx.clearRect(0, 0, W, H);
 
     const styles = getComputedStyle(document.documentElement);
-    const axisColor = styles.getPropertyValue("--base-600").trim();
-    const textColor = styles.getPropertyValue("--text-color").trim();
+    const axisColor = styles.getPropertyValue("--axis").trim();
+    const textColor = styles.getPropertyValue("--text").trim();
     const ppvColor = styles.getPropertyValue("--accent-warm").trim();
-    const npvColor = styles.getPropertyValue("--success-color").trim();
-    const primaryColor = styles.getPropertyValue("--primary-color").trim();
-    const mutedColor = styles.getPropertyValue("--muted-text").trim();
+    const npvColor = styles.getPropertyValue("--success").trim();
+    const primaryColor = styles.getPropertyValue("--primary").trim();
+    const mutedColor = styles.getPropertyValue("--text-muted").trim();
 
     const px = (p) => margin.left + p * plotW;
     const py = (v) => margin.top + (1 - v) * plotH;
@@ -1435,10 +1435,10 @@ function renderFaganNomogram(canvas, container, data) {
   }
 
   const styles = getComputedStyle(document.documentElement);
-  const axisColor = styles.getPropertyValue("--base-600").trim();
-  const textColor = styles.getPropertyValue("--text-color").trim();
+  const axisColor = styles.getPropertyValue("--axis").trim();
+  const textColor = styles.getPropertyValue("--text").trim();
   const warmColor = styles.getPropertyValue("--accent-warm").trim();
-  const successColor = styles.getPropertyValue("--success-color").trim();
+  const successColor = styles.getPropertyValue("--success").trim();
 
   ctx.strokeStyle = axisColor;
   ctx.lineWidth = 2;

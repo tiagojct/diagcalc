@@ -24,51 +24,22 @@
   --crew-tashtego: #177C55;  /* green — LR− / success */
   --crew-daggoo:   #552823;  /* deep brown — sequential second-stage */
 
-  /* Legacy base-* names retained for script.js getComputedStyle compatibility */
-  --base-100:  var(--log-50);
-  --base-200:  var(--log-100);
-  --base-300:  var(--log-150);
-  --base-400:  var(--log-200);
-  --base-500:  var(--log-300);
-  --base-600:  var(--log-400);
-  --base-700:  var(--crew-ishmael);
-  --base-800:  var(--log-700);
-  --base-900:  var(--log-800);
-  --base-950:  var(--log-900);
-  --base-1000: var(--log-950);
-
-  /* Legacy hue aliases */
-  --red:     var(--crew-ahab);
-  --orange:  var(--crew-stubb);
-  --yellow:  var(--crew-pip);
-  --green:   var(--crew-tashtego);
-  --cyan:    var(--crew-starbuck);
-  --blue:    var(--crew-queequeg);
-  --purple:  var(--crew-daggoo);
-  --magenta: var(--crew-ahab);
-
-  /* Semantic tokens */
-  --primary-color: var(--crew-queequeg);
-  --primary-dark: var(--log-800);
-  --secondary-color: var(--crew-starbuck);
-  --background-color: var(--log-50);
-  --surface-color: var(--log-100);
-  --border-color: var(--log-200);
-  --text-color: var(--log-800);
-  --muted-text: var(--crew-ishmael);
-  --success-color: var(--crew-tashtego);
-  --accent-warm: var(--crew-stubb);
-  --page-accent-cool: rgba(37, 62, 130, 0.07);
-  --page-accent-warm: rgba(202, 100, 53, 0.05);
-  --intro-gradient-end: rgba(219, 201, 182, 0.4);
-  --panel-bg: rgba(247, 243, 238, 0.85);
-  --panel-soft-bg: rgba(247, 243, 238, 0.92);
-  --highlight-bg: rgba(247, 243, 238, 0.7);
-  --matrix-bg: rgba(247, 243, 238, 0.92);
-  --heading-strong: var(--log-900);
-  --reference-bg: var(--log-100);
-  --reference-text: var(--log-800);
-  --reference-muted: var(--crew-ishmael);
+  /* Semantic tokens — Pequod-native names (v4.0). */
+  --bg:             var(--log-50);
+  --surface:        var(--log-100);
+  --surface-soft:   rgba(247, 243, 238, 0.92);
+  --border:         var(--log-200);
+  --text:           var(--log-800);
+  --text-strong:    var(--log-900);
+  --text-muted:     var(--crew-ishmael);
+  --primary:        var(--crew-queequeg);
+  --primary-strong: var(--log-800);
+  --secondary:      var(--crew-starbuck);
+  --success:        var(--crew-tashtego);
+  --warning:        var(--crew-pip);
+  --error:          var(--crew-ahab);
+  --accent-warm:    var(--crew-stubb);
+  --axis:           var(--log-400);
 
   /* Spacing scale — 4-pt grid. Use in padding/margin/gap to keep rhythm. */
   --space-1: 0.25rem;  /*  4px */
@@ -111,9 +82,8 @@
 
 body {
   font-family: "Atkinson Hyperlegible Next", "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
-  background-color: var(--background-color);
-  background-image: radial-gradient(circle at top left, var(--page-accent-cool), transparent 30%), linear-gradient(180deg, var(--page-accent-warm), transparent 22%);
-  color: var(--text-color);
+  background-color: var(--bg);
+  color: var(--text);
   margin: 0;
   padding: 0;
   line-height: 1.6;
@@ -132,8 +102,8 @@ footer {
   padding: 1.5em;
   margin-top: 3em;
   background-color: transparent;
-  border-top: 1px solid var(--border-color);
-  color: var(--muted-text);
+  border-top: 1px solid var(--border);
+  color: var(--text-muted);
 }
 
 footer .privacy-note {
@@ -141,16 +111,16 @@ footer .privacy-note {
   margin: 0.5rem auto;
   padding: 0.45rem 0.9rem;
   border-radius: 4px;
-  background-color: var(--panel-soft-bg);
-  border: 1px solid var(--border-color);
-  color: var(--text-color);
+  background-color: var(--surface-soft);
+  border: 1px solid var(--border);
+  color: var(--text);
   font-size: 0.85rem;
   font-weight: 500;
 }
 
 .intro {
-  background: linear-gradient(180deg, var(--surface-color), var(--intro-gradient-end));
-  border-bottom: 2px solid var(--base-300);
+  background: var(--surface);
+  border-bottom: 2px solid var(--log-150);
 }
 
 .intro .container {
@@ -169,9 +139,9 @@ footer .privacy-note {
 .theme-toggle {
   width: auto;
   padding: 0.5rem 1rem;
-  background: var(--base-300);
-  color: var(--text-color);
-  border: 2px solid var(--border-color);
+  background: var(--log-150);
+  color: var(--text);
+  border: 2px solid var(--border);
   border-radius: 4px;
   cursor: pointer;
   font-size: 1.2rem;
@@ -189,9 +159,9 @@ footer .privacy-note {
   font-size: 0.85rem;
   width: auto;
   border-radius: 4px;
-  border: 2px solid var(--border-color);
-  background-color: var(--base-300);
-  color: var(--text-color);
+  border: 2px solid var(--border);
+  background-color: var(--log-150);
+  color: var(--text);
   cursor: pointer;
 }
 
@@ -208,7 +178,7 @@ footer .privacy-note {
 }
 
 .theme-toggle:hover {
-  background-color: var(--base-400);
+  background-color: var(--log-200);
 }
 
 h1 {
@@ -222,7 +192,7 @@ h1 {
 h2 {
   font-size: clamp(1.4rem, 2.5vw, 1.75rem);
   margin-bottom: 1rem;
-  color: var(--text-color);
+  color: var(--text);
   font-weight: 700;
 }
 
@@ -233,8 +203,8 @@ h2 {
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-size: 0.7rem;
-  background-color: var(--base-300);
-  color: var(--base-800);
+  background-color: var(--log-150);
+  color: var(--log-700);
   margin: 0 auto;
 }
 
@@ -243,7 +213,7 @@ h2 {
   text-align: center;
   max-width: 720px;
   margin: 0 auto 2.5rem;
-  color: var(--muted-text);
+  color: var(--text-muted);
 }
 
 .intro-highlights {
@@ -253,8 +223,8 @@ h2 {
 }
 
 .highlight {
-  background-color: var(--highlight-bg);
-  border: 2px solid var(--border-color);
+  background-color: var(--surface);
+  border: 2px solid var(--border);
   border-radius: 8px;
   padding: 1.25rem;
   box-shadow: none;
@@ -267,7 +237,7 @@ h2 {
 
 .highlight p {
   margin-bottom: 0;
-  color: var(--muted-text);
+  color: var(--text-muted);
 }
 
 .workspace {
@@ -278,8 +248,8 @@ h2 {
 }
 
 .panel {
-  background-color: var(--panel-bg);
-  border: 2px solid var(--border-color);
+  background-color: var(--surface-soft);
+  border: 2px solid var(--border);
   border-radius: 10px;
   padding: 1.35rem;
   backdrop-filter: blur(10px);
@@ -301,7 +271,7 @@ h2 {
   font-size: 0.74rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--muted-text);
+  color: var(--text-muted);
 }
 
 .resource-grid {
@@ -316,7 +286,7 @@ h2 {
 }
 
 .section-heading p {
-  color: var(--muted-text);
+  color: var(--text-muted);
   max-width: 640px;
 }
 
@@ -344,10 +314,10 @@ form {
 
 select {
   padding: 0.85rem 1rem;
-  border: 2px solid var(--border-color);
+  border: 2px solid var(--border);
   border-radius: 4px;
-  background-color: var(--background-color);
-  color: var(--text-color);
+  background-color: var(--bg);
+  color: var(--text);
   font-size: 1rem;
   font-family: inherit;
   transition: border-color 0.2s;
@@ -355,33 +325,33 @@ select {
 }
 
 select:focus {
-  border-color: var(--primary-color);
+  border-color: var(--primary);
   outline: none;
 }
 
 optgroup {
   font-weight: 600;
-  color: var(--heading-strong);
+  color: var(--text-strong);
   font-style: normal;
 }
 
 option {
   padding: 0.5rem;
-  color: var(--text-color);
+  color: var(--text);
 }
 
 .help-text {
   margin: 0;
   font-size: 0.9rem;
-  color: var(--muted-text);
+  color: var(--text-muted);
 }
 
 .confusion-matrix {
-  border: 2px solid var(--base-300);
+  border: 2px solid var(--log-150);
   border-radius: 8px;
   padding: 1.25rem;
   margin: 0 0 2rem;
-  background-color: var(--matrix-bg);
+  background-color: var(--surface-soft);
 }
 
 .confusion-matrix legend {
@@ -402,7 +372,7 @@ option {
   border-radius: 4px;
   font-weight: 600;
   color: var(--log-50);
-  background: linear-gradient(180deg, var(--primary-color), var(--primary-dark));
+  background: linear-gradient(180deg, var(--primary), var(--primary-strong));
 }
 
 .grid-label {
@@ -413,22 +383,22 @@ option {
   border-radius: 4px;
   font-weight: 600;
   color: var(--log-50);
-  background: linear-gradient(180deg, var(--secondary-color), var(--log-700));
+  background: linear-gradient(180deg, var(--secondary), var(--log-700));
   text-align: center;
 }
 
 .grid-item {
   text-align: center;
   padding: 0.75rem;
-  background-color: var(--background-color);
+  background-color: var(--bg);
   border-radius: 4px;
-  border: 2px solid var(--border-color);
+  border: 2px solid var(--border);
   box-shadow: none;
   transition: border-color 0.2s ease;
 }
 
 .grid-item:hover {
-  border-color: var(--base-600);
+  border-color: var(--log-400);
 }
 
 /* Input Styling — use JetBrains Mono for numeric input grids so digits align */
@@ -437,26 +407,26 @@ option {
   width: 100%;
   padding: 0.85rem 1rem;
   margin: 0;
-  border: 2px solid var(--border-color);
+  border: 2px solid var(--border);
   border-radius: 4px;
   box-sizing: border-box;
   transition: border-color 0.2s;
   font-size: 1rem;
   font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
   font-variant-numeric: tabular-nums;
-  background-color: var(--background-color);
-  color: var(--text-color);
+  background-color: var(--bg);
+  color: var(--text);
 }
 
 .grid-item input::placeholder,
 .preTestProb::placeholder {
-  color: var(--muted-text);
+  color: var(--text-muted);
   opacity: 1;
 }
 
 .grid-item input:focus,
 .preTestProb:focus {
-  border-color: var(--primary-color);
+  border-color: var(--primary);
   outline: none;
   box-shadow: none;
 }
@@ -464,7 +434,7 @@ option {
 /* Button Styles */
 button {
   width: 100%;
-  background: var(--primary-color);
+  background: var(--primary);
   color: var(--log-50);
   padding: 0.9rem;
   border: none;
@@ -477,21 +447,21 @@ button {
 }
 
 button:hover {
-  background-color: var(--primary-dark);
+  background-color: var(--primary-strong);
   transform: none;
   box-shadow: none;
 }
 
 .secondary {
   background: transparent;
-  color: var(--muted-text);
-  border: 2px solid var(--border-color);
+  color: var(--text-muted);
+  border: 2px solid var(--border);
   box-shadow: none;
 }
 
 .secondary:hover {
-  background-color: var(--base-300);
-  border-color: var(--base-500);
+  background-color: var(--log-150);
+  border-color: var(--log-300);
   box-shadow: none;
 }
 
@@ -508,7 +478,7 @@ button:hover {
 }
 
 .feedback.success {
-  color: var(--success-color);
+  color: var(--success);
 }
 
 .feedback.error {
@@ -533,10 +503,10 @@ button:hover {
 }
 
 .probability-chart {
-  background-color: var(--panel-soft-bg);
+  background-color: var(--surface-soft);
   border-radius: 8px;
   padding: 1.5rem;
-  border: 2px solid var(--border-color);
+  border: 2px solid var(--border);
   box-shadow: none;
   display: grid;
   gap: 1rem;
@@ -556,13 +526,13 @@ button:hover {
 
 .chart-label {
   font-weight: 600;
-  color: var(--muted-text);
+  color: var(--text-muted);
 }
 
 .chart-bar {
   position: relative;
   height: 16px;
-  background-color: var(--base-300);
+  background-color: var(--log-150);
   border-radius: 2px;
   overflow: hidden;
 }
@@ -570,7 +540,7 @@ button:hover {
 .chart-fill {
   position: absolute;
   inset: 0;
-  background: var(--primary-color);
+  background: var(--primary);
   border-radius: 2px;
   transform-origin: left center;
   transform: scaleX(0);
@@ -582,7 +552,7 @@ button:hover {
 }
 
 .chart-fill.negative {
-  background: var(--success-color);
+  background: var(--success);
 }
 
 .chart-value {
@@ -592,10 +562,10 @@ button:hover {
 }
 
 .result-card {
-  background-color: var(--panel-soft-bg);
+  background-color: var(--surface-soft);
   border-radius: 8px;
   padding: 1.5rem;
-  border: 2px solid var(--border-color);
+  border: 2px solid var(--border);
   box-shadow: none;
   display: flex;
   flex-direction: column;
@@ -605,7 +575,7 @@ button:hover {
 .result-card h3 {
   margin: 0;
   font-size: 1.05rem;
-  color: var(--heading-strong);
+  color: var(--text-strong);
 }
 
 .result-value {
@@ -618,14 +588,14 @@ button:hover {
 
 .result-ci {
   font-size: 0.9rem;
-  color: var(--muted-text);
+  color: var(--text-muted);
   font-variant-numeric: tabular-nums;
 }
 
 .result-note {
   margin-top: auto;
   font-size: 0.85rem;
-  color: var(--muted-text);
+  color: var(--text-muted);
 }
 
 .interpretation {
@@ -633,11 +603,11 @@ button:hover {
 }
 
 .interpretation details {
-  border: 2px solid var(--base-300);
+  border: 2px solid var(--log-150);
   border-radius: 4px;
   padding: 1rem 1.25rem;
   margin-bottom: 1rem;
-  background-color: var(--background-color);
+  background-color: var(--bg);
 }
 
 .interpretation summary {
@@ -647,15 +617,15 @@ button:hover {
 
 .interpretation p {
   margin: 0.5rem 0 0;
-  color: var(--muted-text);
+  color: var(--text-muted);
 }
 
 /* Dataset Reference */
 .dataset-reference {
   margin-top: 1rem;
   padding: 1rem;
-  background-color: var(--reference-bg);
-  border-left: 4px solid var(--primary-color);
+  background-color: var(--surface);
+  border-left: 4px solid var(--primary);
   border-radius: 4px;
   font-size: 0.9rem;
 }
@@ -663,26 +633,26 @@ button:hover {
 .dataset-reference h4 {
   margin: 0 0 0.5rem;
   font-size: 0.95rem;
-  color: var(--heading-strong);
+  color: var(--text-strong);
 }
 
 .dataset-reference p {
   margin: 0.25rem 0;
-  color: var(--reference-text);
+  color: var(--text);
 }
 
 .dataset-reference .reference-citation {
   font-style: italic;
-  color: var(--reference-muted);
+  color: var(--text-muted);
   margin-top: 0.5rem;
 }
 
 /* Fagan Nomogram */
 .fagan-nomogram {
-  background-color: var(--surface-color);
+  background-color: var(--surface);
   border-radius: 8px;
   padding: 1.5rem;
-  border: 2px solid var(--border-color);
+  border: 2px solid var(--border);
   margin-bottom: 1.5rem;
   text-align: center;
 }
@@ -690,7 +660,7 @@ button:hover {
 .fagan-nomogram h3 {
   margin: 0 0 0.5rem;
   font-size: 1.2rem;
-  color: var(--heading-strong);
+  color: var(--text-strong);
 }
 
 .fagan-nomogram canvas {
@@ -698,7 +668,7 @@ button:hover {
   width: 600px;
   height: 400px;
   margin-top: 1rem;
-  border: 1px solid var(--base-300);
+  border: 1px solid var(--log-150);
   border-radius: 4px;
 }
 
@@ -709,8 +679,8 @@ button:hover {
   margin: 1rem auto 0;
   max-width: 600px;
   padding: 0.75rem 1rem;
-  background-color: var(--panel-soft-bg);
-  border: 1px solid var(--border-color);
+  background-color: var(--surface-soft);
+  border: 1px solid var(--border);
   border-radius: 6px;
   text-align: left;
 }
@@ -727,7 +697,7 @@ button:hover {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: var(--muted-text);
+  color: var(--text-muted);
   margin: 0;
 }
 
@@ -737,13 +707,13 @@ button:hover {
   font-variant-numeric: tabular-nums;
   font-size: 1.05rem;
   font-weight: 700;
-  color: var(--text-color);
+  color: var(--text);
 }
 
 /* Advanced settings (inside the form panel) */
 .advanced-settings {
   margin-bottom: 1.25rem;
-  border: 1px dashed var(--border-color);
+  border: 1px dashed var(--border);
   border-radius: 6px;
   padding: 0.75rem 1rem;
   background-color: var(--bg-elevated, transparent);
@@ -752,7 +722,7 @@ button:hover {
 .advanced-settings > summary {
   cursor: pointer;
   font-weight: 600;
-  color: var(--muted-text);
+  color: var(--text-muted);
   font-size: 0.85rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -778,8 +748,8 @@ button:hover {
 
 /* Calculation history panel */
 .history-panel {
-  background-color: var(--surface-color);
-  border: 2px solid var(--border-color);
+  background-color: var(--surface);
+  border: 2px solid var(--border);
   border-radius: 8px;
   padding: 1.25rem 1.5rem;
   margin-top: 1.5rem;
@@ -788,7 +758,7 @@ button:hover {
 .history-panel > summary {
   cursor: pointer;
   font-weight: 600;
-  color: var(--heading-strong);
+  color: var(--text-strong);
   font-size: 1.05rem;
   line-height: 1.4;
   list-style: none;
@@ -822,8 +792,8 @@ button:hover {
   grid-template-columns: auto 1fr auto;
   gap: 0.75rem;
   align-items: center;
-  background-color: var(--panel-soft-bg);
-  border: 1px solid var(--border-color);
+  background-color: var(--surface-soft);
+  border: 1px solid var(--border);
   border-radius: 6px;
   padding: 0.65rem 0.85rem;
 }
@@ -831,7 +801,7 @@ button:hover {
 .history-item input[type="checkbox"] {
   width: 1rem;
   height: 1rem;
-  accent-color: var(--primary-color);
+  accent-color: var(--primary);
   cursor: pointer;
 }
 
@@ -844,7 +814,7 @@ button:hover {
 
 .history-item-title {
   font-weight: 700;
-  color: var(--text-color);
+  color: var(--text);
 }
 
 .history-item-meta,
@@ -852,13 +822,13 @@ button:hover {
   font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
   font-variant-numeric: tabular-nums;
   font-size: 0.78rem;
-  color: var(--muted-text);
+  color: var(--text-muted);
   word-break: break-word;
 }
 
 .history-item-date {
   font-size: 0.72rem;
-  color: var(--muted-text);
+  color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
@@ -877,7 +847,7 @@ button:hover {
 .history-item-delete {
   padding: 0.4rem 0.6rem;
   color: var(--crew-ahab);
-  border-color: var(--border-color);
+  border-color: var(--border);
 }
 
 .history-item-delete:hover {
@@ -896,21 +866,21 @@ button:hover {
 .history-compare-table td {
   padding: 0.45rem 0.7rem;
   text-align: left;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border);
 }
 
 .history-compare-table thead th {
-  background-color: var(--panel-soft-bg);
+  background-color: var(--surface-soft);
   font-size: 0.78rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: var(--muted-text);
+  color: var(--text-muted);
   border-bottom-width: 2px;
 }
 
 .history-compare-table tbody th {
   font-weight: 600;
-  color: var(--muted-text);
+  color: var(--text-muted);
   font-size: 0.78rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -919,7 +889,7 @@ button:hover {
 .history-compare-table tbody td {
   font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
   font-variant-numeric: tabular-nums;
-  color: var(--text-color);
+  color: var(--text);
   font-weight: 600;
 }
 
@@ -943,29 +913,29 @@ button:hover {
 }
 
 .stard-panel details {
-  border: 2px solid var(--base-300);
+  border: 2px solid var(--log-150);
   border-radius: 4px;
   padding: 0.85rem 1.1rem;
   margin-bottom: 0.75rem;
-  background-color: var(--background-color);
+  background-color: var(--bg);
 }
 
 .stard-panel summary {
   font-weight: 600;
   cursor: pointer;
-  color: var(--text-color);
+  color: var(--text);
 }
 
 .stard-panel details p {
   margin: 0.6rem 0 0;
-  color: var(--muted-text);
+  color: var(--text-muted);
   font-size: 0.92rem;
   line-height: 1.55;
 }
 
 .stard-panel details em {
   font-style: italic;
-  color: var(--text-color);
+  color: var(--text);
 }
 
 /* Cohen's kappa companion panel */
@@ -1001,8 +971,8 @@ button:hover {
 }
 
 .kappa-stat {
-  background-color: var(--panel-soft-bg);
-  border: 1px solid var(--border-color);
+  background-color: var(--surface-soft);
+  border: 1px solid var(--border);
   border-radius: 6px;
   padding: 0.55rem 0.85rem;
   display: flex;
@@ -1012,7 +982,7 @@ button:hover {
 
 .kappa-stat-label {
   font-size: 0.72rem;
-  color: var(--muted-text);
+  color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   font-weight: 600;
@@ -1023,7 +993,7 @@ button:hover {
   font-variant-numeric: tabular-nums;
   font-size: 1rem;
   font-weight: 700;
-  color: var(--text-color);
+  color: var(--text);
 }
 
 .kappa-error {
@@ -1034,8 +1004,8 @@ button:hover {
 
 /* ROC reconstruction panel */
 .roc-panel {
-  background-color: var(--surface-color);
-  border: 2px solid var(--border-color);
+  background-color: var(--surface);
+  border: 2px solid var(--border);
   border-radius: 8px;
   padding: 1.25rem 1.5rem;
   margin-top: 1.5rem;
@@ -1044,7 +1014,7 @@ button:hover {
 .roc-panel > summary {
   cursor: pointer;
   font-weight: 600;
-  color: var(--heading-strong);
+  color: var(--text-strong);
   font-size: 1.05rem;
   line-height: 1.4;
   list-style: none;
@@ -1079,14 +1049,14 @@ button:hover {
 .roc-table td {
   padding: 0.45rem 0.5rem;
   text-align: center;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border);
 }
 
 .roc-table th {
   font-size: 0.72rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: var(--muted-text);
+  color: var(--text-muted);
   font-weight: 700;
   border-bottom-width: 2px;
 }
@@ -1095,24 +1065,24 @@ button:hover {
   width: 100%;
   min-width: 60px;
   padding: 0.4rem 0.5rem;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--border);
   border-radius: 4px;
-  background-color: var(--background-color);
-  color: var(--text-color);
+  background-color: var(--bg);
+  color: var(--text);
   font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
   font-variant-numeric: tabular-nums;
   font-size: 0.9rem;
 }
 
 .roc-table input[type="number"]:focus {
-  border-color: var(--primary-color);
+  border-color: var(--primary);
   outline: none;
 }
 
 .roc-remove {
   width: auto;
   background: transparent;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--border);
   color: var(--crew-ahab);
   padding: 0.25rem 0.55rem;
   border-radius: 4px;
@@ -1144,9 +1114,9 @@ button:hover {
   aspect-ratio: 1 / 1;
   height: auto;
   margin: 0 auto 1rem;
-  border: 1px solid var(--base-300);
+  border: 1px solid var(--log-150);
   border-radius: 4px;
-  background: var(--background-color);
+  background: var(--bg);
 }
 
 .roc-readout {
@@ -1157,8 +1127,8 @@ button:hover {
 }
 
 .roc-stat {
-  background-color: var(--panel-soft-bg);
-  border: 1px solid var(--border-color);
+  background-color: var(--surface-soft);
+  border: 1px solid var(--border);
   border-radius: 6px;
   padding: 0.6rem 0.85rem;
   display: flex;
@@ -1168,7 +1138,7 @@ button:hover {
 
 .roc-stat-label {
   font-size: 0.72rem;
-  color: var(--muted-text);
+  color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   font-weight: 600;
@@ -1179,7 +1149,7 @@ button:hover {
   font-variant-numeric: tabular-nums;
   font-size: 0.95rem;
   font-weight: 700;
-  color: var(--text-color);
+  color: var(--text);
 }
 
 /* Bias warnings callout */
@@ -1187,11 +1157,11 @@ button:hover {
   display: none;
   margin: 0 0 1rem;
   padding: 0.9rem 1.1rem;
-  background-color: var(--surface-color);
-  border: 1px solid var(--border-color);
+  background-color: var(--surface);
+  border: 1px solid var(--border);
   border-left: 4px solid var(--crew-pip);
   border-radius: 6px;
-  color: var(--text-color);
+  color: var(--text);
   font-size: 0.92rem;
 }
 
@@ -1223,8 +1193,8 @@ button:hover {
 
 /* Pauker–Kassirer decision thresholds */
 .threshold-panel {
-  background-color: var(--surface-color);
-  border: 2px solid var(--border-color);
+  background-color: var(--surface);
+  border: 2px solid var(--border);
   border-radius: 8px;
   padding: 1.25rem 1.5rem;
   margin-top: 1.5rem;
@@ -1233,7 +1203,7 @@ button:hover {
 .threshold-panel > summary {
   cursor: pointer;
   font-weight: 600;
-  color: var(--heading-strong);
+  color: var(--text-strong);
   font-size: 1.05rem;
   line-height: 1.4;
   list-style: none;
@@ -1263,7 +1233,7 @@ button:hover {
   align-items: baseline;
   font-weight: 600;
   margin-bottom: 0.5rem;
-  color: var(--text-color);
+  color: var(--text);
 }
 
 .threshold-input output {
@@ -1285,7 +1255,7 @@ button:hover {
 
 .threshold-input input[type="range"]::-webkit-slider-runnable-track {
   height: 6px;
-  background: var(--base-300);
+  background: var(--log-150);
   border-radius: 3px;
 }
 
@@ -1307,7 +1277,7 @@ button:hover {
 
 .threshold-input input[type="range"]::-moz-range-track {
   height: 6px;
-  background: var(--base-300);
+  background: var(--log-150);
   border-radius: 3px;
 }
 
@@ -1332,7 +1302,7 @@ button:hover {
   height: 28px;
   border-radius: 4px;
   overflow: hidden;
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--border);
   margin: 1rem 0 0.5rem;
 }
 
@@ -1401,7 +1371,7 @@ button:hover {
   gap: 0.75rem 1.25rem;
   margin: 1.5rem 0 1rem;
   font-size: 0.78rem;
-  color: var(--muted-text);
+  color: var(--text-muted);
 }
 
 .threshold-legend span {
@@ -1433,8 +1403,8 @@ button:hover {
 }
 
 .threshold-stat {
-  background-color: var(--panel-soft-bg);
-  border: 1px solid var(--border-color);
+  background-color: var(--surface-soft);
+  border: 1px solid var(--border);
   border-radius: 6px;
   padding: 0.6rem 0.85rem;
   display: flex;
@@ -1444,7 +1414,7 @@ button:hover {
 
 .threshold-stat-label {
   font-size: 0.72rem;
-  color: var(--muted-text);
+  color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   font-weight: 600;
@@ -1455,13 +1425,13 @@ button:hover {
   font-variant-numeric: tabular-nums;
   font-size: 1rem;
   font-weight: 700;
-  color: var(--text-color);
+  color: var(--text);
 }
 
 /* Sequential / chained second test */
 .sequential-test {
-  background-color: var(--surface-color);
-  border: 2px solid var(--border-color);
+  background-color: var(--surface);
+  border: 2px solid var(--border);
   border-radius: 8px;
   padding: 1.25rem 1.5rem;
   margin-top: 1.5rem;
@@ -1470,7 +1440,7 @@ button:hover {
 .sequential-test > summary {
   cursor: pointer;
   font-weight: 600;
-  color: var(--heading-strong);
+  color: var(--text-strong);
   font-size: 1.05rem;
   line-height: 1.4;
   list-style: none;
@@ -1500,7 +1470,7 @@ button:hover {
   flex-direction: column;
   gap: 0.5rem;
   font-weight: 600;
-  color: var(--text-color);
+  color: var(--text);
 }
 
 .sequential-controls select {
@@ -1510,12 +1480,12 @@ button:hover {
 .sequential-pretest {
   margin: 0.85rem 0 0;
   padding: 0.65rem 0.85rem;
-  background-color: var(--panel-soft-bg);
-  border: 1px solid var(--border-color);
+  background-color: var(--surface-soft);
+  border: 1px solid var(--border);
   border-left: 4px solid var(--crew-daggoo);
   border-radius: 4px;
   font-size: 0.9rem;
-  color: var(--text-color);
+  color: var(--text);
 }
 
 .sequential-pretest:empty {
@@ -1533,8 +1503,8 @@ button:hover {
 
 /* Prevalence sensitivity explorer */
 .prevalence-explorer {
-  background-color: var(--surface-color);
-  border: 2px solid var(--border-color);
+  background-color: var(--surface);
+  border: 2px solid var(--border);
   border-radius: 8px;
   padding: 1.25rem 1.5rem;
   margin-top: 1.5rem;
@@ -1543,7 +1513,7 @@ button:hover {
 .prevalence-explorer > summary {
   cursor: pointer;
   font-weight: 600;
-  color: var(--heading-strong);
+  color: var(--text-strong);
   font-size: 1.05rem;
   line-height: 1.4;
   list-style: none;
@@ -1556,7 +1526,7 @@ button:hover {
 .prevalence-explorer > summary::before {
   content: "▸ ";
   display: inline-block;
-  color: var(--primary-color);
+  color: var(--primary);
   transition: transform 0.2s ease;
 }
 
@@ -1578,13 +1548,13 @@ button:hover {
   align-items: baseline;
   font-weight: 600;
   margin-bottom: 0.6rem;
-  color: var(--text-color);
+  color: var(--text);
 }
 
 .prevalence-controls output {
   font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
   font-variant-numeric: tabular-nums;
-  color: var(--primary-color);
+  color: var(--primary);
   font-weight: 700;
   font-size: 1.05rem;
 }
@@ -1600,7 +1570,7 @@ button:hover {
 
 .prevalence-controls input[type="range"]::-webkit-slider-runnable-track {
   height: 6px;
-  background: var(--base-300);
+  background: var(--log-150);
   border-radius: 3px;
 }
 
@@ -1609,7 +1579,7 @@ button:hover {
   appearance: none;
   width: 18px;
   height: 18px;
-  background: var(--primary-color);
+  background: var(--primary);
   border-radius: 50%;
   margin-top: -6px;
   cursor: pointer;
@@ -1623,14 +1593,14 @@ button:hover {
 
 .prevalence-controls input[type="range"]::-moz-range-track {
   height: 6px;
-  background: var(--base-300);
+  background: var(--log-150);
   border-radius: 3px;
 }
 
 .prevalence-controls input[type="range"]::-moz-range-thumb {
   width: 18px;
   height: 18px;
-  background: var(--primary-color);
+  background: var(--primary);
   border: none;
   border-radius: 50%;
   cursor: pointer;
@@ -1650,8 +1620,8 @@ button:hover {
 }
 
 .prevalence-stat {
-  background-color: var(--panel-soft-bg);
-  border: 1px solid var(--border-color);
+  background-color: var(--surface-soft);
+  border: 1px solid var(--border);
   border-radius: 6px;
   padding: 0.65rem 0.85rem;
   display: flex;
@@ -1661,7 +1631,7 @@ button:hover {
 
 .prevalence-stat-label {
   font-size: 0.72rem;
-  color: var(--muted-text);
+  color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   font-weight: 600;
@@ -1672,16 +1642,16 @@ button:hover {
   font-variant-numeric: tabular-nums;
   font-size: 1.2rem;
   font-weight: 700;
-  color: var(--text-color);
+  color: var(--text);
 }
 
 .prevalence-explorer canvas {
   width: 100%;
   max-width: 600px;
   height: 320px;
-  border: 1px solid var(--base-300);
+  border: 1px solid var(--log-150);
   border-radius: 4px;
-  background: var(--background-color);
+  background: var(--bg);
   display: block;
   margin: 0 auto;
 }
@@ -1692,11 +1662,11 @@ button:hover {
 }
 
 .references details {
-  border: 2px solid var(--base-300);
+  border: 2px solid var(--log-150);
   border-radius: 4px;
   padding: 1rem 1.25rem;
   margin-bottom: 1rem;
-  background-color: var(--background-color);
+  background-color: var(--bg);
 }
 
 .references summary {
@@ -1707,7 +1677,7 @@ button:hover {
 .reference-list {
   margin: 1rem 0 0;
   padding-left: 1.5rem;
-  color: var(--muted-text);
+  color: var(--text-muted);
 }
 
 .reference-list li {
@@ -1716,7 +1686,7 @@ button:hover {
 }
 
 .reference-list strong {
-  color: var(--heading-strong);
+  color: var(--text-strong);
 }
 
 /* Tooltip */
@@ -1724,7 +1694,7 @@ button:hover {
   position: relative;
   display: inline-block;
   cursor: help;
-  border-bottom: 1px dotted var(--base-600);
+  border-bottom: 1px dotted var(--log-400);
 }
 
 .tooltip .tooltip-text {
@@ -1776,60 +1746,33 @@ button:hover {
   --crew-tashtego: #82C4A2;
   --crew-daggoo:   #A17069;
 
-  /* Legacy base-* names inverted for dark */
-  --base-100:  var(--log-950);
-  --base-200:  var(--log-900);
-  --base-300:  var(--log-800);
-  --base-400:  var(--log-700);
-  --base-500:  var(--log-600);
-  --base-600:  var(--log-500);
-  --base-700:  var(--log-400);
-  --base-800:  var(--log-300);
-  --base-900:  var(--log-200);
-  --base-950:  var(--log-100);
-  --base-1000: var(--log-50);
-
-  --red:     var(--crew-ahab);
-  --orange:  var(--crew-stubb);
-  --yellow:  var(--crew-pip);
-  --green:   var(--crew-tashtego);
-  --cyan:    var(--crew-starbuck);
-  --blue:    var(--crew-queequeg);
-  --purple:  var(--crew-daggoo);
-  --magenta: var(--crew-ahab);
-
-  --primary-color: var(--crew-queequeg);
-  --primary-dark: var(--log-100);
-  --secondary-color: var(--crew-starbuck);
-  --background-color: var(--log-950);
-  --surface-color: var(--log-900);
-  --border-color: var(--log-700);
-  --text-color: var(--log-100);
-  --muted-text: var(--crew-ishmael);
-  --success-color: var(--crew-tashtego);
-  --accent-warm: var(--crew-stubb);
-  --page-accent-cool: rgba(131, 140, 207, 0.12);
-  --page-accent-warm: rgba(255, 217, 187, 0.06);
-  --intro-gradient-end: rgba(12, 34, 47, 0.6);
-  --panel-bg: rgba(12, 34, 47, 0.86);
-  --panel-soft-bg: rgba(13, 47, 66, 0.9);
-  --highlight-bg: rgba(12, 34, 47, 0.82);
-  --matrix-bg: rgba(11, 23, 32, 0.82);
-  --heading-strong: var(--text-color);
-  --reference-bg: var(--log-800);
-  --reference-text: var(--text-color);
-  --reference-muted: var(--muted-text);
+  /* Semantic tokens — Pequod-native names (v4.0). */
+  --bg:             var(--log-950);
+  --surface:        var(--log-900);
+  --surface-soft:   rgba(13, 47, 66, 0.9);
+  --border:         var(--log-700);
+  --text:           var(--log-100);
+  --text-strong:    var(--log-100);
+  --text-muted:     var(--crew-ishmael);
+  --primary:        var(--crew-queequeg);
+  --primary-strong: var(--log-100);
+  --secondary:      var(--crew-starbuck);
+  --success:        var(--crew-tashtego);
+  --warning:        var(--crew-pip);
+  --error:          var(--crew-ahab);
+  --accent-warm:    var(--crew-stubb);
+  --axis:           var(--log-300);
 }
 
 a {
-  color: var(--primary-color);
+  color: var(--primary);
   text-decoration: none;
-  border-bottom: 1px solid var(--base-400);
+  border-bottom: 1px solid var(--log-200);
 }
 
 a:hover {
-  color: var(--primary-dark);
-  border-bottom-color: var(--primary-dark);
+  color: var(--primary-strong);
+  border-bottom-color: var(--primary-strong);
 }
 
 @media (max-width: 720px) {
@@ -1918,17 +1861,13 @@ a:hover {
   /* Force a clean light theme regardless of the user's current setting */
   :root,
   [data-theme="dark"] {
-    --background-color: #FFFFFF;
-    --surface-color: #FFFFFF;
-    --panel-bg: #FFFFFF;
-    --panel-soft-bg: #FFFFFF;
-    --highlight-bg: #FFFFFF;
-    --matrix-bg: #FFFFFF;
-    --intro-gradient-end: transparent;
-    --text-color: #000000;
-    --muted-text: #444444;
-    --border-color: #999999;
-    --heading-strong: #000000;
+    --bg:           #FFFFFF;
+    --surface:      #FFFFFF;
+    --surface-soft: #FFFFFF;
+    --text:         #000000;
+    --text-strong:  #000000;
+    --text-muted:   #444444;
+    --border:       #999999;
   }
 
   @page {
