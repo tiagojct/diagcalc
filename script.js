@@ -21,6 +21,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const probabilityChartEl = document.getElementById("probabilityChart");
   const biasWarningsEl = document.getElementById("biasWarnings");
   const continuityModeEl = document.getElementById("continuityModeSelect");
+  const historyPanelEl = document.getElementById("historyPanel");
+  const historyListEl = document.getElementById("historyList");
+  const historyCompareEl = document.getElementById("historyCompare");
+  const historyClearAllBtn = document.getElementById("historyClearAll");
+  const HISTORY_KEY = "diagcalc-history";
+  const HISTORY_MAX = 10;
+  const historySelected = new Set();
 
   function currentContinuityMode() {
     return continuityModeEl ? continuityModeEl.value : "auto";
@@ -141,6 +148,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "sequentialTest",
     "thresholdPanel",
     "rocPanel",
+    "historyPanel",
   ]);
   window.addEventListener("beforeprint", () => {
     document.querySelectorAll("details").forEach((d) => {
@@ -205,8 +213,212 @@ document.addEventListener("DOMContentLoaded", () => {
     showSequentialTest(metrics.postTestPositive.value, metrics.postTestNegative.value);
     showThresholdPanel(metrics.lrPositive.value, metrics.lrNegative.value, metrics.preTestProbability.value);
     showRocPanel(data);
+    saveToHistory(data, metrics);
+    renderHistory();
     setFeedback("Calculation complete. Explore the interpretation guide below.", true);
   }
+
+  // ── Calculation history ──────────────────────────────────────────────────
+
+  function readHistory() {
+    try {
+      const raw = localStorage.getItem(HISTORY_KEY);
+      if (!raw) return [];
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (err) {
+      console.warn("DIAGCALC: history could not be read from localStorage", err);
+      return [];
+    }
+  }
+
+  function writeHistory(entries) {
+    try {
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(entries));
+    } catch (err) {
+      console.warn("DIAGCALC: history could not be saved to localStorage", err);
+    }
+  }
+
+  function inputFingerprint(input) {
+    return `${input.tp}|${input.fp}|${input.fn}|${input.tn}|${input.preTestProb}`;
+  }
+
+  function saveToHistory(input, metrics) {
+    const entries = readHistory();
+    const fp = inputFingerprint(input);
+    if (entries.length > 0 && entries[0].fingerprint === fp) {
+      return; // skip dedup on consecutive identical inputs
+    }
+    const datasetKey = datasetSelect ? datasetSelect.value : "";
+    const datasetName = datasetKey && datasets[datasetKey] ? datasets[datasetKey].name : "Custom case";
+    const entry = {
+      id: Date.now(),
+      savedAt: new Date().toISOString(),
+      label: datasetName,
+      datasetKey: datasetKey || null,
+      fingerprint: fp,
+      input,
+      summary: {
+        sensitivity: metrics.sensitivity.value,
+        specificity: metrics.specificity.value,
+        ppv: metrics.ppv.value,
+        npv: metrics.npv.value,
+        lrPositive: metrics.lrPositive.value,
+        lrNegative: metrics.lrNegative.value,
+        postTestPositive: metrics.postTestPositive.value,
+        postTestNegative: metrics.postTestNegative.value,
+      },
+    };
+    entries.unshift(entry);
+    if (entries.length > HISTORY_MAX) entries.length = HISTORY_MAX;
+    writeHistory(entries);
+  }
+
+  function renderHistory() {
+    if (!historyPanelEl || !historyListEl) return;
+    const entries = readHistory();
+    if (entries.length === 0) {
+      historyPanelEl.style.display = "none";
+      historyPanelEl.open = false;
+      return;
+    }
+    historyPanelEl.style.display = "block";
+    historyListEl.innerHTML = "";
+    for (const entry of entries) {
+      const li = document.createElement("li");
+      li.className = "history-item";
+
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.id = `history-select-${entry.id}`;
+      checkbox.checked = historySelected.has(entry.id);
+      checkbox.addEventListener("change", () => {
+        if (checkbox.checked) historySelected.add(entry.id);
+        else historySelected.delete(entry.id);
+        renderCompare();
+      });
+
+      const labelEl = document.createElement("label");
+      labelEl.htmlFor = checkbox.id;
+      labelEl.className = "history-item-label";
+      const ts = new Date(entry.savedAt).toLocaleString();
+      labelEl.innerHTML = `
+        <span class="history-item-title">${entry.label}</span>
+        <span class="history-item-meta">TP ${entry.input.tp} · FP ${entry.input.fp} · FN ${entry.input.fn} · TN ${entry.input.tn} · pre ${entry.input.preTestProb}%</span>
+        <span class="history-item-stats">sens ${core.formatPercentage(entry.summary.sensitivity)} · spec ${core.formatPercentage(entry.summary.specificity)} · post+ ${core.formatPercentage(entry.summary.postTestPositive)} · post− ${core.formatPercentage(entry.summary.postTestNegative)}</span>
+        <span class="history-item-date">${ts}</span>
+      `;
+
+      const actions = document.createElement("div");
+      actions.className = "history-item-actions";
+      const reloadBtn = document.createElement("button");
+      reloadBtn.type = "button";
+      reloadBtn.className = "secondary";
+      reloadBtn.textContent = "Reload";
+      reloadBtn.addEventListener("click", () => reloadHistoryEntry(entry));
+      const deleteBtn = document.createElement("button");
+      deleteBtn.type = "button";
+      deleteBtn.className = "secondary history-item-delete";
+      deleteBtn.textContent = "×";
+      deleteBtn.title = "Delete this entry";
+      deleteBtn.setAttribute("aria-label", "Delete history entry");
+      deleteBtn.addEventListener("click", () => deleteHistoryEntry(entry.id));
+      actions.appendChild(reloadBtn);
+      actions.appendChild(deleteBtn);
+
+      li.appendChild(checkbox);
+      li.appendChild(labelEl);
+      li.appendChild(actions);
+      historyListEl.appendChild(li);
+    }
+    renderCompare();
+  }
+
+  function deleteHistoryEntry(id) {
+    const entries = readHistory().filter((e) => e.id !== id);
+    writeHistory(entries);
+    historySelected.delete(id);
+    renderHistory();
+  }
+
+  function reloadHistoryEntry(entry) {
+    document.getElementById("tp").value = entry.input.tp;
+    document.getElementById("fp").value = entry.input.fp;
+    document.getElementById("fn").value = entry.input.fn;
+    document.getElementById("tn").value = entry.input.tn;
+    document.getElementById("preTestProb").value = entry.input.preTestProb;
+    if (datasetSelect && entry.datasetKey && datasets[entry.datasetKey]) {
+      datasetSelect.value = entry.datasetKey;
+      displayDatasetReference(datasets[entry.datasetKey]);
+    } else if (datasetSelect) {
+      datasetSelect.value = "";
+      datasetReferenceEl.style.display = "none";
+    }
+    setFeedback(`Reloaded "${entry.label}" from history.`, true);
+    calculateAndRender();
+  }
+
+  function renderCompare() {
+    if (!historyCompareEl) return;
+    historyCompareEl.innerHTML = "";
+    if (historySelected.size < 2) return;
+    const entries = readHistory().filter((e) => historySelected.has(e.id));
+    if (entries.length < 2) return;
+
+    const table = document.createElement("table");
+    table.className = "history-compare-table";
+    const thead = document.createElement("thead");
+    const headerRow = document.createElement("tr");
+    headerRow.appendChild(document.createElement("th"));
+    for (const e of entries) {
+      const th = document.createElement("th");
+      th.scope = "col";
+      th.textContent = e.label;
+      headerRow.appendChild(th);
+    }
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+    const tbody = document.createElement("tbody");
+    const rows = [
+      ["TP/FP/FN/TN", (e) => `${e.input.tp} / ${e.input.fp} / ${e.input.fn} / ${e.input.tn}`],
+      ["Pre-test", (e) => `${e.input.preTestProb}%`],
+      ["Sensitivity", (e) => core.formatPercentage(e.summary.sensitivity)],
+      ["Specificity", (e) => core.formatPercentage(e.summary.specificity)],
+      ["PPV", (e) => core.formatPercentage(e.summary.ppv)],
+      ["NPV", (e) => core.formatPercentage(e.summary.npv)],
+      ["LR+", (e) => core.formatLikelihood(e.summary.lrPositive)],
+      ["LR−", (e) => core.formatLikelihood(e.summary.lrNegative)],
+      ["Post-test (+)", (e) => core.formatPercentage(e.summary.postTestPositive)],
+      ["Post-test (−)", (e) => core.formatPercentage(e.summary.postTestNegative)],
+    ];
+    for (const [label, fn] of rows) {
+      const tr = document.createElement("tr");
+      const th = document.createElement("th");
+      th.scope = "row";
+      th.textContent = label;
+      tr.appendChild(th);
+      for (const e of entries) {
+        const td = document.createElement("td");
+        td.textContent = fn(e);
+        tr.appendChild(td);
+      }
+      tbody.appendChild(tr);
+    }
+    table.appendChild(tbody);
+    historyCompareEl.appendChild(table);
+  }
+
+  if (historyClearAllBtn) {
+    historyClearAllBtn.addEventListener("click", () => {
+      if (!confirm("Clear all saved history? This cannot be undone.")) return;
+      writeHistory([]);
+      historySelected.clear();
+      renderHistory();
+    });
+  }
+
+  renderHistory();
 
   function showRocPanel(firstRow) {
     if (!rocPanelEl) return;

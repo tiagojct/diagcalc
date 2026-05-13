@@ -2,6 +2,14 @@
 
 Todas as alterações relevantes deste projeto são registadas aqui. As datas seguem o formato ISO (AAAA-MM-DD).
 
+## [3.15.0] - 2026-05-13
+
+### Adicionado
+- **Histórico de cálculos com vista de comparação** na versão web — cada `Calculate` bem sucedido grava o caso (input + resumo das principais métricas) em `localStorage` (chave `diagcalc-history`, máximo 10 entradas, dedup em re-cálculos consecutivos idênticos).
+- Painel colapsável "History" mostra a lista por ordem decrescente de data. Cada item exibe: dataset/label, TP/FP/FN/TN e pré-teste, valores rápidos de sens/spec/post+/post− e timestamp local. Botões por linha: **Reload** repõe os valores no formulário e recalcula; **×** elimina a entrada. Botão "Clear all history" no fim com confirmação.
+- **Comparação lado-a-lado:** marcar dois ou mais checkboxes faz aparecer uma tabela compacta acima da lista com TP/FP/FN/TN, pré-teste, sens, spec, PPV, NPV, LR+, LR−, post+ e post− alinhados por caso. Útil para discutir "o que mudou quando alterámos o ponto de corte?" em sala de aula.
+- Tudo o que é guardado fica no browser do utilizador (continua a respeitar o footer de privacidade introduzido em 3.14.2). O painel é também escondido na exportação PDF e nos seus event listeners `beforeprint`.
+
 ## [3.14.2] - 2026-05-13
 
 ### Adicionado

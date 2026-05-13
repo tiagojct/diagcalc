@@ -712,6 +712,167 @@ button:hover {
   margin: 0.75rem 0 0;
 }
 
+/* Calculation history panel */
+.history-panel {
+  background-color: var(--surface-color);
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1.25rem 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.history-panel > summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--heading-strong);
+  font-size: 1.05rem;
+  line-height: 1.4;
+  list-style: none;
+}
+
+.history-panel > summary::-webkit-details-marker {
+  display: none;
+}
+
+.history-panel > summary::before {
+  content: "▸ ";
+  display: inline-block;
+  color: var(--crew-ishmael);
+}
+
+.history-panel[open] > summary::before {
+  content: "▾ ";
+}
+
+.history-list {
+  list-style: none;
+  margin: 1rem 0 0.75rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.history-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.75rem;
+  align-items: center;
+  background-color: var(--panel-soft-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 0.65rem 0.85rem;
+}
+
+.history-item input[type="checkbox"] {
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--primary-color);
+  cursor: pointer;
+}
+
+.history-item-label {
+  display: grid;
+  gap: 0.15rem;
+  cursor: pointer;
+  min-width: 0;
+}
+
+.history-item-title {
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.history-item-meta,
+.history-item-stats {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.78rem;
+  color: var(--muted-text);
+  word-break: break-word;
+}
+
+.history-item-date {
+  font-size: 0.72rem;
+  color: var(--muted-text);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.history-item-actions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.history-item-actions button {
+  width: auto;
+  padding: 0.4rem 0.7rem;
+  font-size: 0.85rem;
+}
+
+.history-item-delete {
+  padding: 0.4rem 0.6rem;
+  color: var(--crew-ahab);
+  border-color: var(--border-color);
+}
+
+.history-item-delete:hover {
+  background-color: var(--crew-ahab);
+  color: var(--log-50);
+}
+
+.history-compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+  margin: 0.5rem 0 1rem;
+}
+
+.history-compare-table th,
+.history-compare-table td {
+  padding: 0.45rem 0.7rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.history-compare-table thead th {
+  background-color: var(--panel-soft-bg);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted-text);
+  border-bottom-width: 2px;
+}
+
+.history-compare-table tbody th {
+  font-weight: 600;
+  color: var(--muted-text);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.history-compare-table tbody td {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-color);
+  font-weight: 600;
+}
+
+.history-compare:empty {
+  display: none;
+}
+
+@media (max-width: 720px) {
+  .history-item {
+    grid-template-columns: auto 1fr;
+  }
+  .history-item-actions {
+    grid-column: 1 / -1;
+    justify-content: flex-end;
+  }
+}
+
 /* STARD critical-appraisal panel */
 .stard-panel .panel-kicker {
   color: var(--crew-pip);
@@ -1737,8 +1898,10 @@ a:hover {
   #sequentialTest,
   #thresholdPanel,
   #rocPanel,
+  #historyPanel,
   .kappa-panel,
   .interpretation,
+  .stard-panel,
   .dataset-reference,
   #datasetSelect,
   label[for="datasetSelect"],

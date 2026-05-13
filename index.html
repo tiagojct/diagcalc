@@ -303,6 +303,17 @@
             <canvas id="rocCanvas" width="480" height="480" role="img" aria-label="Receiver operating characteristic curve" aria-describedby="rocReadout"></canvas>
             <div id="rocReadout" class="roc-readout"></div>
           </details>
+          <details id="historyPanel" class="history-panel" style="display: none;">
+            <summary><strong>History</strong> — last 10 calculations on this device</summary>
+            <p class="help-text">
+              Recent Calculate runs are saved in your browser. Click <em>Reload</em> to drop a case back into the form, tick two or more boxes to compare them side by side, or <em>Clear all</em> to wipe local storage. Nothing leaves this device.
+            </p>
+            <div id="historyCompare" class="history-compare" aria-live="polite"></div>
+            <ul id="historyList" class="history-list" aria-label="Saved calculations"></ul>
+            <div class="form-actions">
+              <button type="button" id="historyClearAll" class="secondary">Clear all history</button>
+            </div>
+          </details>
           <details id="prevalenceExplorer" class="prevalence-explorer" style="display: none;">
             <summary><strong>Explore prevalence sensitivity</strong> — see how PPV, NPV and post-test probabilities shift when prevalence changes</summary>
             <p class="help-text">
