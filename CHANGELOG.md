@@ -2,6 +2,17 @@
 
 Todas as alterações relevantes deste projeto são registadas aqui. As datas seguem o formato ISO (AAAA-MM-DD).
 
+## [3.14.0] - 2026-05-13
+
+### Adicionado
+- **Exportação para PDF** através do botão "Print report" já existente — novo bloco `@media print` em `styles.css` que transforma a página numa folha A4 com:
+  - Cabeçalho compacto (apenas título DIAGCALC, sem destaques nem tag), seguido da matriz 2×2 com TP/FP/FN/TN e da probabilidade pré-teste introduzida.
+  - Grelha de resultados (sensibilidade, especificidade, PPV, NPV, DOR, NNS, LR+, LR−, pré-teste e pós-testes) em duas colunas, com `page-break-inside: avoid` em cada carta.
+  - Nomograma de Fagan (canvas + `<dl>` semântica) e listas de citações em hiperligações expandidas no formato `(URL)` para arquivo permanente.
+  - Esquemas claros forçados (`#FFFFFF` fundo, `#000000` texto) independentemente do tema activo no ecrã.
+- Ouvintes `beforeprint` / `afterprint` no `script.js` expandem todos os `<details>` da página antes da impressão (excepto os painéis "Explore prevalence", "Chain a second test", "Decision thresholds" e "Build an ROC curve" que ficam escondidos) e restauram o estado original depois.
+- Painéis interactivos (slider de prevalência, encadeamento, limiares, ROC, κ, guia de interpretação, avisos de viés, footer) escondidos no PDF para manter uma folha limpa.
+
 ## [3.13.0] - 2026-05-13
 
 ### Adicionado

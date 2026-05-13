@@ -133,6 +133,30 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // Expand printable <details> before printing so their content lands in the
+  // PDF, then restore previous state. Skip panels that should remain hidden
+  // on print (handled by the @media print stylesheet anyway).
+  const PRINT_SKIP_IDS = new Set([
+    "prevalenceExplorer",
+    "sequentialTest",
+    "thresholdPanel",
+    "rocPanel",
+  ]);
+  window.addEventListener("beforeprint", () => {
+    document.querySelectorAll("details").forEach((d) => {
+      if (PRINT_SKIP_IDS.has(d.id)) return;
+      d.dataset.printPrevOpen = d.open ? "1" : "0";
+      d.open = true;
+    });
+  });
+  window.addEventListener("afterprint", () => {
+    document.querySelectorAll("details").forEach((d) => {
+      if (!("printPrevOpen" in d.dataset)) return;
+      d.open = d.dataset.printPrevOpen === "1";
+      delete d.dataset.printPrevOpen;
+    });
+  });
+
   function readFormValues() {
     const preTestField = document.getElementById("preTestProb");
     const preTestValue = core.normaliseDecimal(preTestField.value);

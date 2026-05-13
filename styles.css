@@ -1646,6 +1646,223 @@ a:hover {
   }
 }
 
+@media print {
+  /* Force a clean light theme regardless of the user's current setting */
+  :root,
+  [data-theme="dark"] {
+    --background-color: #FFFFFF;
+    --surface-color: #FFFFFF;
+    --panel-bg: #FFFFFF;
+    --panel-soft-bg: #FFFFFF;
+    --highlight-bg: #FFFFFF;
+    --matrix-bg: #FFFFFF;
+    --intro-gradient-end: transparent;
+    --text-color: #000000;
+    --muted-text: #444444;
+    --border-color: #999999;
+    --heading-strong: #000000;
+  }
+
+  @page {
+    size: A4 portrait;
+    margin: 14mm;
+  }
+
+  body {
+    background-image: none !important;
+    color: #000;
+    font-size: 10pt;
+    line-height: 1.4;
+  }
+
+  .container {
+    width: 100%;
+    padding: 0;
+  }
+
+  /* Hide everything interactive or not essential for the handout */
+  .theme-toggle,
+  .header-controls,
+  .form-actions,
+  .feedback,
+  .advanced-settings,
+  .secondary,
+  button,
+  .results-actions,
+  .bias-warnings,
+  #prevalenceExplorer,
+  #sequentialTest,
+  #thresholdPanel,
+  #rocPanel,
+  .kappa-panel,
+  .interpretation,
+  .dataset-reference,
+  #datasetSelect,
+  label[for="datasetSelect"],
+  #dataset-help,
+  footer,
+  script {
+    display: none !important;
+  }
+
+  /* Show the form values but as a printable summary, not the inputs */
+  .workspace {
+    display: block;
+  }
+
+  /* Style inputs as static printable text */
+  .grid-item input,
+  .preTestProb,
+  select {
+    border: 1px solid #999 !important;
+    background: #FFF !important;
+    color: #000 !important;
+    box-shadow: none !important;
+    -webkit-appearance: none;
+    appearance: none;
+    padding: 0.3rem 0.5rem;
+  }
+
+  .grid-header {
+    background: #000 !important;
+    color: #FFF !important;
+  }
+
+  .grid-label {
+    background: #444 !important;
+    color: #FFF !important;
+  }
+
+  /* Force collapsibles open so their content prints */
+  details {
+    display: block !important;
+  }
+
+  details > *:not(summary) {
+    display: revert !important;
+  }
+
+  details summary {
+    list-style: none;
+    cursor: default;
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+  }
+
+  .panel {
+    background: transparent;
+    border: none;
+    padding: 0;
+    backdrop-filter: none;
+    page-break-inside: avoid;
+  }
+
+  .panel-results {
+    margin-top: 1rem;
+  }
+
+  .intro {
+    border-bottom: 1px solid #000;
+    background: transparent;
+  }
+
+  .intro .container {
+    padding: 0 0 0.5rem;
+  }
+
+  .intro-highlights {
+    display: none;
+  }
+
+  h1 {
+    font-size: 18pt;
+    margin: 0 0 0.25rem;
+  }
+
+  h2 {
+    font-size: 13pt;
+    margin: 1rem 0 0.5rem;
+  }
+
+  .lead,
+  .tag,
+  .panel-kicker {
+    display: none;
+  }
+
+  .results-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.4rem;
+  }
+
+  .result-card {
+    background: #FFFFFF;
+    border: 1px solid #BBB;
+    padding: 0.5rem 0.75rem;
+    page-break-inside: avoid;
+    box-shadow: none;
+  }
+
+  .result-card h3 {
+    font-size: 9pt;
+    color: #000;
+  }
+
+  .result-value {
+    font-size: 13pt;
+  }
+
+  .result-ci,
+  .result-note {
+    color: #333;
+    font-size: 8.5pt;
+  }
+
+  .probability-chart {
+    page-break-inside: avoid;
+    background: #FFF;
+    border: 1px solid #BBB;
+  }
+
+  .fagan-nomogram {
+    page-break-inside: avoid;
+    background: #FFF;
+    border: 1px solid #BBB;
+  }
+
+  .fagan-summary {
+    background: #FFF;
+    border: 1px solid #BBB;
+  }
+
+  .references {
+    page-break-before: auto;
+  }
+
+  .references details {
+    background: transparent;
+    border: 1px solid #DDD;
+  }
+
+  .references details[open] summary {
+    margin-bottom: 0.5rem;
+  }
+
+  a {
+    color: #000;
+    border-bottom: none;
+    text-decoration: none;
+  }
+
+  a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 8pt;
+    color: #555;
+    word-break: break-all;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
