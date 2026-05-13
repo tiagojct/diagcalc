@@ -14,28 +14,35 @@
     <header class="intro" role="banner">
       <div class="container">
         <div class="header-controls">
-          <button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode" type="button">
+          <label class="lang-picker" for="languageSelect">
+            <span class="visually-hidden" data-i18n="lang.label">Language</span>
+            <select id="languageSelect" aria-label="Language">
+              <option value="en">English</option>
+              <option value="pt-PT">Português</option>
+            </select>
+          </label>
+          <button id="themeToggle" class="theme-toggle" type="button" data-i18n-attr="aria-label=theme.toggle.label">
             <span class="theme-icon">◐</span>
           </button>
         </div>
-        <p class="tag">Educational tool</p>
+        <p class="tag" data-i18n="intro.tag">Educational tool</p>
         <h1>DIAGCALC</h1>
-        <p class="lead">
+        <p class="lead" data-i18n="intro.lead">
           Interactive calculator for exploring diagnostic test performance measures
           and applying Bayesian reasoning in clinical practice.
         </p>
         <div class="intro-highlights" role="list">
           <article class="highlight" role="listitem">
-            <h2>Key measures</h2>
-            <p>Sensitivity, specificity, PPV, NPV, and likelihood ratios with 95%&nbsp;CI.</p>
+            <h2 data-i18n="intro.highlight1.h">Key measures</h2>
+            <p data-i18n="intro.highlight1.p">Sensitivity, specificity, PPV, NPV, and likelihood ratios with 95%&nbsp;CI.</p>
           </article>
           <article class="highlight" role="listitem">
-            <h2>Post-test probability</h2>
-            <p>Convert pre-test probability into positive and negative post-test probability.</p>
+            <h2 data-i18n="intro.highlight2.h">Post-test probability</h2>
+            <p data-i18n="intro.highlight2.p">Convert pre-test probability into positive and negative post-test probability.</p>
           </article>
           <article class="highlight" role="listitem">
-            <h2>Guided interpretation</h2>
-            <p>Results explained to support self-directed learning.</p>
+            <h2 data-i18n="intro.highlight3.h">Guided interpretation</h2>
+            <p data-i18n="intro.highlight3.p">Results explained to support self-directed learning.</p>
           </article>
         </div>
       </div>
@@ -44,19 +51,19 @@
       <div class="workspace">
         <section aria-labelledby="library-title" class="panel panel-library">
           <div class="panel-heading">
-            <p class="panel-kicker">Library</p>
-            <h2 id="library-title">Load a study scenario</h2>
+            <p class="panel-kicker" data-i18n="library.kicker">Library</p>
+            <h2 id="library-title" data-i18n="library.h">Load a study scenario</h2>
           </div>
           <div class="form-row">
-            <label class="full" for="datasetSelect">Scenario</label>
+            <label class="full" for="datasetSelect" data-i18n="form.scenario">Scenario</label>
             <select id="datasetSelect" class="full" aria-describedby="dataset-help">
-              <option value="">— Select —</option>
-              <optgroup label="Generic scenarios">
+              <option value="" data-i18n="form.scenario.empty">— Select —</option>
+              <optgroup label="Generic scenarios" data-i18n-attr="label=form.scenario.group.generic">
                 <option value="screening">Screening programme (low prevalence)</option>
                 <option value="caseControl">Case-control study</option>
                 <option value="clinic">Specialist clinic</option>
               </optgroup>
-              <optgroup label="Medical literature cases">
+              <optgroup label="Medical literature cases" data-i18n-attr="label=form.scenario.group.literature">
                 <option value="ddimer">D-dimer for pulmonary embolism</option>
                 <option value="troponin">High-sensitivity troponin for AMI</option>
                 <option value="mammography">Screening mammography</option>
@@ -72,7 +79,7 @@
                 <option value="fast_trauma">FAST ultrasound for blunt abdominal trauma</option>
               </optgroup>
             </select>
-            <p id="dataset-help" class="help-text">
+            <p id="dataset-help" class="help-text" data-i18n="library.help">
               Values are filled in automatically and can be adjusted afterwards.
             </p>
             <div id="dataset-reference" class="dataset-reference" style="display: none;"></div>
@@ -81,20 +88,20 @@
 
         <section aria-labelledby="form-title" class="panel panel-inputs">
           <div class="panel-heading">
-            <p class="panel-kicker">Editor</p>
-            <h2 id="form-title">Build the confusion matrix</h2>
-            <p>
+            <p class="panel-kicker" data-i18n="editor.kicker">Editor</p>
+            <h2 id="form-title" data-i18n="editor.h">Build the confusion matrix</h2>
+            <p data-i18n="editor.help">
               Use non-negative integers and a pre-test probability under 100%.
             </p>
           </div>
           <form id="inputForm" novalidate>
             <fieldset class="confusion-matrix">
-              <legend>Confusion matrix</legend>
+              <legend data-i18n="form.matrix.legend">Confusion matrix</legend>
               <div class="grid-container" role="group" aria-label="Diagnostic test results">
                 <span class="empty" aria-hidden="true"></span>
-                <span class="grid-header grid-header-pos">Disease +</span>
-                <span class="grid-header grid-header-neg">Disease -</span>
-                <label class="grid-label grid-label-pos" for="tp">Test +</label>
+                <span class="grid-header grid-header-pos" data-i18n="form.matrix.dpos">Disease +</span>
+                <span class="grid-header grid-header-neg" data-i18n="form.matrix.dneg">Disease -</span>
+                <label class="grid-label grid-label-pos" for="tp" data-i18n="form.matrix.tpos">Test +</label>
                 <div class="grid-item">
                   <input type="number" id="tp" inputmode="numeric" min="0" step="1"
                     placeholder="True positives"
@@ -107,7 +114,7 @@
                     aria-label="False positives (FP): disease absent, test positive"
                     required />
                 </div>
-                <label class="grid-label grid-label-neg" for="fn">Test -</label>
+                <label class="grid-label grid-label-neg" for="fn" data-i18n="form.matrix.tneg">Test -</label>
                 <div class="grid-item">
                   <input type="number" id="fn" inputmode="numeric" min="0" step="1"
                     placeholder="False negatives"
@@ -123,7 +130,7 @@
               </div>
             </fieldset>
             <div class="form-row">
-              <label for="preTestProb">Pre-test probability (%)</label>
+              <label for="preTestProb" data-i18n="form.pre.label">Pre-test probability (%)</label>
               <input
                 class="preTestProb"
                 type="number"
@@ -135,27 +142,27 @@
                 placeholder="e.g. 12.5"
                 required
               />
-              <p class="help-text">
+              <p class="help-text" data-i18n="form.pre.help">
                 Suggestion: estimate the disease prevalence in the study population or the clinical probability before the test.
               </p>
             </div>
             <details class="advanced-settings">
-              <summary>Advanced settings</summary>
+              <summary data-i18n="form.advanced.summary">Advanced settings</summary>
               <div class="form-row">
-                <label for="continuityModeSelect">Continuity correction for LR / DOR CIs</label>
+                <label for="continuityModeSelect" data-i18n="form.advanced.continuity">Continuity correction for LR / DOR CIs</label>
                 <select id="continuityModeSelect" class="full">
-                  <option value="auto" selected>Auto — apply +0.5 only when a 2×2 cell is zero</option>
-                  <option value="always">Always — apply +0.5 to every cell</option>
-                  <option value="never">Never — return ∞ if any cell is zero</option>
+                  <option value="auto" selected data-i18n="form.advanced.continuity.auto">Auto — apply +0.5 only when a 2×2 cell is zero</option>
+                  <option value="always" data-i18n="form.advanced.continuity.always">Always — apply +0.5 to every cell</option>
+                  <option value="never" data-i18n="form.advanced.continuity.never">Never — return ∞ if any cell is zero</option>
                 </select>
-                <p class="help-text">
-                  When any cell of the confusion matrix is zero the log-normal CI for LR+ / LR− / DOR is undefined. The default adds 0.5 to every cell (Cox 1970) when this happens so the maths still produces a (wide) interval. Switch to <em>always</em> for direct comparison with sources that apply the correction unconditionally, or <em>never</em> to see the raw "∞" result.
+                <p class="help-text" data-i18n="form.advanced.continuity.help">
+                  When any cell of the confusion matrix is zero the log-normal CI for LR+ / LR− / DOR is undefined.
                 </p>
               </div>
             </details>
             <div class="form-actions" role="group">
-              <button type="submit">Calculate results</button>
-              <button type="reset" id="resetButton" class="secondary">Clear fields</button>
+              <button type="submit" data-i18n="form.calculate">Calculate results</button>
+              <button type="reset" id="resetButton" class="secondary" data-i18n="form.clear">Clear fields</button>
             </div>
             <p id="feedback" class="feedback" role="alert" aria-live="polite"></p>
           </form>
@@ -164,41 +171,41 @@
         <section aria-labelledby="results-title" class="panel panel-results results-section">
           <div class="panel-heading panel-heading-inline">
             <div>
-              <p class="panel-kicker">Output</p>
-              <h2 id="results-title">Results</h2>
-              <p class="help-text">
-                Values are shown with 95% confidence intervals calculated using the Wilson method.
+              <p class="panel-kicker" data-i18n="results.kicker">Output</p>
+              <h2 id="results-title" data-i18n="results.h">Results</h2>
+              <p class="help-text" data-i18n="results.help">
+                Values are shown with 95% confidence intervals where applicable.
               </p>
             </div>
             <div class="results-actions" role="group">
-              <button type="button" id="printButton" class="secondary">Print report</button>
+              <button type="button" id="printButton" class="secondary" data-i18n="results.print">Print report</button>
             </div>
           </div>
           <div id="biasWarnings" class="bias-warnings" role="status" aria-live="polite"></div>
           <div id="probabilityChart" class="probability-chart" aria-label="Comparison of pre- and post-test probabilities"></div>
           <div id="faganNomogram" class="fagan-nomogram" style="display: none;">
-            <h3>Fagan Nomogram</h3>
-            <p class="help-text">Graphical representation of the relationship between pre-test probability, likelihood ratio, and post-test probability.</p>
+            <h3 data-i18n="fagan.h">Fagan Nomogram</h3>
+            <p class="help-text" data-i18n="fagan.help">Graphical representation of the relationship between pre-test probability, likelihood ratio, and post-test probability.</p>
             <canvas id="faganCanvas" width="600" height="400" role="img" aria-label="Fagan nomogram" aria-describedby="faganSummary"></canvas>
             <dl id="faganSummary" class="fagan-summary">
               <div class="fagan-summary-item">
-                <dt>Pre-test</dt>
+                <dt data-i18n="fagan.pre">Pre-test</dt>
                 <dd id="faganPreValue">—</dd>
               </div>
               <div class="fagan-summary-item">
-                <dt>LR+</dt>
+                <dt data-i18n="fagan.lrpos">LR+</dt>
                 <dd id="faganLrPosValue">—</dd>
               </div>
               <div class="fagan-summary-item">
-                <dt>LR−</dt>
+                <dt data-i18n="fagan.lrneg">LR−</dt>
                 <dd id="faganLrNegValue">—</dd>
               </div>
               <div class="fagan-summary-item">
-                <dt>Post-test (+)</dt>
+                <dt data-i18n="fagan.postpos">Post-test (+)</dt>
                 <dd id="faganPostPosValue">—</dd>
               </div>
               <div class="fagan-summary-item">
-                <dt>Post-test (−)</dt>
+                <dt data-i18n="fagan.postneg">Post-test (−)</dt>
                 <dd id="faganPostNegValue">—</dd>
               </div>
             </dl>
@@ -500,6 +507,7 @@
         &copy; 2025 — MIT Licence — Developed by <a href="https://tiagojct.eu">Tiago Jacinto</a>. <a href="mailto:tiagojacinto@med.up.pt">Contact</a>
       </p>
     </footer>
+    <script src="lib/diagcalc-i18n.js"></script>
     <script src="lib/diagcalc-datasets.js"></script>
     <script src="lib/diagcalc-core.js"></script>
     <script src="script.js"></script>

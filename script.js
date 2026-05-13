@@ -1,6 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
   const core = window.DiagcalcCore;
   const datasetStore = window.DiagcalcDatasets;
+  const i18n = window.DiagcalcI18n;
   const feedbackEl = document.getElementById("feedback");
 
   if (!core || !datasetStore) {
@@ -11,6 +12,25 @@ document.addEventListener("DOMContentLoaded", () => {
       feedbackEl.classList.add("error");
     }
     return;
+  }
+
+  // Initialise i18n: detect and apply the active locale, wire up the picker.
+  function applyLocale(locale) {
+    if (!i18n) return;
+    i18n.setLocale(locale);
+    i18n.applyToDom();
+    document.documentElement.lang = locale.split("-")[0] || "en";
+  }
+  if (i18n) {
+    applyLocale(i18n.detectLocale());
+    const langSelect = document.getElementById("languageSelect");
+    if (langSelect) {
+      langSelect.value = i18n.getLocale();
+      langSelect.addEventListener("change", () => applyLocale(langSelect.value));
+    }
+  }
+  function tr(key, vars) {
+    return i18n ? i18n.t(key, vars) : key;
   }
 
   const datasets = datasetStore.datasets;
@@ -110,7 +130,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const dataset = datasets[selected];
     applyDataset(dataset);
     displayDatasetReference(dataset);
-    setFeedback("Scenario loaded. Adjust the values as needed and recalculate.", true);
+    setFeedback(tr("feedback.scenario.loaded"), true);
     calculateAndRender();
   });
 
@@ -119,7 +139,7 @@ document.addEventListener("DOMContentLoaded", () => {
       resultsEl.innerHTML = "";
       datasetSelect.value = "";
       datasetReferenceEl.style.display = "none";
-      setFeedback("Fields cleared.", true);
+      setFeedback(tr("feedback.cleared"), true);
       clearProbabilityChart(probabilityChartEl);
       clearFaganNomogram(faganNomogramEl, faganCanvas);
       hidePrevalenceExplorer();
@@ -215,7 +235,7 @@ document.addEventListener("DOMContentLoaded", () => {
     showRocPanel(data);
     saveToHistory(data, metrics);
     renderHistory();
-    setFeedback("Calculation complete. Explore the interpretation guide below.", true);
+    setFeedback(tr("feedback.calc.ok"), true);
   }
 
   // ── Calculation history ──────────────────────────────────────────────────
@@ -355,7 +375,7 @@ document.addEventListener("DOMContentLoaded", () => {
       datasetSelect.value = "";
       datasetReferenceEl.style.display = "none";
     }
-    setFeedback(`Reloaded "${entry.label}" from history.`, true);
+    setFeedback(tr("feedback.history.reloaded", { label: entry.label }), true);
     calculateAndRender();
   }
 

@@ -2,6 +2,18 @@
 
 Todas as alterações relevantes deste projeto são registadas aqui. As datas seguem o formato ISO (AAAA-MM-DD).
 
+## [3.16.0] - 2026-05-13
+
+### Adicionado
+- **Scaffolding i18n (en / pt-PT)** — novo módulo `lib/diagcalc-i18n.js` (UMD, sem dependências) que expõe `translations`, `setLocale`, `getLocale`, `detectLocale`, `t(key, vars)`, `applyToDom(root?)`, e `availableLocales()`.
+- Selector de idioma no cabeçalho da versão web (English / Português) com detecção automática (`navigator.language` → fallback `localStorage` → fallback `en`) e persistência em `localStorage` (chave `diagcalc-lang`).
+- Atributos `data-i18n` aplicados às áreas de tráfego elevado: cabeçalho/destaques, painéis Library e Editor (kicker + heading + help), grelha do 2×2 (Disease +/−, Test +/−), legenda da matriz, label e help-text do pré-teste, "Advanced settings" (incluindo as três opções de continuidade), botões Calculate / Clear, painel Results (kicker, heading, help, Print report) e nomograma de Fagan (título, help, etiquetas do resumo). Atributos via `data-i18n-attr="attr=key;..."` para `aria-label` e `<optgroup label="...">`.
+- Mensagens dinâmicas (`feedback.calc.ok`, `feedback.cleared`, `feedback.scenario.loaded`, `feedback.history.reloaded`) passam pelo `t()` com substituição `{label}` quando aplicável.
+
+### Notas técnicas
+- Conteúdo clínico mais longo (interpretation guide, lista STARD, referências, painéis especializados como prevalence/threshold/ROC/kappa/history) **fica em inglês** nesta fase — alargar a cobertura a essas zonas é trivial (acrescentar chaves à tabela + `data-i18n` aos elementos) mas é deixado para um PR seguinte para manter o âmbito controlado.
+- As mensagens vindas do motor (`lib/diagcalc-core.js`: notas de sens/spec, interpretações de LR/DOR/NNS/κ, mensagens de validação) **permanecem em inglês** para que (1) os 69 testes dourados continuem válidos e (2) a terminologia clínica não se desdobre em variantes através de locales.
+
 ## [3.15.0] - 2026-05-13
 
 ### Adicionado
