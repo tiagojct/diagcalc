@@ -70,6 +70,41 @@
   --reference-text: var(--log-800);
   --reference-muted: var(--crew-ishmael);
 
+  /* Spacing scale — 4-pt grid. Use in padding/margin/gap to keep rhythm. */
+  --space-1: 0.25rem;  /*  4px */
+  --space-2: 0.5rem;   /*  8px */
+  --space-3: 0.75rem;  /* 12px */
+  --space-4: 1rem;     /* 16px */
+  --space-5: 1.5rem;   /* 24px */
+  --space-6: 2rem;     /* 32px */
+  --space-7: 3rem;     /* 48px */
+  --space-8: 4rem;     /* 64px */
+
+  /* Type scale — clamp-friendly steps. */
+  --text-xs:   0.75rem;
+  --text-sm:   0.875rem;
+  --text-base: 1rem;
+  --text-lg:   1.125rem;
+  --text-xl:   1.5rem;
+  --text-2xl:  2rem;
+  --text-3xl:  2.75rem;
+
+  /* Corner radii. */
+  --radius-1: 4px;
+  --radius-2: 6px;
+  --radius-3: 8px;
+  --radius-pill: 999px;
+
+  /* Motion */
+  --duration-fast: 120ms;
+  --duration-base: 200ms;
+  --duration-slow: 320ms;
+  --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
+
+  /* Elevation — used sparingly for hover lifts only */
+  --shadow-1: 0 1px 2px rgba(13, 47, 66, 0.06), 0 1px 3px rgba(13, 47, 66, 0.04);
+  --shadow-2: 0 2px 4px rgba(13, 47, 66, 0.08), 0 4px 10px rgba(13, 47, 66, 0.06);
+
   font-family: "Atkinson Hyperlegible Next", "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
   font-feature-settings: normal;
 }
