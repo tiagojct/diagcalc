@@ -190,6 +190,27 @@ test("calcLogRatioCI applies continuity correction when a cell is 0", () => {
   assert.ok(ci.upper > ci.lower);
 });
 
+test("calcLogRatioCI continuityCorrection='never' returns null on zero cells", () => {
+  const ci = core.calcLogRatioCI(0, 10, 5, 10, { continuityCorrection: "never" });
+  assert.equal(ci, null);
+});
+
+test("calcLogRatioCI continuityCorrection='always' applies +0.5 even with no zero cells", () => {
+  const ciAuto = core.calcLogRatioCI(80, 100, 10, 100, { continuityCorrection: "auto" });
+  const ciAlways = core.calcLogRatioCI(80, 100, 10, 100, { continuityCorrection: "always" });
+  // Same point estimate but the always-corrected CI is slightly different.
+  assert.ok(Math.abs(ciAuto.lower - ciAlways.lower) > 1e-6);
+});
+
+test("calculateMetrics propagates continuity option to LR and DOR CIs", () => {
+  // Synthetic 0-cell case
+  const input = { tp: 50, fp: 0, fn: 5, tn: 100, preTestProb: 30 };
+  const auto = core.calculateMetrics(input, { continuityCorrection: "auto" });
+  const never = core.calculateMetrics(input, { continuityCorrection: "never" });
+  assert.ok(auto.lrPositive.ci);
+  assert.equal(never.lrPositive.ci, null);
+});
+
 // ── Ratio / odds helpers ────────────────────────────────────────────────────
 
 test("calculateRatio(0, 0) is NaN (regression: v3.2.4 bug B)", () => {

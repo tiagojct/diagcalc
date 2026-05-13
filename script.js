@@ -20,6 +20,24 @@ document.addEventListener("DOMContentLoaded", () => {
   const resetButton = document.getElementById("resetButton");
   const probabilityChartEl = document.getElementById("probabilityChart");
   const biasWarningsEl = document.getElementById("biasWarnings");
+  const continuityModeEl = document.getElementById("continuityModeSelect");
+
+  function currentContinuityMode() {
+    return continuityModeEl ? continuityModeEl.value : "auto";
+  }
+
+  if (continuityModeEl) {
+    const stored = localStorage.getItem("diagcalc-continuity");
+    if (stored && ["auto", "always", "never"].includes(stored)) {
+      continuityModeEl.value = stored;
+    }
+    continuityModeEl.addEventListener("change", () => {
+      localStorage.setItem("diagcalc-continuity", continuityModeEl.value);
+      if (form && form.querySelector("#tp") && form.querySelector("#tp").value !== "") {
+        calculateAndRender();
+      }
+    });
+  }
   const printButton = document.getElementById("printButton");
   const datasetReferenceEl = document.getElementById("dataset-reference");
   const themeToggle = document.getElementById("themeToggle");
@@ -144,7 +162,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    const metrics = core.calculateMetrics(data);
+    const metrics = core.calculateMetrics(data, { continuityCorrection: currentContinuityMode() });
     renderBiasWarnings(core.buildBiasWarnings(data));
     renderResults(resultsEl, metrics);
     renderProbabilityChart(probabilityChartEl, {
@@ -592,7 +610,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    const metrics = core.calculateMetrics(input);
+    const metrics = core.calculateMetrics(input, { continuityCorrection: currentContinuityMode() });
     renderResults(sequentialResultsEl, metrics);
     setSequentialFeedback(
       `Test 2 complete. Post-test (+) ${core.formatPercentage(metrics.postTestPositive.value)}, post-test (−) ${core.formatPercentage(metrics.postTestNegative.value)}.`,

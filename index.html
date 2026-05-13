@@ -139,6 +139,20 @@
                 Suggestion: estimate the disease prevalence in the study population or the clinical probability before the test.
               </p>
             </div>
+            <details class="advanced-settings">
+              <summary>Advanced settings</summary>
+              <div class="form-row">
+                <label for="continuityModeSelect">Continuity correction for LR / DOR CIs</label>
+                <select id="continuityModeSelect" class="full">
+                  <option value="auto" selected>Auto — apply +0.5 only when a 2×2 cell is zero</option>
+                  <option value="always">Always — apply +0.5 to every cell</option>
+                  <option value="never">Never — return ∞ if any cell is zero</option>
+                </select>
+                <p class="help-text">
+                  When any cell of the confusion matrix is zero the log-normal CI for LR+ / LR− / DOR is undefined. The default adds 0.5 to every cell (Cox 1970) when this happens so the maths still produces a (wide) interval. Switch to <em>always</em> for direct comparison with sources that apply the correction unconditionally, or <em>never</em> to see the raw "∞" result.
+                </p>
+              </div>
+            </details>
             <div class="form-actions" role="group">
               <button type="submit">Calculate results</button>
               <button type="reset" id="resetButton" class="secondary">Clear fields</button>

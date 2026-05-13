@@ -67,6 +67,7 @@ function printHelp() {
     "  --tp2 --fp2 --fn2 --tn2  Second test's confusion matrix (with --chain)",
     "  --chain-from <r>  positive (default) | negative — which test 1 result to follow",
     "  --format <type>   Output format: text or json",
+    "  --continuity <m>  Continuity correction for LR/DOR CIs: auto (default), always, never",
     "  --list-datasets   Show available dataset keys",
     "  --help            Show this help message",
     "",
@@ -239,7 +240,13 @@ function main() {
     return;
   }
 
-  const metrics = core.calculateMetrics(built.input);
+  const continuity = typeof args.continuity === "string" ? args.continuity.toLowerCase() : "auto";
+  if (!["auto", "always", "never"].includes(continuity)) {
+    process.stderr.write(`Invalid --continuity value. Use auto, always, or never.\n`);
+    process.exitCode = 1;
+    return;
+  }
+  const metrics = core.calculateMetrics(built.input, { continuityCorrection: continuity });
   if (args.format !== undefined && typeof args.format !== "string") {
     process.stderr.write("Missing value for --format. Use --format text or --format json.\n");
     process.exitCode = 1;
@@ -249,7 +256,7 @@ function main() {
 
   let chained = null;
   if (args.chain) {
-    chained = buildChainedTest(args, metrics);
+    chained = buildChainedTest(args, metrics, continuity);
     if (chained.error) {
       process.stderr.write(`${chained.error}\n`);
       process.exitCode = 1;
@@ -276,7 +283,7 @@ function main() {
   }
 }
 
-function buildChainedTest(args, firstMetrics) {
+function buildChainedTest(args, firstMetrics, continuity) {
   const from = typeof args["chain-from"] === "string" ? args["chain-from"].toLowerCase() : "positive";
   if (from !== "positive" && from !== "negative") {
     return { error: "Invalid --chain-from. Use 'positive' or 'negative'." };
@@ -301,7 +308,7 @@ function buildChainedTest(args, firstMetrics) {
   return {
     from,
     input,
-    metrics: core.calculateMetrics(input),
+    metrics: core.calculateMetrics(input, { continuityCorrection: continuity }),
   };
 }
 

@@ -664,6 +664,42 @@ button:hover {
   color: var(--text-color);
 }
 
+/* Advanced settings (inside the form panel) */
+.advanced-settings {
+  margin-bottom: 1.25rem;
+  border: 1px dashed var(--border-color);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  background-color: var(--bg-elevated, transparent);
+}
+
+.advanced-settings > summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--muted-text);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  list-style: none;
+}
+
+.advanced-settings > summary::-webkit-details-marker {
+  display: none;
+}
+
+.advanced-settings > summary::before {
+  content: "▸ ";
+  color: var(--crew-ishmael);
+}
+
+.advanced-settings[open] > summary::before {
+  content: "▾ ";
+}
+
+.advanced-settings .form-row {
+  margin: 0.75rem 0 0;
+}
+
 /* ROC reconstruction panel */
 .roc-panel {
   background-color: var(--surface-color);

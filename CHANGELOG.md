@@ -2,6 +2,18 @@
 
 Todas as alterações relevantes deste projeto são registadas aqui. As datas seguem o formato ISO (AAAA-MM-DD).
 
+## [3.12.0] - 2026-05-13
+
+### Adicionado
+- **Controlo da correcção de continuidade** para os IC de LR+, LR− e DOR — três modos:
+  - `auto` (default): aplica +0,5 a todas as células apenas quando alguma é zero (comportamento histórico).
+  - `always`: aplica +0,5 sempre, mesmo sem células zero.
+  - `never`: não aplica correcção; devolve `null` quando o cálculo falha (log de 0).
+- Versão web: nova secção colapsável "Advanced settings" abaixo do formulário com um `<select>` que persiste a escolha em `localStorage` (`diagcalc-continuity`). Alterar o modo recalcula automaticamente se já houver um resultado.
+- CLI: novo flag `--continuity auto|always|never` (default `auto`); valor inválido falha com exit 1 e mensagem de uso.
+- Engine: `calcLogRatioCI(x1, n1, x2, n2, { continuityCorrection })` e `calcDOR(tp, fp, fn, tn, { continuityCorrection })`; `calculateMetrics` propaga a opção. Caso útil para ensino: comparar lado a lado os IC com e sem correcção.
+- 3 testes adicionais (`never` devolve null quando justificado, `always` produz CI ligeiramente diferente do default, opção propaga-se pelo `calculateMetrics`).
+
 ## [3.11.0] - 2026-05-13
 
 ### Adicionado
