@@ -2,6 +2,13 @@
 
 Todas as alterações relevantes deste projeto são registadas aqui. As datas seguem o formato ISO (AAAA-MM-DD).
 
+## [3.3.1] - 2026-05-13
+
+### Técnico
+- **Suite de testes automatizados** com `node:test` (sem dependências externas) cobrindo `validateInputs` em todos os limites (negativos, não inteiros, NaN, 0%, 99,9999%, 100%), valores dourados de `calculateMetrics` para os datasets HIV ELISA e D-dimer, propriedades dos intervalos de Wilson nos extremos 0/N e N/N, regressões dos bugs corrigidos em 3.2.4 (incluindo `calculateRatio(0, 0) === NaN`), formatadores em casos finitos e ∞/NaN, e validação automática de todos os presets em `lib/diagcalc-datasets.js`. 34 testes no total.
+- Adicionado script `npm test` (`node --test test/core.test.js`).
+- Workflow do GitHub Actions atualizado: novo job `test` que tem de passar antes do `deploy` para GitHub Pages, garantindo que nenhuma regressão de cálculo é publicada.
+
 ## [3.3.0] - 2026-05-13
 
 ### Alterado
