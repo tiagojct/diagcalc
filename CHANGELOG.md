@@ -2,6 +2,11 @@
 
 Todas as alterações relevantes deste projeto são registadas aqui. As datas seguem o formato ISO (AAAA-MM-DD).
 
+## [3.8.1] - 2026-05-13
+
+### Adicionado
+- **Resumo textual do nomograma de Fagan** por baixo do canvas — `<dl>` semântica com pré-teste, LR+, LR−, post-test (+) e post-test (−). O canvas passa a ter `role="img"` e `aria-describedby="faganSummary"`, permitindo a leitores de ecrã obter o conteúdo do gráfico em texto. Sighted users também ganham uma leitura compacta dos valores chave em fonte monoespaçada.
+
 ## [3.8.0] - 2026-05-13
 
 ### Adicionado

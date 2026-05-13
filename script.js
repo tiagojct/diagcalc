@@ -768,6 +768,7 @@ function clearFaganNomogram(container, canvas) {
   if (container) {
     container.style.display = "none";
   }
+  clearFaganSummary();
 
   if (!canvas) {
     return;
@@ -778,6 +779,28 @@ function clearFaganNomogram(container, canvas) {
     context.setTransform(1, 0, 0, 1, 0, 0);
     context.clearRect(0, 0, canvas.width, canvas.height);
   }
+}
+
+function clearFaganSummary() {
+  const ids = ["faganPreValue", "faganLrPosValue", "faganLrNegValue", "faganPostPosValue", "faganPostNegValue"];
+  for (const id of ids) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = "—";
+  }
+}
+
+function updateFaganSummary({ preTest, lrPositive, lrNegative, postPositive, postNegative }) {
+  const fmt = window.DiagcalcCore;
+  setIf("faganPreValue", fmt.formatPercentage(preTest));
+  setIf("faganLrPosValue", fmt.formatLikelihood(lrPositive));
+  setIf("faganLrNegValue", fmt.formatLikelihood(lrNegative));
+  setIf("faganPostPosValue", fmt.formatPercentage(postPositive));
+  setIf("faganPostNegValue", fmt.formatPercentage(postNegative));
+}
+
+function setIf(id, text) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = text;
 }
 
 function renderFaganNomogram(canvas, container, data) {
@@ -791,6 +814,8 @@ function renderFaganNomogram(canvas, container, data) {
     clearFaganNomogram(container, canvas);
     return;
   }
+
+  updateFaganSummary({ preTest, lrPositive, lrNegative, postPositive, postNegative });
 
   container.style.display = "block";
   const ctx = canvas.getContext("2d");

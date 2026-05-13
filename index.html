@@ -159,7 +159,29 @@
           <div id="faganNomogram" class="fagan-nomogram" style="display: none;">
             <h3>Fagan Nomogram</h3>
             <p class="help-text">Graphical representation of the relationship between pre-test probability, likelihood ratio, and post-test probability.</p>
-            <canvas id="faganCanvas" width="600" height="400" aria-label="Fagan nomogram"></canvas>
+            <canvas id="faganCanvas" width="600" height="400" role="img" aria-label="Fagan nomogram" aria-describedby="faganSummary"></canvas>
+            <dl id="faganSummary" class="fagan-summary">
+              <div class="fagan-summary-item">
+                <dt>Pre-test</dt>
+                <dd id="faganPreValue">—</dd>
+              </div>
+              <div class="fagan-summary-item">
+                <dt>LR+</dt>
+                <dd id="faganLrPosValue">—</dd>
+              </div>
+              <div class="fagan-summary-item">
+                <dt>LR−</dt>
+                <dd id="faganLrNegValue">—</dd>
+              </div>
+              <div class="fagan-summary-item">
+                <dt>Post-test (+)</dt>
+                <dd id="faganPostPosValue">—</dd>
+              </div>
+              <div class="fagan-summary-item">
+                <dt>Post-test (−)</dt>
+                <dd id="faganPostNegValue">—</dd>
+              </div>
+            </dl>
           </div>
           <div id="results" class="results-grid" aria-live="polite"></div>
           <details id="sequentialTest" class="sequential-test" style="display: none;">
