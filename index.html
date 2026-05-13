@@ -11,9 +11,14 @@
     <script defer src="https://analytics.tiagojct.eu/script.js" data-website-id="2c7df365-61e6-42e6-8298-a20ada3e296a"></script>
   </head>
   <body>
-    <header class="intro" role="banner">
-      <div class="container">
-        <div class="header-controls">
+    <header class="app-bar" role="banner">
+      <div class="app-bar-inner">
+        <div class="app-bar-brand">
+          <span class="brand-mark">DIAGCALC</span>
+          <span class="app-bar-divider" aria-hidden="true">·</span>
+          <span class="app-bar-case" id="appCaseStrip" data-i18n="app.case.empty">No case yet</span>
+        </div>
+        <div class="app-bar-controls">
           <label class="lang-picker" for="languageSelect">
             <span class="visually-hidden" data-i18n="lang.label">Language</span>
             <select id="languageSelect" aria-label="Language">
@@ -25,76 +30,46 @@
             <span class="theme-icon">◐</span>
           </button>
         </div>
-        <p class="tag" data-i18n="intro.tag">Educational tool</p>
-        <h1>DIAGCALC</h1>
-        <p class="lead" data-i18n="intro.lead">
-          Interactive calculator for exploring diagnostic test performance measures
-          and applying Bayesian reasoning in clinical practice.
-        </p>
-        <div class="intro-highlights" role="list">
-          <article class="highlight" role="listitem">
-            <h2 data-i18n="intro.highlight1.h">Key measures</h2>
-            <p data-i18n="intro.highlight1.p">Sensitivity, specificity, PPV, NPV, and likelihood ratios with 95%&nbsp;CI.</p>
-          </article>
-          <article class="highlight" role="listitem">
-            <h2 data-i18n="intro.highlight2.h">Post-test probability</h2>
-            <p data-i18n="intro.highlight2.p">Convert pre-test probability into positive and negative post-test probability.</p>
-          </article>
-          <article class="highlight" role="listitem">
-            <h2 data-i18n="intro.highlight3.h">Guided interpretation</h2>
-            <p data-i18n="intro.highlight3.p">Results explained to support self-directed learning.</p>
-          </article>
-        </div>
       </div>
     </header>
     <main class="container" id="main" role="main">
       <div class="workspace">
-        <section aria-labelledby="library-title" class="panel panel-library">
-          <div class="panel-heading">
-            <p class="panel-kicker" data-i18n="library.kicker">Library</p>
-            <h2 id="library-title" data-i18n="library.h">Load a study scenario</h2>
-          </div>
-          <div class="form-row">
-            <label class="full" for="datasetSelect" data-i18n="form.scenario">Scenario</label>
-            <select id="datasetSelect" class="full" aria-describedby="dataset-help">
-              <option value="" data-i18n="form.scenario.empty">— Select —</option>
-              <optgroup label="Generic scenarios" data-i18n-attr="label=form.scenario.group.generic">
-                <option value="screening">Screening programme (low prevalence)</option>
-                <option value="caseControl">Case-control study</option>
-                <option value="clinic">Specialist clinic</option>
-              </optgroup>
-              <optgroup label="Medical literature cases" data-i18n-attr="label=form.scenario.group.literature">
-                <option value="ddimer">D-dimer for pulmonary embolism</option>
-                <option value="troponin">High-sensitivity troponin for AMI</option>
-                <option value="mammography">Screening mammography</option>
-                <option value="covid_antigen">Rapid COVID-19 antigen test</option>
-                <option value="hiv_elisa">HIV ELISA</option>
-                <option value="strep_throat">Rapid Streptococcus test</option>
-                <option value="xray_pneumonia">Chest X-ray for pneumonia</option>
-                <option value="wells_dvt">Wells score (≥2) for DVT</option>
-                <option value="heart_acs">HEART score (≥4) for MACE in chest pain</option>
-                <option value="curb65">CURB-65 (≥2) for severe community-acquired pneumonia</option>
-                <option value="qsofa">qSOFA (≥2) for sepsis screening</option>
-                <option value="apgar_5min">APGAR &lt; 7 at 5 min for severe neonatal outcome</option>
-                <option value="fast_trauma">FAST ultrasound for blunt abdominal trauma</option>
-              </optgroup>
-            </select>
-            <p id="dataset-help" class="help-text" data-i18n="library.help">
-              Values are filled in automatically and can be adjusted afterwards.
-            </p>
-            <div id="dataset-reference" class="dataset-reference" style="display: none;"></div>
-          </div>
-        </section>
-
-        <section aria-labelledby="form-title" class="panel panel-inputs">
+        <section aria-labelledby="form-title" class="panel panel-form">
           <div class="panel-heading">
             <p class="panel-kicker" data-i18n="editor.kicker">Editor</p>
-            <h2 id="form-title" data-i18n="editor.h">Build the confusion matrix</h2>
-            <p data-i18n="editor.help">
-              Use non-negative integers and a pre-test probability under 100%.
-            </p>
+            <h2 id="form-title" data-i18n="editor.h">Build the case</h2>
           </div>
           <form id="inputForm" novalidate>
+            <div class="form-row">
+              <label class="full" for="datasetSelect" data-i18n="form.scenario">Scenario</label>
+              <select id="datasetSelect" class="full" aria-describedby="dataset-help">
+                <option value="" data-i18n="form.scenario.empty">— Select —</option>
+                <optgroup label="Generic scenarios" data-i18n-attr="label=form.scenario.group.generic">
+                  <option value="screening">Screening programme (low prevalence)</option>
+                  <option value="caseControl">Case-control study</option>
+                  <option value="clinic">Specialist clinic</option>
+                </optgroup>
+                <optgroup label="Medical literature cases" data-i18n-attr="label=form.scenario.group.literature">
+                  <option value="ddimer">D-dimer for pulmonary embolism</option>
+                  <option value="troponin">High-sensitivity troponin for AMI</option>
+                  <option value="mammography">Screening mammography</option>
+                  <option value="covid_antigen">Rapid COVID-19 antigen test</option>
+                  <option value="hiv_elisa">HIV ELISA</option>
+                  <option value="strep_throat">Rapid Streptococcus test</option>
+                  <option value="xray_pneumonia">Chest X-ray for pneumonia</option>
+                  <option value="wells_dvt">Wells score (≥2) for DVT</option>
+                  <option value="heart_acs">HEART score (≥4) for MACE in chest pain</option>
+                  <option value="curb65">CURB-65 (≥2) for severe community-acquired pneumonia</option>
+                  <option value="qsofa">qSOFA (≥2) for sepsis screening</option>
+                  <option value="apgar_5min">APGAR &lt; 7 at 5 min for severe neonatal outcome</option>
+                  <option value="fast_trauma">FAST ultrasound for blunt abdominal trauma</option>
+                </optgroup>
+              </select>
+              <p id="dataset-help" class="help-text" data-i18n="library.help">
+                Pick a preset to load values, or fill in the matrix manually below.
+              </p>
+              <div id="dataset-reference" class="dataset-reference" style="display: none;"></div>
+            </div>
             <fieldset class="confusion-matrix">
               <legend data-i18n="form.matrix.legend">Confusion matrix</legend>
               <div class="grid-container" role="group" aria-label="Diagnostic test results">
@@ -490,6 +465,29 @@
             </li>
           </ul>
         </details>
+      </section>
+      <section aria-labelledby="about-title" class="panel panel-docs about-panel">
+        <div class="panel-heading">
+          <p class="panel-kicker" data-i18n="intro.tag">Educational tool</p>
+          <h2 id="about-title" data-i18n="about.h">About DIAGCALC</h2>
+          <p data-i18n="intro.lead">
+            Interactive calculator for exploring diagnostic test performance measures and applying Bayesian reasoning in clinical practice.
+          </p>
+        </div>
+        <div class="about-grid">
+          <article class="about-card">
+            <h3 data-i18n="intro.highlight1.h">Key measures</h3>
+            <p data-i18n="intro.highlight1.p">Sensitivity, specificity, PPV, NPV, and likelihood ratios with 95% CI.</p>
+          </article>
+          <article class="about-card">
+            <h3 data-i18n="intro.highlight2.h">Post-test probability</h3>
+            <p data-i18n="intro.highlight2.p">Convert pre-test probability into positive and negative post-test probability.</p>
+          </article>
+          <article class="about-card">
+            <h3 data-i18n="intro.highlight3.h">Guided interpretation</h3>
+            <p data-i18n="intro.highlight3.p">Results explained to support self-directed learning.</p>
+          </article>
+        </div>
       </section>
       </div>
     </main>

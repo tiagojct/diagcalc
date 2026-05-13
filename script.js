@@ -14,12 +14,39 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
+  function tr(key, vars) {
+    return i18n ? i18n.t(key, vars) : key;
+  }
+
+  // ── Case strip in the app bar ────────────────────────────────────────────
+  // Tracks what to show next to the DIAGCALC brand. Re-rendered whenever the
+  // locale changes so the "No case yet" / "Case:" prefixes stay translated.
+  const appCaseStrip = document.getElementById("appCaseStrip");
+  const caseState = { kind: "empty", label: "" };
+  function renderCaseStrip() {
+    if (!appCaseStrip) return;
+    if (caseState.kind === "empty") {
+      appCaseStrip.textContent = tr("app.case.empty");
+      appCaseStrip.classList.remove("has-case");
+      return;
+    }
+    const name = caseState.kind === "adhoc" ? tr("app.case.adhoc") : caseState.label;
+    appCaseStrip.textContent = `${tr("app.case.prefix")} ${name}`;
+    appCaseStrip.classList.add("has-case");
+  }
+  function setCase(kind, label) {
+    caseState.kind = kind;
+    caseState.label = label || "";
+    renderCaseStrip();
+  }
+
   // Initialise i18n: detect and apply the active locale, wire up the picker.
   function applyLocale(locale) {
     if (!i18n) return;
     i18n.setLocale(locale);
     i18n.applyToDom();
     document.documentElement.lang = locale.split("-")[0] || "en";
+    renderCaseStrip();
   }
   if (i18n) {
     applyLocale(i18n.detectLocale());
@@ -28,9 +55,6 @@ document.addEventListener("DOMContentLoaded", () => {
       langSelect.value = i18n.getLocale();
       langSelect.addEventListener("change", () => applyLocale(langSelect.value));
     }
-  }
-  function tr(key, vars) {
-    return i18n ? i18n.t(key, vars) : key;
   }
 
   const datasets = datasetStore.datasets;
@@ -124,12 +148,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const selected = datasetSelect.value;
     if (!selected || !datasets[selected]) {
       datasetReferenceEl.style.display = "none";
+      setCase("empty");
       return;
     }
 
     const dataset = datasets[selected];
     applyDataset(dataset);
     displayDatasetReference(dataset);
+    setCase("named", dataset.name);
     setFeedback(tr("feedback.scenario.loaded"), true);
     calculateAndRender();
   });
@@ -139,6 +165,7 @@ document.addEventListener("DOMContentLoaded", () => {
       resultsEl.innerHTML = "";
       datasetSelect.value = "";
       datasetReferenceEl.style.display = "none";
+      setCase("empty");
       setFeedback(tr("feedback.cleared"), true);
       clearProbabilityChart(probabilityChartEl);
       clearFaganNomogram(faganNomogramEl, faganCanvas);
@@ -215,6 +242,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const metrics = core.calculateMetrics(data, { continuityCorrection: currentContinuityMode() });
+    if (caseState.kind === "empty") {
+      setCase("adhoc");
+    }
     renderBiasWarnings(core.buildBiasWarnings(data));
     renderResults(resultsEl, metrics);
     renderProbabilityChart(probabilityChartEl, {
@@ -371,9 +401,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if (datasetSelect && entry.datasetKey && datasets[entry.datasetKey]) {
       datasetSelect.value = entry.datasetKey;
       displayDatasetReference(datasets[entry.datasetKey]);
+      setCase("named", datasets[entry.datasetKey].name);
     } else if (datasetSelect) {
       datasetSelect.value = "";
       datasetReferenceEl.style.display = "none";
+      setCase("named", entry.label);
     }
     setFeedback(tr("feedback.history.reloaded", { label: entry.label }), true);
     calculateAndRender();
