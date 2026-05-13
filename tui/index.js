@@ -11,6 +11,7 @@ function renderResults(metrics) {
     renderMetricLine(metrics.ppv, "ppv"),
     renderMetricLine(metrics.npv, "npv"),
     renderMetricLine(metrics.dor, "dor"),
+    renderMetricLine(metrics.numberNeededToScreen, "nns"),
   ];
 
   const bayes = [
@@ -119,6 +120,16 @@ function metricTone(kind, value) {
       return { colour: CREW.pip, badge: "LIMITED" };
     }
     return { colour: CREW.ahab, badge: "POOR" };
+  }
+
+  if (kind === "nns") {
+    if (value < 10) {
+      return { colour: CREW.tashtego, badge: "EFFICIENT" };
+    }
+    if (value < 100) {
+      return { colour: CREW.pip, badge: "MODERATE" };
+    }
+    return { colour: CREW.ahab, badge: "LOW YIELD" };
   }
 
   if (kind === "lrNegative") {
@@ -1014,6 +1025,8 @@ function buildPlainMetricSections(metrics) {
     `  Specificity: ${core.formatValue(metrics.specificity.value)} (${renderConfidence(metrics.specificity)})`,
     `  PPV: ${core.formatValue(metrics.ppv.value)} (${renderConfidence(metrics.ppv)})`,
     `  NPV: ${core.formatValue(metrics.npv.value)} (${renderConfidence(metrics.npv)})`,
+    `  DOR: ${core.formatValue(metrics.dor.value, metrics.dor.formatter)} (${renderConfidence(metrics.dor)})`,
+    `  NNS: ${core.formatValue(metrics.numberNeededToScreen.value, metrics.numberNeededToScreen.formatter)}`,
     "",
     "Bayesian Update",
     `  LR+: ${core.formatValue(metrics.lrPositive.value, metrics.lrPositive.formatter)} (${renderConfidence(metrics.lrPositive)})`,
@@ -1039,6 +1052,8 @@ function buildMarkdownMetricSections(metrics) {
     `| Specificity | ${core.formatValue(metrics.specificity.value)} | ${renderConfidence(metrics.specificity)} |`,
     `| PPV | ${core.formatValue(metrics.ppv.value)} | ${renderConfidence(metrics.ppv)} |`,
     `| NPV | ${core.formatValue(metrics.npv.value)} | ${renderConfidence(metrics.npv)} |`,
+    `| DOR | ${core.formatValue(metrics.dor.value, metrics.dor.formatter)} | ${renderConfidence(metrics.dor)} |`,
+    `| NNS | ${core.formatValue(metrics.numberNeededToScreen.value, metrics.numberNeededToScreen.formatter)} | — |`,
     "",
     "## Bayesian Update",
     "",

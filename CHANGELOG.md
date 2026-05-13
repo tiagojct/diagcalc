@@ -2,6 +2,16 @@
 
 Todas as alterações relevantes deste projeto são registadas aqui. As datas seguem o formato ISO (AAAA-MM-DD).
 
+## [3.11.0] - 2026-05-13
+
+### Adicionado
+- **NNS (Number Needed to Screen)** como nova métrica em todas as interfaces — `NNS = 1 / (sensibilidade × probabilidade pré-teste)`. Indica quantas pessoas é preciso testar para detectar um verdadeiro caso à prevalência indicada. Apresentado arredondado para cima (não há "0,5 pessoas"); ∞ quando a sensibilidade ou a prevalência são zero. Particularmente revelador em cenários de rastreio: o preset Mammography produz NNS=143 a 1% de prevalência, mostrando porque é que campanhas populacionais exigem volumes elevados.
+- Novas funções públicas: `formatNNS(value)` e `interpretNNS(value)` (interpretação automática a 4 níveis: eficiente / moderado / baixo rendimento / muito baixo rendimento).
+- 4 testes adicionais (cálculo numérico, dois casos infinitos, formatação).
+
+### Alterado
+- Versão web, TUI e CLI: carta/linha NNS adicionada à secção "Performance Measures" (depois do DOR). Exports texto/Markdown da TUI também a incluem.
+
 ## [3.10.1] - 2026-05-13
 
 ### Adicionado

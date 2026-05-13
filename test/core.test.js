@@ -329,6 +329,34 @@ test("PPV(p) from sens/spec matches calculateMetrics PPV at same prevalence", ()
   }
 });
 
+// ── Number needed to screen ─────────────────────────────────────────────────
+
+test("calculateMetrics exposes NNS = 1 / (sens × prevalence)", () => {
+  // sens = 0.95, pre = 0.02 → NNS = 1 / 0.019 ≈ 52.63
+  const m = core.calculateMetrics({ tp: 95, fp: 100, fn: 5, tn: 1800, preTestProb: 2 });
+  const sens = 95 / 100;
+  const pre = 0.02;
+  close(m.numberNeededToScreen.value, 1 / (sens * pre), 1e-9);
+});
+
+test("NNS is infinite when sensitivity is zero", () => {
+  const m = core.calculateMetrics({ tp: 0, fp: 10, fn: 50, tn: 100, preTestProb: 20 });
+  assert.equal(m.numberNeededToScreen.value, Infinity);
+});
+
+test("NNS is infinite when pre-test probability is zero", () => {
+  const m = core.calculateMetrics({ tp: 50, fp: 10, fn: 5, tn: 100, preTestProb: 0 });
+  assert.equal(m.numberNeededToScreen.value, Infinity);
+});
+
+test("formatNNS rounds up and handles non-finite", () => {
+  assert.equal(core.formatNNS(2.1), "3");
+  assert.equal(core.formatNNS(99.0), "99");
+  assert.equal(core.formatNNS(Infinity), "—");
+  assert.equal(core.formatNNS(NaN), "—");
+  assert.equal(core.formatNNS(0), "—");
+});
+
 // ── ROC reconstruction ──────────────────────────────────────────────────────
 
 test("calculateROC: perfect classifier yields AUC = 1", () => {
