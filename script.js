@@ -24,6 +24,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const themeToggle = document.getElementById("themeToggle");
   const faganNomogramEl = document.getElementById("faganNomogram");
   const faganCanvas = document.getElementById("faganCanvas");
+  const prevalenceExplorerEl = document.getElementById("prevalenceExplorer");
+  const prevalenceSliderEl = document.getElementById("prevalenceSlider");
+  const prevalenceValueEl = document.getElementById("prevalenceValue");
+  const prevalenceReadoutEl = document.getElementById("prevalenceReadout");
+  const prevalenceCanvas = document.getElementById("prevalenceCanvas");
+  const prevalenceState = { sens: NaN, spec: NaN };
 
   initializeTheme();
 
@@ -31,6 +37,10 @@ document.addEventListener("DOMContentLoaded", () => {
     themeToggle.addEventListener("click", () => {
       toggleTheme();
       redrawFaganNomogram();
+      if (Number.isFinite(prevalenceState.sens) && Number.isFinite(prevalenceState.spec)) {
+        const prev = parseFloat(prevalenceSliderEl.value);
+        drawPrevalenceChart(prevalenceState.sens, prevalenceState.spec, prev / 100);
+      }
     });
   }
 
@@ -61,6 +71,7 @@ document.addEventListener("DOMContentLoaded", () => {
       setFeedback("Fields cleared.", true);
       clearProbabilityChart(probabilityChartEl);
       clearFaganNomogram(faganNomogramEl, faganCanvas);
+      hidePrevalenceExplorer();
     });
   });
 
@@ -95,6 +106,7 @@ document.addEventListener("DOMContentLoaded", () => {
       setFeedback(validation.message, false);
       clearProbabilityChart(probabilityChartEl);
       clearFaganNomogram(faganNomogramEl, faganCanvas);
+      hidePrevalenceExplorer();
       return;
     }
 
@@ -112,7 +124,189 @@ document.addEventListener("DOMContentLoaded", () => {
       postPositive: metrics.postTestPositive.value,
       postNegative: metrics.postTestNegative.value,
     });
+    showPrevalenceExplorer(metrics.sensitivity.value, metrics.specificity.value, metrics.preTestProbability.value);
     setFeedback("Calculation complete. Explore the interpretation guide below.", true);
+  }
+
+  function showPrevalenceExplorer(sens, spec, currentPrev) {
+    if (!prevalenceExplorerEl || !Number.isFinite(sens) || !Number.isFinite(spec)) {
+      return;
+    }
+    prevalenceState.sens = sens;
+    prevalenceState.spec = spec;
+    prevalenceExplorerEl.style.display = "block";
+    const startPercent = Math.max(0.1, Math.min(99.9, (currentPrev || 0.1) * 100));
+    prevalenceSliderEl.value = startPercent.toFixed(1);
+    updatePrevalenceReadout(startPercent);
+    drawPrevalenceChart(sens, spec, startPercent / 100);
+  }
+
+  function hidePrevalenceExplorer() {
+    if (!prevalenceExplorerEl) return;
+    prevalenceExplorerEl.style.display = "none";
+    prevalenceExplorerEl.open = false;
+    prevalenceState.sens = NaN;
+    prevalenceState.spec = NaN;
+  }
+
+  function updatePrevalenceReadout(prevPercent) {
+    if (!prevalenceReadoutEl) return;
+    const { sens, spec } = prevalenceState;
+    if (!Number.isFinite(sens) || !Number.isFinite(spec)) return;
+    const prev = prevPercent / 100;
+    const ppvDen = sens * prev + (1 - spec) * (1 - prev);
+    const npvDen = spec * (1 - prev) + (1 - sens) * prev;
+    const ppv = ppvDen > 0 ? (sens * prev) / ppvDen : NaN;
+    const npv = npvDen > 0 ? (spec * (1 - prev)) / npvDen : NaN;
+    const postPositive = ppv;
+    const postNegative = Number.isFinite(npv) ? 1 - npv : NaN;
+
+    prevalenceValueEl.textContent = `${prevPercent.toFixed(1)}%`;
+    prevalenceReadoutEl.innerHTML = "";
+    const stats = [
+      ["PPV", ppv],
+      ["NPV", npv],
+      ["Post-test (+)", postPositive],
+      ["Post-test (−)", postNegative],
+    ];
+    for (const [label, value] of stats) {
+      const cell = document.createElement("div");
+      cell.className = "prevalence-stat";
+      const lab = document.createElement("span");
+      lab.className = "prevalence-stat-label";
+      lab.textContent = label;
+      const val = document.createElement("span");
+      val.className = "prevalence-stat-value";
+      val.textContent = core.formatPercentage(value);
+      cell.appendChild(lab);
+      cell.appendChild(val);
+      prevalenceReadoutEl.appendChild(cell);
+    }
+  }
+
+  if (prevalenceSliderEl) {
+    prevalenceSliderEl.addEventListener("input", () => {
+      const prev = parseFloat(prevalenceSliderEl.value);
+      if (!Number.isFinite(prev)) return;
+      updatePrevalenceReadout(prev);
+      drawPrevalenceChart(prevalenceState.sens, prevalenceState.spec, prev / 100);
+    });
+  }
+
+  function drawPrevalenceChart(sens, spec, currentPrev) {
+    if (!prevalenceCanvas || !Number.isFinite(sens) || !Number.isFinite(spec)) return;
+    const ctx = prevalenceCanvas.getContext("2d");
+    if (!ctx) return;
+
+    const dpr = window.devicePixelRatio || 1;
+    const rect = prevalenceCanvas.getBoundingClientRect();
+    prevalenceCanvas.width = rect.width * dpr;
+    prevalenceCanvas.height = rect.height * dpr;
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.scale(dpr, dpr);
+
+    const W = rect.width;
+    const H = rect.height;
+    const margin = { top: 28, right: 24, bottom: 40, left: 50 };
+    const plotW = W - margin.left - margin.right;
+    const plotH = H - margin.top - margin.bottom;
+    ctx.clearRect(0, 0, W, H);
+
+    const styles = getComputedStyle(document.documentElement);
+    const axisColor = styles.getPropertyValue("--base-600").trim();
+    const textColor = styles.getPropertyValue("--text-color").trim();
+    const ppvColor = styles.getPropertyValue("--accent-warm").trim();
+    const npvColor = styles.getPropertyValue("--success-color").trim();
+    const primaryColor = styles.getPropertyValue("--primary-color").trim();
+    const mutedColor = styles.getPropertyValue("--muted-text").trim();
+
+    const px = (p) => margin.left + p * plotW;
+    const py = (v) => margin.top + (1 - v) * plotH;
+
+    ctx.strokeStyle = axisColor;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(margin.left, margin.top);
+    ctx.lineTo(margin.left, margin.top + plotH);
+    ctx.lineTo(margin.left + plotW, margin.top + plotH);
+    ctx.stroke();
+
+    ctx.fillStyle = textColor;
+    ctx.font = "11px 'Atkinson Hyperlegible Next', system-ui, sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("Prevalence (%)", margin.left + plotW / 2, H - 10);
+    ctx.save();
+    ctx.translate(14, margin.top + plotH / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillText("Predictive value (%)", 0, 0);
+    ctx.restore();
+
+    ctx.font = "10px 'JetBrains Mono', ui-monospace, monospace";
+    ctx.fillStyle = mutedColor;
+    ctx.strokeStyle = axisColor;
+    for (const t of [0, 25, 50, 75, 100]) {
+      const x = px(t / 100);
+      ctx.beginPath();
+      ctx.moveTo(x, margin.top + plotH);
+      ctx.lineTo(x, margin.top + plotH + 3);
+      ctx.stroke();
+      ctx.fillText(`${t}`, x, margin.top + plotH + 14);
+    }
+    ctx.textAlign = "right";
+    for (const t of [0, 25, 50, 75, 100]) {
+      const y = py(t / 100);
+      ctx.beginPath();
+      ctx.moveTo(margin.left - 3, y);
+      ctx.lineTo(margin.left, y);
+      ctx.stroke();
+      ctx.fillText(`${t}`, margin.left - 5, y + 3);
+    }
+
+    function curve(fn, color) {
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      let started = false;
+      for (let i = 0; i <= 200; i++) {
+        const p = i / 200;
+        const v = fn(p);
+        if (!Number.isFinite(v)) continue;
+        const x = px(p);
+        const y = py(core.clamp(v, 0, 1));
+        if (!started) { ctx.moveTo(x, y); started = true; } else { ctx.lineTo(x, y); }
+      }
+      ctx.stroke();
+    }
+
+    curve((p) => {
+      const d = sens * p + (1 - spec) * (1 - p);
+      return d > 0 ? (sens * p) / d : NaN;
+    }, ppvColor);
+    curve((p) => {
+      const d = spec * (1 - p) + (1 - sens) * p;
+      return d > 0 ? (spec * (1 - p)) / d : NaN;
+    }, npvColor);
+
+    const markerX = px(core.clamp(currentPrev, 0, 1));
+    ctx.strokeStyle = primaryColor;
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(markerX, margin.top);
+    ctx.lineTo(markerX, margin.top + plotH);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.textAlign = "left";
+    ctx.font = "11px 'Atkinson Hyperlegible Next', system-ui, sans-serif";
+    ctx.fillStyle = ppvColor;
+    ctx.fillRect(margin.left + 8, margin.top + 4, 14, 3);
+    ctx.fillStyle = textColor;
+    ctx.fillText("PPV", margin.left + 26, margin.top + 9);
+    ctx.fillStyle = npvColor;
+    ctx.fillRect(margin.left + 66, margin.top + 4, 14, 3);
+    ctx.fillStyle = textColor;
+    ctx.fillText("NPV", margin.left + 84, margin.top + 9);
   }
 
   function redrawFaganNomogram() {

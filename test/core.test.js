@@ -304,6 +304,31 @@ test("getDataset returns null for unknown keys", () => {
   assert.equal(datasetStore.getDataset("does_not_exist"), null);
 });
 
+// ── Prevalence sensitivity identities (used by the web slider) ──────────────
+// PPV(p) and NPV(p) at an arbitrary prevalence p, given sens and spec, must
+// agree with what calculateMetrics produces when fed a synthetic 2x2 at that
+// same prevalence. These identities power the prevalence-explorer chart.
+
+test("PPV(p) from sens/spec matches calculateMetrics PPV at same prevalence", () => {
+  const sens = 0.95;
+  const spec = 0.90;
+  const N = 100000;
+  for (const p of [0.01, 0.1, 0.5, 0.9]) {
+    const diseased = Math.round(N * p);
+    const nonDiseased = N - diseased;
+    const tp = Math.round(sens * diseased);
+    const fn = diseased - tp;
+    const tn = Math.round(spec * nonDiseased);
+    const fp = nonDiseased - tn;
+    const m = core.calculateMetrics({ tp, fp, fn, tn, preTestProb: p * 100 });
+
+    const ppvFromFormula = (sens * p) / (sens * p + (1 - spec) * (1 - p));
+    close(m.ppv.value, ppvFromFormula, 1e-3);
+    // Post-test (+) at this prevalence must equal PPV (identity by definition).
+    close(m.postTestPositive.value, ppvFromFormula, 1e-3);
+  }
+});
+
 test("every preset validates and computes finite metrics", () => {
   for (const preset of datasetStore.listDatasets()) {
     const v = core.validateInputs(preset);

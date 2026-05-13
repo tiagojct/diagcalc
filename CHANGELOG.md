@@ -2,6 +2,16 @@
 
 Todas as alterações relevantes deste projeto são registadas aqui. As datas seguem o formato ISO (AAAA-MM-DD).
 
+## [3.5.0] - 2026-05-13
+
+### Adicionado
+- **Explorador de sensibilidade à prevalência** na versão web — secção colapsável por baixo da grelha de resultados que mantém a sensibilidade e a especificidade fixas e permite arrastar um slider de prevalência (0,1% a 99,9%) para ver, em tempo real, como PPV, NPV e probabilidades pós-teste respondem. Ferramenta-chave para demonstrar o "paradoxo do rastreio" (PPV colapsa em populações de baixa prevalência mesmo com testes excelentes).
+- **Gráfico PPV/NPV vs. prevalência** desenhado em canvas com escala 0–100% nos dois eixos, curvas separadas para PPV (acento Stubb) e NPV (acento Tashtego), e marcador vertical (acento Queequeg) na prevalência atual. O canvas redesenha-se automaticamente ao alternar o tema claro/escuro.
+- Teste dourado que confirma a identidade `PPV(p) ≡ Post-test(+) = sens·p / (sens·p + (1−spec)·(1−p))` ao longo de quatro prevalências distintas, garantindo coerência entre o slider e o motor `calculateMetrics`.
+
+### Alterado
+- O slider usa o thumb em `--primary-color`, anel de foco em `--crew-starbuck` e os cartões de leitura partilham o estilo dos cartões de resultado. Cumpre `prefers-reduced-motion`.
+
 ## [3.4.0] - 2026-05-13
 
 ### Adicionado

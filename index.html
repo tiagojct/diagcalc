@@ -161,6 +161,21 @@
             <canvas id="faganCanvas" width="600" height="400" aria-label="Fagan nomogram"></canvas>
           </div>
           <div id="results" class="results-grid" aria-live="polite"></div>
+          <details id="prevalenceExplorer" class="prevalence-explorer" style="display: none;">
+            <summary><strong>Explore prevalence sensitivity</strong> — see how PPV, NPV and post-test probabilities shift when prevalence changes</summary>
+            <p class="help-text">
+              Sensitivity and specificity are intrinsic to the test and stay fixed. Drag the slider to see how the predictive values and post-test probabilities respond if the disease were more or less common in the population you are testing.
+            </p>
+            <div class="prevalence-controls">
+              <label for="prevalenceSlider">
+                <span>Prevalence</span>
+                <output id="prevalenceValue" for="prevalenceSlider">10.0%</output>
+              </label>
+              <input type="range" id="prevalenceSlider" min="0.1" max="99.9" step="0.1" value="10" aria-describedby="prevalenceValue" />
+            </div>
+            <div id="prevalenceReadout" class="prevalence-readout"></div>
+            <canvas id="prevalenceCanvas" width="600" height="320" aria-label="PPV and NPV as a function of prevalence"></canvas>
+          </details>
         </section>
       </div>
 
