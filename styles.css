@@ -1408,6 +1408,18 @@ button:hover {
   margin-top: 0.5rem;
 }
 
+.roc-flash {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 0.55rem 0.85rem;
+  border-radius: 4px;
+  background-color: var(--surface);
+  border-left: 3px solid var(--secondary);
+  color: var(--text);
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
 .roc-stat {
   background-color: var(--surface-soft);
   border: 1px solid var(--border);

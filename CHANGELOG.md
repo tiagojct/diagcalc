@@ -2,6 +2,11 @@
 
 Todas as alterações relevantes deste projeto são registadas aqui. As datas seguem o formato ISO (AAAA-MM-DD).
 
+## [4.1.2] - 2026-05-14
+
+### Alterado
+- **"Fill synthetic cutoffs" agora é idempotente e dá feedback visível.** Cliques sucessivos substituem o scaffold sintético em vez de o duplicar (apaga as linhas `roc-row--synthetic` existentes antes de adicionar as novas — 5 ↔ 5, nunca 10, 15, 20). Após adicionar, a tabela faz auto-scroll para a primeira linha sintética e o readout mostra durante 5 segundos uma mensagem confirmando "Added N synthetic cutoffs from a binormal fit (seed: …)" — antes a única dica era a curva no canvas mudar, fácil de não notar quando o AUC já estava alto. O fluxo headless (`playwright`) confirma: D-dimer → Calculate → abrir disclosure → clicar = 2 → 7 linhas; clicar duas vezes = ainda 7 linhas; readout começa com a mensagem flash.
+
 ## [4.1.1] - 2026-05-14
 
 ### Corrigido

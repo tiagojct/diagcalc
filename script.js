@@ -713,9 +713,13 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   if (rocFillSyntheticButton) {
     rocFillSyntheticButton.addEventListener("click", () => {
-      // Seed from the first non-empty ROC row; fall back to the main form
-      // (where the user just typed TP/FP/FN/TN) so the button works the
-      // moment the panel opens, before any rows are populated.
+      // Idempotent: drop any prior synthetic rows so repeated clicks refresh
+      // the scaffold instead of accumulating.
+      Array.from(rocRowsEl.querySelectorAll("tr.roc-row--synthetic")).forEach((tr) => tr.remove());
+
+      // Seed from the first non-empty (non-synthetic) ROC row; fall back to
+      // the main form (where the user just typed TP/FP/FN/TN) so the button
+      // works the moment the panel opens, before any rows are populated.
       const rocRows = readRocRows();
       const isValid = (r) =>
         r &&
@@ -723,9 +727,13 @@ document.addEventListener("DOMContentLoaded", () => {
         Number.isInteger(r.fn) && Number.isInteger(r.tn) &&
         (r.tp + r.fn > 0) && (r.tn + r.fp > 0);
       let seed = rocRows.find(isValid);
+      let seedSource = "ROC row 1";
       if (!seed) {
         const form = readFormValues();
-        if (isValid(form)) seed = form;
+        if (isValid(form)) {
+          seed = form;
+          seedSource = "main form";
+        }
       }
       if (!seed) {
         if (rocReadoutEl) {
@@ -744,6 +752,20 @@ document.addEventListener("DOMContentLoaded", () => {
         addRocRow(row, { synthetic: true });
       }
       recomputeRoc();
+      const firstSynth = rocRowsEl.querySelector("tr.roc-row--synthetic");
+      if (firstSynth && firstSynth.scrollIntoView) {
+        firstSynth.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
+      // Surface that the click did something — the AUC update alone is easy
+      // to miss when the scaffold lands on top of an already-populated curve.
+      // Prepended *after* recomputeRoc to survive its innerHTML reset.
+      if (rocReadoutEl) {
+        const flash = document.createElement("p");
+        flash.className = "roc-flash";
+        flash.textContent = `Added ${synth.length} synthetic cutoffs from a binormal fit (seed: ${seedSource}). Edit any cell to convert that row to user data.`;
+        rocReadoutEl.prepend(flash);
+        setTimeout(() => { if (flash.isConnected) flash.remove(); }, 5000);
+      }
     });
   }
   if (rocResetButton) {
