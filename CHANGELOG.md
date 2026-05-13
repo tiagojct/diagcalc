@@ -2,6 +2,14 @@
 
 Todas as alterações relevantes deste projeto são registadas aqui. As datas seguem o formato ISO (AAAA-MM-DD).
 
+## [4.0.3] - 2026-05-13
+
+### Corrigido
+- **Valores grandes da tira de cabeçalho alinhados em linha.** As cartas com etiqueta de duas linhas ("Post-test probability (positive result)") deixavam o número a flutuar mais abaixo do que em "Sensitivity" / "Specificity". As etiquetas reservam agora altura para duas linhas (`min-height` em `.results-headline .result-card h3`), pelo que os quatro números ficam na mesma baseline.
+
+### Alterado
+- **Gradientes da matriz de confusão substituídos por cores chapadas.** Os blocos "Disease +/−" e "Test +/−" tinham `linear-gradient(180deg, primary → primary-strong)` e `linear-gradient(180deg, secondary → log-700)` — destacavam-se demais para o tom minimalista do resto da app. Passam a `background-color` chapado (`--primary` e `--log-700`).
+
 ## [4.0.2] - 2026-05-13
 
 ### Alterado
