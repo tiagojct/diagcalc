@@ -2,6 +2,11 @@
 
 Todas as alterações relevantes deste projeto são registadas aqui. As datas seguem o formato ISO (AAAA-MM-DD).
 
+## [3.10.1] - 2026-05-13
+
+### Adicionado
+- A saída `--format json` da CLI passa a incluir um bloco `engine` reprodutível com o nome da ferramenta, versão (`3.10.1`), métodos de IC usados (Wilson para proporções, Simel-Samsa-Matchar log-normal para razões de verosimilhança, delta-method para probabilidades pós-teste, log-normal para DOR) e timestamp UTC (`generatedAt`). Pensado para colar directamente numa secção de métodos ou registar para auditoria.
+
 ## [3.10.0] - 2026-05-13
 
 ### Adicionado

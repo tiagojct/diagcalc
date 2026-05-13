@@ -2,6 +2,18 @@
 
 const core = require("../lib/diagcalc-core");
 const datasetStore = require("../lib/diagcalc-datasets");
+const pkg = require("../package.json");
+
+const ENGINE_METADATA = Object.freeze({
+  name: "diagcalc",
+  version: pkg.version,
+  ciMethods: Object.freeze({
+    proportions: "Wilson 95%",
+    likelihoodRatios: "Simel-Samsa-Matchar 1991 log-normal 95% with +0.5 continuity correction on zero cells",
+    postTestProbabilities: "delta method through Bayes' update on the log-LR scale",
+    diagnosticOddsRatio: "log-normal 95% with +0.5 continuity correction on zero cells",
+  }),
+});
 
 function parseArgs(argv) {
   const args = {
@@ -76,6 +88,7 @@ function serialiseMetric(metric) {
 
 function printJsonReport(dataset, input, metrics, chained, warnings) {
   const payload = {
+    engine: { ...ENGINE_METADATA, generatedAt: new Date().toISOString() },
     case: dataset ? dataset.name : "Ad hoc case",
     datasetKey: dataset ? dataset.key || null : null,
     input,
