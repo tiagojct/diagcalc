@@ -65,68 +65,80 @@ function colourValue(value, kind, numericValue) {
   return `{${colour}-fg}${value}{/} {bold}{${colour}-fg}[${badge}]{/}{/}`;
 }
 
+// Pequod crew accents — dark variants (TUI assumes dark terminal background)
+const CREW = {
+  ahab:     "#E3877C", // red — WEAK / LOW / HIGH
+  starbuck: "#A6DFFF", // cyan — INFO
+  queequeg: "#838CCF", // blue — primary / selection / focus
+  pip:      "#DEC577", // gold — MOD / USEFUL / LIMITED / MID
+  ishmael:  "#BFBBB6", // warm gray — borders / muted
+  stubb:    "#FFD9BB", // warm orange — LR+ accent
+  tashtego: "#82C4A2", // green — STRONG / RULE-IN / RULE-OUT / HIGH(post+) / LOW(post-)
+  daggoo:   "#A17069", // brown — EXTREME (infinite values) / second-stage trace
+};
+
 function metricTone(kind, value) {
   if (!Number.isFinite(value)) {
-    return { colour: "magenta", badge: "EXTREME" };
+    return { colour: CREW.daggoo, badge: "EXTREME" };
   }
 
   if (kind === "sensitivity" || kind === "specificity" || kind === "ppv" || kind === "npv") {
     if (value >= 0.9) {
-      return { colour: "green", badge: "STRONG" };
+      return { colour: CREW.tashtego, badge: "STRONG" };
     }
     if (value >= 0.7) {
-      return { colour: "yellow", badge: "MOD" };
+      return { colour: CREW.pip, badge: "MOD" };
     }
-    return { colour: "red", badge: "WEAK" };
+    return { colour: CREW.ahab, badge: "WEAK" };
   }
 
   if (kind === "lrPositive") {
     if (value >= 10) {
-      return { colour: "green", badge: "RULE-IN" };
+      return { colour: CREW.tashtego, badge: "RULE-IN" };
     }
     if (value >= 5) {
-      return { colour: "yellow", badge: "USEFUL" };
+      return { colour: CREW.pip, badge: "USEFUL" };
     }
     if (value >= 2) {
-      return { colour: "yellow", badge: "LIMITED" };
+      return { colour: CREW.pip, badge: "LIMITED" };
     }
-    return { colour: "red", badge: "WEAK" };
+    return { colour: CREW.ahab, badge: "WEAK" };
   }
 
   if (kind === "lrNegative") {
     if (value <= 0.1) {
-      return { colour: "green", badge: "RULE-OUT" };
+      return { colour: CREW.tashtego, badge: "RULE-OUT" };
     }
     if (value <= 0.2) {
-      return { colour: "yellow", badge: "USEFUL" };
+      return { colour: CREW.pip, badge: "USEFUL" };
     }
     if (value <= 0.5) {
-      return { colour: "yellow", badge: "LIMITED" };
+      return { colour: CREW.pip, badge: "LIMITED" };
     }
-    return { colour: "red", badge: "WEAK" };
+    return { colour: CREW.ahab, badge: "WEAK" };
   }
 
   if (kind === "postPositive") {
     if (value >= 0.8) {
-      return { colour: "green", badge: "HIGH" };
+      return { colour: CREW.tashtego, badge: "HIGH" };
     }
     if (value >= 0.4) {
-      return { colour: "yellow", badge: "MID" };
+      return { colour: CREW.pip, badge: "MID" };
     }
-    return { colour: "red", badge: "LOW" };
+    return { colour: CREW.ahab, badge: "LOW" };
   }
 
   if (kind === "postNegative") {
     if (value <= 0.1) {
-      return { colour: "green", badge: "LOW" };
+      return { colour: CREW.tashtego, badge: "LOW" };
     }
     if (value <= 0.3) {
-      return { colour: "yellow", badge: "MID" };
+      return { colour: CREW.pip, badge: "MID" };
     }
-    return { colour: "red", badge: "HIGH" };
+    return { colour: CREW.ahab, badge: "HIGH" };
   }
 
-  return { colour: "cyan", badge: "INFO" };
+  return { colour: CREW.starbuck, badge: "INFO" };
 }
 
 function runTui() {
@@ -203,14 +215,14 @@ function runTui() {
     mouse: true,
     style: {
       selected: {
-        bg: "blue",
+        bg: CREW.queequeg,
       },
       border: {
-        fg: "white",
+        fg: CREW.ishmael,
       },
       focus: {
         border: {
-          fg: "blue",
+          fg: CREW.queequeg,
         },
       },
     },
@@ -245,11 +257,11 @@ function runTui() {
     tags: true,
     style: {
       border: {
-        fg: "white",
+        fg: CREW.ishmael,
       },
       focus: {
         border: {
-          fg: "blue",
+          fg: CREW.queequeg,
         },
       },
     },
@@ -272,11 +284,11 @@ function runTui() {
     content: "Press Enter on a dataset or input row.",
     style: {
       border: {
-        fg: "white",
+        fg: CREW.ishmael,
       },
       focus: {
         border: {
-          fg: "blue",
+          fg: CREW.queequeg,
         },
       },
     },

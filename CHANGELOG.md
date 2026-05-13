@@ -2,6 +2,14 @@
 
 Todas as alterações relevantes deste projeto são registadas aqui. As datas seguem o formato ISO (AAAA-MM-DD).
 
+## [3.3.0] - 2026-05-13
+
+### Alterado
+- **Paleta visual migrada para Pequod** (github.com/tiagojct/pequod) — escala neutra Log em 12 passos (do papel quente `#F7F3EE` à tinta profunda `#0B1720`) e oito acentos nomeados com a tripulação do Pequod (Ahab, Starbuck, Queequeg, Pip, Ishmael, Stubb, Tashtego, Daggoo), com variantes claras e escuras dedicadas.
+- **Tipografia migrada para Atkinson Hyperlegible Next** no corpo e na interface — tipo de letra desenhado pelo Braille Institute para leitores de baixa visão, melhora a legibilidade base para todos. JetBrains Mono mantém-se para a matriz 2x2, os valores numéricos das cartas de resultado e as etiquetas do nomograma de Fagan.
+- Os mapeamentos semânticos (`--primary-color`, `--accent-warm`, `--success-color`, etc.) e os nomes legacy (`--base-*`, `--red`/`--orange`/...) foram preservados como aliases para manter compatibilidade com `script.js` e o esquema escuro existente, mas apontam agora para tokens Pequod.
+- TUI atualizada para usar os hex codes da tripulação (Tashtego para STRONG/RULE-IN/RULE-OUT, Pip para MOD/USEFUL, Ahab para WEAK, Daggoo para EXTREME, Starbuck para INFO, Queequeg para seleção/foco). blessed faz fallback gracioso para a cor ANSI mais próxima em terminais sem truecolor.
+
 ## [3.2.4] - 2026-05-12
 
 ### Corrigido

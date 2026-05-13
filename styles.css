@@ -1,54 +1,81 @@
 :root {
-  font-family: "JetBrains Mono", monospace;
+  /* Pequod palette — github.com/tiagojct/pequod */
+  /* Log scale (neutrals): warm paper → deep ink */
+  --log-50:  #F7F3EE;
+  --log-100: #EAE1D7;
+  --log-150: #DBC9B6;
+  --log-200: #CFAD8E;
+  --log-300: #BD8C68;
+  --log-400: #A16E50;
+  --log-500: #835A49;
+  --log-600: #335260;
+  --log-700: #163F54;
+  --log-800: #0D2F42;
+  --log-900: #0C222F;
+  --log-950: #0B1720;
+
+  /* Crew accents (light variants) */
+  --crew-ahab:     #A83732;  /* red — error / rule-out failed */
+  --crew-starbuck: #0082B1;  /* cyan-blue — info / pre-test marker */
+  --crew-queequeg: #253E82;  /* deep blue — primary action */
+  --crew-pip:      #6A4A00;  /* gold — warning / threshold bands */
+  --crew-ishmael:  #76716B;  /* warm gray — muted / axis */
+  --crew-stubb:    #CA6435;  /* warm orange — LR+ trace */
+  --crew-tashtego: #177C55;  /* green — LR− / success */
+  --crew-daggoo:   #552823;  /* deep brown — sequential second-stage */
+
+  /* Legacy base-* names retained for script.js getComputedStyle compatibility */
+  --base-100:  var(--log-50);
+  --base-200:  var(--log-100);
+  --base-300:  var(--log-150);
+  --base-400:  var(--log-200);
+  --base-500:  var(--log-300);
+  --base-600:  var(--log-400);
+  --base-700:  var(--crew-ishmael);
+  --base-800:  var(--log-700);
+  --base-900:  var(--log-800);
+  --base-950:  var(--log-900);
+  --base-1000: var(--log-950);
+
+  /* Legacy hue aliases */
+  --red:     var(--crew-ahab);
+  --orange:  var(--crew-stubb);
+  --yellow:  var(--crew-pip);
+  --green:   var(--crew-tashtego);
+  --cyan:    var(--crew-starbuck);
+  --blue:    var(--crew-queequeg);
+  --purple:  var(--crew-daggoo);
+  --magenta: var(--crew-ahab);
+
+  /* Semantic tokens */
+  --primary-color: var(--crew-queequeg);
+  --primary-dark: var(--log-800);
+  --secondary-color: var(--crew-starbuck);
+  --background-color: var(--log-50);
+  --surface-color: var(--log-100);
+  --border-color: var(--log-200);
+  --text-color: var(--log-800);
+  --muted-text: var(--crew-ishmael);
+  --success-color: var(--crew-tashtego);
+  --accent-warm: var(--crew-stubb);
+  --page-accent-cool: rgba(37, 62, 130, 0.07);
+  --page-accent-warm: rgba(202, 100, 53, 0.05);
+  --intro-gradient-end: rgba(219, 201, 182, 0.4);
+  --panel-bg: rgba(247, 243, 238, 0.85);
+  --panel-soft-bg: rgba(247, 243, 238, 0.92);
+  --highlight-bg: rgba(247, 243, 238, 0.7);
+  --matrix-bg: rgba(247, 243, 238, 0.92);
+  --heading-strong: var(--log-900);
+  --reference-bg: var(--log-100);
+  --reference-text: var(--log-800);
+  --reference-muted: var(--crew-ishmael);
+
+  font-family: "Atkinson Hyperlegible Next", "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
   font-feature-settings: normal;
-  /* Flexoki Color Scheme */
-  --base-100: #FFFCF0;
-  --base-200: #F2F0E5;
-  --base-300: #E6E4D9;
-  --base-400: #DAD8CE;
-  --base-500: #CECDC3;
-  --base-600: #B7B5AC;
-  --base-700: #878580;
-  --base-800: #575653;
-  --base-900: #403E3C;
-  --base-950: #282726;
-  --base-1000: #100F0F;
-  
-  --red: #AF3029;
-  --orange: #BC5215;
-  --yellow: #AD8301;
-  --green: #66800B;
-  --cyan: #24837B;
-  --blue: #205EA6;
-  --purple: #5E409D;
-  --magenta: #A02F6F;
-  
-  /* Semantic colors */
-  --primary-color: var(--blue);
-  --primary-dark: #1a4a7f;
-  --secondary-color: var(--cyan);
-  --background-color: var(--base-100);
-  --surface-color: var(--base-200);
-  --border-color: var(--base-400);
-  --text-color: var(--base-1000);
-  --muted-text: var(--base-800);
-  --success-color: var(--green);
-  --accent-warm: var(--orange);
-  --page-accent-cool: rgba(32, 94, 166, 0.08);
-  --page-accent-warm: rgba(188, 82, 21, 0.05);
-  --intro-gradient-end: rgba(230, 228, 217, 0.4);
-  --panel-bg: rgba(242, 240, 229, 0.8);
-  --panel-soft-bg: rgba(255, 252, 240, 0.82);
-  --highlight-bg: rgba(255, 252, 240, 0.66);
-  --matrix-bg: rgba(255, 252, 240, 0.9);
-  --heading-strong: var(--base-900);
-  --reference-bg: var(--base-300);
-  --reference-text: var(--base-800);
-  --reference-muted: var(--base-700);
 }
 
 body {
-  font-family: "JetBrains Mono", monospace;
+  font-family: "Atkinson Hyperlegible Next", "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
   background-color: var(--background-color);
   background-image: radial-gradient(circle at top left, var(--page-accent-cool), transparent 30%), linear-gradient(180deg, var(--page-accent-warm), transparent 22%);
   color: var(--text-color);
@@ -112,12 +139,15 @@ h1 {
   font-size: clamp(2rem, 5vw, 2.8rem);
   margin: 0.25rem 0 0.75rem;
   text-align: center;
+  font-weight: 700;
+  letter-spacing: -0.01em;
 }
 
 h2 {
   font-size: clamp(1.4rem, 2.5vw, 1.75rem);
   margin-bottom: 1rem;
   color: var(--text-color);
+  font-weight: 700;
 }
 
 .tag {
@@ -243,6 +273,7 @@ select {
   background-color: var(--background-color);
   color: var(--text-color);
   font-size: 1rem;
+  font-family: inherit;
   transition: border-color 0.2s;
   cursor: pointer;
 }
@@ -294,7 +325,7 @@ option {
   padding: 0.75rem;
   border-radius: 4px;
   font-weight: 600;
-  color: var(--background-color);
+  color: var(--log-50);
   background: linear-gradient(180deg, var(--primary-color), var(--primary-dark));
 }
 
@@ -305,8 +336,8 @@ option {
   padding: 0.75rem;
   border-radius: 4px;
   font-weight: 600;
-  color: var(--background-color);
-  background: linear-gradient(180deg, var(--secondary-color), var(--cyan));
+  color: var(--log-50);
+  background: linear-gradient(180deg, var(--secondary-color), var(--log-700));
   text-align: center;
 }
 
@@ -324,7 +355,7 @@ option {
   border-color: var(--base-600);
 }
 
-/* Input Styling */
+/* Input Styling — use JetBrains Mono for numeric input grids so digits align */
 .grid-item input,
 .preTestProb {
   width: 100%;
@@ -335,7 +366,8 @@ option {
   box-sizing: border-box;
   transition: border-color 0.2s;
   font-size: 1rem;
-  font-family: inherit;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  font-variant-numeric: tabular-nums;
   background-color: var(--background-color);
   color: var(--text-color);
 }
@@ -357,7 +389,7 @@ option {
 button {
   width: 100%;
   background: var(--primary-color);
-  color: var(--background-color);
+  color: var(--log-50);
   padding: 0.9rem;
   border: none;
   border-radius: 4px;
@@ -404,7 +436,7 @@ button:hover {
 }
 
 .feedback.error {
-  color: var(--primary-dark);
+  color: var(--crew-ahab);
 }
 
 .results-section {
@@ -479,6 +511,7 @@ button:hover {
 
 .chart-value {
   font-variant-numeric: tabular-nums;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
   font-weight: 600;
 }
 
@@ -502,11 +535,15 @@ button:hover {
 .result-value {
   font-size: 1.9rem;
   font-weight: 700;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
 }
 
 .result-ci {
   font-size: 0.9rem;
   color: var(--muted-text);
+  font-variant-numeric: tabular-nums;
 }
 
 .result-note {
@@ -633,8 +670,8 @@ button:hover {
 .tooltip .tooltip-text {
   visibility: hidden;
   width: 280px;
-  background-color: var(--base-950);
-  color: var(--base-100);
+  background-color: var(--log-950);
+  color: var(--log-50);
   text-align: left;
   border-radius: 6px;
   padding: 0.75rem;
@@ -647,7 +684,7 @@ button:hover {
   transition: opacity 0.3s;
   font-size: 0.85rem;
   line-height: 1.4;
-  border: 2px solid var(--base-950);
+  border: 2px solid var(--log-950);
 }
 
 .tooltip .tooltip-text::after {
@@ -658,7 +695,7 @@ button:hover {
   margin-left: -5px;
   border-width: 5px;
   border-style: solid;
-  border-color: var(--base-950) transparent transparent transparent;
+  border-color: var(--log-950) transparent transparent transparent;
 }
 
 .tooltip:hover .tooltip-text,
@@ -667,48 +704,59 @@ button:hover {
   opacity: 1;
 }
 
-/* Dark Mode */
+/* Dark Mode — Pequod dark variants */
 [data-theme="dark"] {
-  --base-100: #100F0F;
-  --base-200: #1C1B1A;
-  --base-300: #282726;
-  --base-400: #343331;
-  --base-500: #403E3C;
-  --base-600: #575653;
-  --base-700: #6F6E69;
-  --base-800: #B7B5AC;
-  --base-900: #CECDC3;
-  --base-950: #E6E4D9;
-  --base-1000: #FFFCF0;
-  
-  --red: #D14D41;
-  --orange: #DA702C;
-  --yellow: #D0A215;
-  --green: #879A39;
-  --cyan: #3AA99F;
-  --blue: #4385BE;
-  --purple: #8B7EC8;
-  --magenta: #CE5D97;
-  
-  --primary-color: var(--blue);
-  --primary-dark: #5a9cd6;
-  --secondary-color: var(--cyan);
-  --background-color: var(--base-100);
-  --surface-color: var(--base-200);
-  --border-color: var(--base-400);
-  --text-color: var(--base-1000);
-  --muted-text: var(--base-800);
-  --success-color: var(--green);
-  --accent-warm: var(--orange);
-  --page-accent-cool: rgba(67, 133, 190, 0.14);
-  --page-accent-warm: rgba(218, 112, 44, 0.08);
-  --intro-gradient-end: rgba(28, 27, 26, 0.6);
-  --panel-bg: rgba(28, 27, 26, 0.86);
-  --panel-soft-bg: rgba(40, 39, 38, 0.9);
-  --highlight-bg: rgba(28, 27, 26, 0.82);
-  --matrix-bg: rgba(16, 15, 15, 0.82);
+  /* Crew accents (dark variants) */
+  --crew-ahab:     #E3877C;
+  --crew-starbuck: #A6DFFF;
+  --crew-queequeg: #838CCF;
+  --crew-pip:      #DEC577;
+  --crew-ishmael:  #BFBBB6;
+  --crew-stubb:    #FFD9BB;
+  --crew-tashtego: #82C4A2;
+  --crew-daggoo:   #A17069;
+
+  /* Legacy base-* names inverted for dark */
+  --base-100:  var(--log-950);
+  --base-200:  var(--log-900);
+  --base-300:  var(--log-800);
+  --base-400:  var(--log-700);
+  --base-500:  var(--log-600);
+  --base-600:  var(--log-500);
+  --base-700:  var(--log-400);
+  --base-800:  var(--log-300);
+  --base-900:  var(--log-200);
+  --base-950:  var(--log-100);
+  --base-1000: var(--log-50);
+
+  --red:     var(--crew-ahab);
+  --orange:  var(--crew-stubb);
+  --yellow:  var(--crew-pip);
+  --green:   var(--crew-tashtego);
+  --cyan:    var(--crew-starbuck);
+  --blue:    var(--crew-queequeg);
+  --purple:  var(--crew-daggoo);
+  --magenta: var(--crew-ahab);
+
+  --primary-color: var(--crew-queequeg);
+  --primary-dark: var(--log-100);
+  --secondary-color: var(--crew-starbuck);
+  --background-color: var(--log-950);
+  --surface-color: var(--log-900);
+  --border-color: var(--log-700);
+  --text-color: var(--log-100);
+  --muted-text: var(--crew-ishmael);
+  --success-color: var(--crew-tashtego);
+  --accent-warm: var(--crew-stubb);
+  --page-accent-cool: rgba(131, 140, 207, 0.12);
+  --page-accent-warm: rgba(255, 217, 187, 0.06);
+  --intro-gradient-end: rgba(12, 34, 47, 0.6);
+  --panel-bg: rgba(12, 34, 47, 0.86);
+  --panel-soft-bg: rgba(13, 47, 66, 0.9);
+  --highlight-bg: rgba(12, 34, 47, 0.82);
+  --matrix-bg: rgba(11, 23, 32, 0.82);
   --heading-strong: var(--text-color);
-  --reference-bg: var(--base-300);
+  --reference-bg: var(--log-800);
   --reference-text: var(--text-color);
   --reference-muted: var(--muted-text);
 }
