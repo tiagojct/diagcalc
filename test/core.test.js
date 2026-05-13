@@ -110,6 +110,31 @@ test("calculateMetrics on D-dimer preset", () => {
   close(m.lrNegative.value, (5 / 200) / (413 / 500));    // ≈ 0.03027
 });
 
+test("calculateMetrics includes CIs for LR+, LR−, and post-test probabilities", () => {
+  const m = core.calculateMetrics({ tp: 195, fp: 87, fn: 5, tn: 413, preTestProb: 28.6 });
+  assert.ok(m.lrPositive.ci, "missing LR+ CI");
+  assert.ok(m.lrNegative.ci, "missing LR- CI");
+  assert.ok(m.postTestPositive.ci, "missing post-test (+) CI");
+  assert.ok(m.postTestNegative.ci, "missing post-test (-) CI");
+
+  // CI must bracket the point estimate for each.
+  assert.ok(m.lrPositive.ci.lower < m.lrPositive.value && m.lrPositive.value < m.lrPositive.ci.upper);
+  assert.ok(m.lrNegative.ci.lower < m.lrNegative.value && m.lrNegative.value < m.lrNegative.ci.upper);
+  assert.ok(m.postTestPositive.ci.lower < m.postTestPositive.value && m.postTestPositive.value < m.postTestPositive.ci.upper);
+  assert.ok(m.postTestNegative.ci.lower < m.postTestNegative.value && m.postTestNegative.value < m.postTestNegative.ci.upper);
+});
+
+test("calcPostTestCI returns null when LR CI is missing", () => {
+  assert.equal(core.calcPostTestCI(0.2, null), null);
+});
+
+test("calcPostTestCI propagates the LR CI through Bayes' update", () => {
+  // pre = 0.2 → odds = 0.25; LR CI 4..8 → post odds 1..2 → post prob 0.5..0.667
+  const post = core.calcPostTestCI(0.2, { lower: 4, upper: 8 });
+  close(post.lower, 0.5);
+  close(post.upper, 2 / 3);
+});
+
 // ── Wilson CI properties ────────────────────────────────────────────────────
 
 test("calcWilsonInterval brackets the point estimate", () => {
@@ -133,6 +158,36 @@ test("calcWilsonInterval handles a N/N boundary", () => {
 
 test("calcWilsonInterval returns null on zero total (avoid divide-by-zero)", () => {
   assert.equal(core.calcWilsonInterval(0, 0), null);
+});
+
+// ── calcLogRatioCI (Simel 1991 log-normal CI for ratios) ────────────────────
+
+test("calcLogRatioCI for D-dimer LR+ (195/200 over 87/500)", () => {
+  // Hand-derived: log(0.975/0.174) ± 1.96 * sqrt(0.025/195 + 0.826/87)
+  const ci = core.calcLogRatioCI(195, 200, 87, 500);
+  close(ci.lower, 4.6233, 0.001);
+  close(ci.upper, 6.7913, 0.001);
+});
+
+test("calcLogRatioCI for D-dimer LR− (5/200 over 413/500)", () => {
+  const ci = core.calcLogRatioCI(5, 200, 413, 500);
+  close(ci.lower, 0.01273, 1e-4);
+  close(ci.upper, 0.07199, 1e-4);
+});
+
+test("calcLogRatioCI brackets the point estimate", () => {
+  const ci = core.calcLogRatioCI(80, 100, 10, 100);
+  const point = (80 / 100) / (10 / 100);
+  assert.ok(ci.lower < point && ci.upper > point, `point ${point} outside CI ${ci.lower}–${ci.upper}`);
+});
+
+test("calcLogRatioCI applies continuity correction when a cell is 0", () => {
+  // Without correction this would attempt log(0/n) and return null. With +0.5
+  // on every cell we still get a finite (very wide) CI.
+  const ci = core.calcLogRatioCI(0, 10, 5, 10);
+  assert.ok(ci !== null);
+  assert.ok(Number.isFinite(ci.lower) && Number.isFinite(ci.upper));
+  assert.ok(ci.upper > ci.lower);
 });
 
 // ── Ratio / odds helpers ────────────────────────────────────────────────────

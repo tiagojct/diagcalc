@@ -57,7 +57,9 @@ function renderConfidence(metric) {
     return "";
   }
 
-  return `95% CI ${core.formatPercentage(metric.ci.lower)} to ${core.formatPercentage(metric.ci.upper)}`;
+  const lo = core.formatValue(metric.ci.lower, metric.formatter);
+  const hi = core.formatValue(metric.ci.upper, metric.formatter);
+  return `95% CI ${lo} to ${hi}`;
 }
 
 function colourValue(value, kind, numericValue) {
@@ -960,10 +962,10 @@ function buildPlainMetricSections(metrics) {
     `  NPV: ${core.formatValue(metrics.npv.value)} (${renderConfidence(metrics.npv)})`,
     "",
     "Bayesian Update",
-    `  LR+: ${core.formatValue(metrics.lrPositive.value, metrics.lrPositive.formatter)}`,
-    `  LR-: ${core.formatValue(metrics.lrNegative.value, metrics.lrNegative.formatter)}`,
-    `  Post-test probability (+): ${core.formatValue(metrics.postTestPositive.value)}`,
-    `  Post-test probability (-): ${core.formatValue(metrics.postTestNegative.value)}`,
+    `  LR+: ${core.formatValue(metrics.lrPositive.value, metrics.lrPositive.formatter)} (${renderConfidence(metrics.lrPositive)})`,
+    `  LR-: ${core.formatValue(metrics.lrNegative.value, metrics.lrNegative.formatter)} (${renderConfidence(metrics.lrNegative)})`,
+    `  Post-test probability (+): ${core.formatValue(metrics.postTestPositive.value)} (${renderConfidence(metrics.postTestPositive)})`,
+    `  Post-test probability (-): ${core.formatValue(metrics.postTestNegative.value)} (${renderConfidence(metrics.postTestNegative)})`,
     "",
     "Interpretation",
     `  Sensitivity: ${metrics.sensitivity.note}`,
@@ -986,11 +988,11 @@ function buildMarkdownMetricSections(metrics) {
     "",
     "## Bayesian Update",
     "",
-    `- LR+: ${core.formatValue(metrics.lrPositive.value, metrics.lrPositive.formatter)}`,
-    `- LR-: ${core.formatValue(metrics.lrNegative.value, metrics.lrNegative.formatter)}`,
+    `- LR+: ${core.formatValue(metrics.lrPositive.value, metrics.lrPositive.formatter)}${metrics.lrPositive.ci ? ` (95% CI ${core.formatValue(metrics.lrPositive.ci.lower, metrics.lrPositive.formatter)} – ${core.formatValue(metrics.lrPositive.ci.upper, metrics.lrPositive.formatter)})` : ""}`,
+    `- LR-: ${core.formatValue(metrics.lrNegative.value, metrics.lrNegative.formatter)}${metrics.lrNegative.ci ? ` (95% CI ${core.formatValue(metrics.lrNegative.ci.lower, metrics.lrNegative.formatter)} – ${core.formatValue(metrics.lrNegative.ci.upper, metrics.lrNegative.formatter)})` : ""}`,
     `- Pre-test probability: ${core.formatValue(metrics.preTestProbability.value)}`,
-    `- Post-test probability (+): ${core.formatValue(metrics.postTestPositive.value)}`,
-    `- Post-test probability (-): ${core.formatValue(metrics.postTestNegative.value)}`,
+    `- Post-test probability (+): ${core.formatValue(metrics.postTestPositive.value)}${metrics.postTestPositive.ci ? ` (95% CI ${core.formatPercentage(metrics.postTestPositive.ci.lower)} – ${core.formatPercentage(metrics.postTestPositive.ci.upper)})` : ""}`,
+    `- Post-test probability (-): ${core.formatValue(metrics.postTestNegative.value)}${metrics.postTestNegative.ci ? ` (95% CI ${core.formatPercentage(metrics.postTestNegative.ci.lower)} – ${core.formatPercentage(metrics.postTestNegative.ci.upper)})` : ""}`,
     "",
     "## Interpretation",
     "",

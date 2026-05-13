@@ -128,7 +128,7 @@ function buildInputFromArgs(args) {
 function renderMetricLine(metric) {
   const value = core.formatValue(metric.value, metric.formatter);
   const ci = metric.ci
-    ? ` | 95% CI ${core.formatPercentage(metric.ci.lower)} to ${core.formatPercentage(metric.ci.upper)}`
+    ? ` | 95% CI ${core.formatValue(metric.ci.lower, metric.formatter)} to ${core.formatValue(metric.ci.upper, metric.formatter)}`
     : "";
   return `${metric.label}: ${value}${ci}`;
 }

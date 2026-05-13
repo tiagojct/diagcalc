@@ -177,7 +177,8 @@ function renderResults(container, metrics) {
     if (data.ci) {
       const ci = document.createElement("p");
       ci.className = "result-ci";
-      ci.textContent = `95% CI: ${window.DiagcalcCore.formatPercentage(data.ci.lower)} - ${window.DiagcalcCore.formatPercentage(data.ci.upper)}`;
+      const fmt = window.DiagcalcCore.formatValue;
+      ci.textContent = `95% CI: ${fmt(data.ci.lower, data.formatter)} – ${fmt(data.ci.upper, data.formatter)}`;
       card.appendChild(ci);
     }
 

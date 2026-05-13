@@ -2,6 +2,19 @@
 
 Todas as alterações relevantes deste projeto são registadas aqui. As datas seguem o formato ISO (AAAA-MM-DD).
 
+## [3.4.0] - 2026-05-13
+
+### Adicionado
+- **Intervalos de confiança a 95% para LR+ e LR−** (método log-normal de Simel, Samsa & Matchar, *J Clin Epidemiol* 1991), com correção de continuidade automática (+0,5 em todas as células) quando alguma célula da matriz 2x2 é zero.
+- **Intervalos de confiança a 95% para as probabilidades pós-teste**, propagados pelo método delta através da regra de Bayes a partir do CI da razão de verosimilhança correspondente. O resultado é o intervalo que o clínico cita quando comunica "probabilidade pós-teste = X% (IC 95%: Y%–Z%)".
+- Novas funções públicas no motor partilhado: `calcLogRatioCI(x1, n1, x2, n2)` e `calcPostTestCI(preTest, lrCi)`.
+- Testes dourados adicionais (D-dimer e exemplos sintéticos) que bloqueiam regressões nos cálculos de CI.
+
+### Alterado
+- Os cartões de resultado da versão web, as linhas da TUI e o relatório CLI passam a mostrar IC 95% para LR+, LR− e ambas as probabilidades pós-teste, usando o formatador correto de cada métrica (razão de verosimilhança em `1.23` / `12.3` vs. percentagem em `12,3%`).
+- Os exports em texto e Markdown da TUI passam a incluir os mesmos IC 95% nas secções "Bayesian Update".
+- A saída `--format json` da CLI inclui agora um campo `ci` para LR+, LR− e ambas as probabilidades pós-teste.
+
 ## [3.3.1] - 2026-05-13
 
 ### Técnico
