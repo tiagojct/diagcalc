@@ -153,6 +153,15 @@ footer .privacy-note {
   color: var(--text-strong);
 }
 
+.app-bar-version {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+  letter-spacing: 0.02em;
+  align-self: center;
+}
+
 .app-bar-divider {
   color: var(--text-muted);
   font-weight: 600;
