@@ -1021,6 +1021,36 @@ button:hover {
   }
 }
 
+/* ── Summary tags (tool / reference) ───────────────────────────────────────
+   Small badges inside disclosure summaries that mark which panels are
+   interactive tools (filled, Queequeg) and which are read-only reference
+   material (outlined, muted). Sit right after the chevron and before the
+   summary's strong text. */
+.summary-tag {
+  display: inline-block;
+  margin-right: var(--space-3);
+  padding: 2px var(--space-2);
+  border-radius: 4px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  line-height: 1.4;
+  vertical-align: 2px;
+  white-space: nowrap;
+}
+
+.summary-tag--tool {
+  background-color: var(--primary);
+  color: var(--log-50);
+}
+
+.summary-tag--ref {
+  background-color: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+}
+
 /* Advanced settings (inside the form panel) */
 .advanced-settings {
   margin-bottom: 1.25rem;
