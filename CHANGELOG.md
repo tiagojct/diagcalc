@@ -2,6 +2,25 @@
 
 Todas as alterações relevantes deste projeto são registadas aqui. As datas seguem o formato ISO (AAAA-MM-DD).
 
+## [4.2.0] - 2026-05-14 — "Cockpit polish"
+
+### Adicionado
+- **Chip de versão na app bar.** Pequena etiqueta `v4.2.0` em monospace entre o wordmark "DIAGCALC" e o separador, em tom esbatido. O browser não tem build step para ler `package.json` directamente, por isso o número é HTML estático e foi acrescentado um terceiro alvo aos bumps de versão (`package.json` + `package-lock.json` + span). `CLAUDE.md` actualizado com essa instrução.
+- **Cada `<details>` do lado direito ganha uma badge "Tool" ou "Reference".** Cinco panéis interactivos (chain test, decision thresholds, ROC builder, history, prevalence explorer) recebem uma chip preenchida em Queequeg, e treze blocos de leitura (4 do interpretation guide + 6 do STARD + 3 do references) recebem uma chip outline esbatida. Mata o "tenho de abrir cada um para saber se é interactivo" e dá hierarquia visual ao lado direito sem reestruturar a árvore. Duas novas keys i18n (`panel.tag.tool` / `panel.tag.ref`) em en + pt-PT — apanhadas pelo smoke test de cobertura bilingue.
+
+### Alterado
+- **Foco vai para os resultados após Calculate.** `#resultsHeadline` ganha `tabindex="-1"` e `calculateAndRender` faz `focus({ preventScroll: false })` no final. Quem submete por teclado deixa de ter de fazer Tab-Tab-Tab para chegar à tira de cabeçalho; quem usa leitor de ecrã ouve o anúncio do `aria-live` no sítio certo.
+- **Anel de foco unificado.** Bloco `:focus-visible` global perto do topo do `styles.css` cobre `button`, todos os `input`s, `select`, `summary`, `a`, sliders e elementos com `tabindex`, em Starbuck cyan a 2 px de offset. Remove duas regras `:focus` específicas (threshold + prevalence sliders) que aplicavam o mesmo anel num só sítio cada — agora vive numa única declaração.
+- **Matriz 2×2 mantém os labels Test +/Test − em mobile.** A regra `@media (max-width: 720px)` colapsava a grelha para 2 colunas e escondia a coluna dos labels. Passa a `minmax(48px, max-content) 1fr 1fr` — o utilizador continua a ver de que linha é cada input em vez de ter quatro células órfãs.
+- **Tira Bayesiana empilha verticalmente em <520 px.** Em telemóvel pequeno o layout em duas linhas (label/lr em cima, from/axis/to em baixo) ficava esmagado. Abaixo dos 520 px cada peça (label → pré-teste → eixo → pós-teste → LR) ocupa uma linha inteira, lida de cima para baixo na mesma ordem que a matemática.
+
+### Corrigido
+- **Sublinhado dos links no dark mode.** O `border-bottom` apontava para `var(--log-200)` (`#CFAD8E`, tom de papel claro) — pouco visível em fundo escuro. Passa a `var(--border)`, que está mapeada para o tom apropriado em cada tema.
+
+### Notas técnicas
+- Verificação headless com Playwright a três viewports (1440 / 720 / 380) confirma: chip de versão visível, 5 badges Tool + 13 badges Reference, `document.activeElement.id === "resultsHeadline"` após `requestSubmit()`, label da matriz com altura > 0 em 720 px, Bayesian grid em coluna única em 380 px.
+- 83 testes passam — o smoke test de i18n apanha automaticamente as duas keys novas; nenhum teste de engine precisou de alteração porque esta release é só camada de apresentação.
+
 ## [4.1.3] - 2026-05-14
 
 ### Alterado

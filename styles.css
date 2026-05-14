@@ -96,6 +96,28 @@ body {
   padding: var(--space-5) 0 var(--space-6);
 }
 
+/* ── Unified keyboard focus ring ───────────────────────────────────────────
+   One rule for every interactive element. :focus-visible means the ring only
+   shows on keyboard navigation, never on mouse click — so the visual is
+   intentional, not noisy. Starbuck cyan, 2 px offset. */
+:is(
+  button,
+  [type="text"],
+  [type="number"],
+  [type="date"],
+  [type="email"],
+  select,
+  summary,
+  a,
+  input[type="range"],
+  input[type="checkbox"],
+  [tabindex]
+):focus-visible {
+  outline: 2px solid var(--secondary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
 footer {
   font-size: 0.85em;
   text-align: center;
@@ -678,6 +700,23 @@ button:hover {
   .bayesian-row-from  { grid-area: from; }
   .bayesian-axis      { grid-area: axis; }
   .bayesian-row-to    { grid-area: to; }
+}
+
+/* Below the 520 px mark the 3-row template above still squeezes the axis
+   into a half-width column. Stack everything onto its own line so the
+   pre-test → axis → post-test progression reads as a top-to-bottom flow. */
+@media (max-width: 520px) {
+  .bayesian-row {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "label"
+      "from"
+      "axis"
+      "to"
+      "lr";
+    row-gap: var(--space-2);
+    text-align: left;
+  }
 }
 
 .bayesian-row-label {
@@ -1613,11 +1652,7 @@ button:hover {
   cursor: pointer;
 }
 
-.threshold-input input[type="range"]:focus {
-  outline: 2px solid var(--crew-starbuck);
-  outline-offset: 4px;
-  border-radius: 4px;
-}
+/* :focus ring handled globally by the :focus-visible block near the top. */
 
 .threshold-gauge {
   position: relative;
@@ -1907,11 +1942,7 @@ button:hover {
   cursor: pointer;
 }
 
-.prevalence-controls input[type="range"]:focus {
-  outline: 2px solid var(--crew-starbuck);
-  outline-offset: 4px;
-  border-radius: 4px;
-}
+/* :focus ring handled globally by the :focus-visible block near the top. */
 
 .prevalence-readout {
   display: grid;
@@ -2068,7 +2099,7 @@ button:hover {
 a {
   color: var(--primary);
   text-decoration: none;
-  border-bottom: 1px solid var(--log-200);
+  border-bottom: 1px solid var(--border);
 }
 
 a:hover {
@@ -2088,29 +2119,19 @@ a:hover {
     margin-bottom: 1rem;
   }
 
+  /* Keep the matrix as a 3-column grid on mobile (narrow label column +
+     two flex input columns). Earlier rules collapsed to 2 columns and
+     hid the row labels — users lost the Test +/Test − context entirely. */
   .grid-container {
-    grid-template-columns: repeat(2, minmax(120px, 1fr));
-    gap: 0.5rem;
+    grid-template-columns: minmax(48px, max-content) 1fr 1fr;
+    gap: 0.4rem;
   }
 
   .grid-header,
   .grid-label {
-    font-size: 0.9rem;
-    padding: 0.6rem;
-  }
-
-  .grid-container .empty {
-    display: none;
-  }
-
-  .grid-container span:nth-child(2),
-  .grid-container span:nth-child(3) {
-    grid-column: span 1;
-  }
-
-  .grid-container label,
-  .grid-container .grid-item {
-    grid-column: span 1;
+    font-size: var(--text-xs);
+    padding: 0.4rem;
+    line-height: 1.2;
   }
 
   .form-actions {

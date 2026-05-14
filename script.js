@@ -263,6 +263,13 @@ document.addEventListener("DOMContentLoaded", () => {
     saveToHistory(data, metrics);
     renderHistory();
     setFeedback(tr("feedback.calc.ok"), true);
+    // Move keyboard focus to the headline strip so screen-reader users land
+    // on the result and sighted keyboard users don't have to tab back from
+    // the submit button. The container has tabindex="-1" so it's
+    // programmatically focusable but stays out of the tab order.
+    if (resultsHeadlineEl) {
+      resultsHeadlineEl.focus({ preventScroll: false });
+    }
   }
 
   // ── Calculation history ──────────────────────────────────────────────────
