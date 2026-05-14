@@ -684,7 +684,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     ctx.stroke();
 
-    // Plot the user's data points
+    // Plot the user's data points + label each one with its cutoff value.
+    // Labels are offset away from the curve's interior (above-left when the
+    // point sits in the upper-right half-plane, below-right when in the
+    // lower-left), so they stay clear of the line and of the diagonal.
     for (let i = 0; i < roc.points.length; i += 1) {
       const p = roc.points[i];
       const isOptimal = i === roc.optimalIndex;
@@ -692,12 +695,28 @@ document.addEventListener("DOMContentLoaded", () => {
       ctx.beginPath();
       ctx.arc(px(p.fpr), py(p.sens), isOptimal ? 7 : 4, 0, 2 * Math.PI);
       ctx.fill();
-      if (isOptimal) {
-        ctx.fillStyle = textColor;
+
+      const hasCutoff = p.cutoff !== null && p.cutoff !== undefined && p.cutoff !== "";
+      if (!hasCutoff && !isOptimal) continue;
+      const labelText = hasCutoff
+        ? (typeof p.cutoff === "number" ? p.cutoff.toString() : String(p.cutoff))
+        : "best";
+      ctx.fillStyle = isOptimal ? textColor : mutedColor;
+      ctx.font = isOptimal
+        ? "10px 'JetBrains Mono', ui-monospace, monospace"
+        : "9px 'JetBrains Mono', ui-monospace, monospace";
+      // Place labels outside the curve: upper-left of high-FPR points
+      // (which sit near the top-right of the plot), lower-right of the rest.
+      // Keeps text off both the curve line and the chance diagonal.
+      const upperHalf = p.fpr > 0.55;
+      if (upperHalf) {
+        ctx.textAlign = "right";
+        ctx.textBaseline = "alphabetic";
+        ctx.fillText(labelText, px(p.fpr) - 8, py(p.sens) - 6);
+      } else {
         ctx.textAlign = "left";
-        ctx.font = "10px 'JetBrains Mono', ui-monospace, monospace";
-        const label = `${p.cutoff !== null && p.cutoff !== "" ? p.cutoff : "best"}`;
-        ctx.fillText(label, px(p.fpr) + 10, py(p.sens) - 4);
+        ctx.textBaseline = "alphabetic";
+        ctx.fillText(labelText, px(p.fpr) + 8, py(p.sens) + 14);
       }
     }
 
@@ -741,7 +760,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         return;
       }
-      const synth = core.generateSyntheticRocPoints(seed, 5);
+      const synth = core.generateSyntheticRocPoints(seed, 7);
       if (synth.length === 0) {
         if (rocReadoutEl) {
           rocReadoutEl.textContent = "Could not fit a binormal model to that 2×2 — the synthetic scaffold needs at least one diseased and one non-diseased case.";

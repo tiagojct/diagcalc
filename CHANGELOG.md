@@ -2,6 +2,12 @@
 
 Todas as alterações relevantes deste projeto são registadas aqui. As datas seguem o formato ISO (AAAA-MM-DD).
 
+## [4.1.3] - 2026-05-14
+
+### Alterado
+- **Scaffold sintético do ROC cobre agora todo o espectro da curva.** A amostragem anterior (`fpr = i / (n + 1)` com n=5) ficava presa entre FPR 0.17 e 0.83 — os cantos inferior-esquerdo e superior-direito da curva eram apenas extrapolação entre o ponto observado e (0,0) / (1,1). Agora `fpr` varre [0.025, 0.975] inclusivamente com 7 pontos por defeito, o que dá cutoffs implícitos ±1.96 nos extremos (familiares como limite 95 % da normal) e enche a curva inteira.
+- **Cada ponto do canvas ROC ganha rótulo com o seu cutoff.** Anteriormente só o ponto Youden-óptimo ficava etiquetado; o resto era anónimo, e as 7 novas linhas sintéticas ficavam sem leitura visual no plot. Agora todos os pontos com cutoff não-vazio mostram o valor: tipografia 9 px mono em texto-muted para pontos regulares, 10 px text-strong para o óptimo. Posicionamento alterna conforme o ponto cai antes ou depois de FPR 0.55 — pontos do lado direito recebem o rótulo em cima-à-esquerda, pontos do lado esquerdo em baixo-à-direita, para que o texto fique fora da linha da curva e da diagonal de chance.
+
 ## [4.1.2] - 2026-05-14
 
 ### Alterado

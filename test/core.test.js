@@ -491,6 +491,20 @@ test("generateSyntheticRocPoints returns the requested count of synthetic rows",
   }
 });
 
+test("generateSyntheticRocPoints spans the (0, 1) FPR range, reaching both corners", () => {
+  const rows = core.generateSyntheticRocPoints({ tp: 90, fp: 20, fn: 10, tn: 80 }, 7);
+  assert.equal(rows.length, 7);
+  const fprs = rows.map((r) => r.fp / (r.fp + r.tn));
+  // Lowest FPR should sit near 0, highest near 1 — the previous (i/(n+1))
+  // sampling kept synthetic points trapped in (0.17, 0.83).
+  assert.ok(fprs[0] < 0.05, `first FPR ${fprs[0]} should be < 0.05`);
+  assert.ok(fprs[fprs.length - 1] > 0.95, `last FPR ${fprs[fprs.length - 1]} should be > 0.95`);
+  // FPRs ascend monotonically.
+  for (let i = 1; i < fprs.length; i += 1) {
+    assert.ok(fprs[i] > fprs[i - 1], `FPRs out of order at ${i}: ${fprs[i - 1]} → ${fprs[i]}`);
+  }
+});
+
 test("generateSyntheticRocPoints reproduces an ROC that monotonically climbs", () => {
   const rows = core.generateSyntheticRocPoints({ tp: 90, fp: 20, fn: 10, tn: 80 }, 6);
   const roc = core.calculateROC(rows);
