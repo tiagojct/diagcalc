@@ -138,6 +138,9 @@ document.addEventListener("DOMContentLoaded", () => {
         const prev = parseFloat(prevalenceSliderEl.value);
         drawPrevalenceChart(prevalenceState.sens, prevalenceState.spec, prev / 100);
       }
+      if (thresholdDemoEl && thresholdDemoEl.style.display !== "none") {
+        renderThresholdDemo();
+      }
     });
   }
 
@@ -173,6 +176,7 @@ document.addEventListener("DOMContentLoaded", () => {
       hidePrevalenceExplorer();
       hideSequentialTest();
       hideThresholdPanel();
+      hideThresholdDemo();
       hideRocPanel();
       renderBiasWarnings([]);
     });
@@ -195,6 +199,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "prevalenceExplorer",
     "sequentialTest",
     "thresholdPanel",
+    "thresholdDemo",
     "rocPanel",
     "historyPanel",
   ]);
@@ -236,6 +241,7 @@ document.addEventListener("DOMContentLoaded", () => {
       hidePrevalenceExplorer();
       hideSequentialTest();
       hideThresholdPanel();
+      hideThresholdDemo();
       hideRocPanel();
       renderBiasWarnings([]);
       return;
@@ -259,6 +265,7 @@ document.addEventListener("DOMContentLoaded", () => {
     showPrevalenceExplorer(metrics.sensitivity.value, metrics.specificity.value, metrics.preTestProbability.value);
     showSequentialTest(metrics.postTestPositive.value, metrics.postTestNegative.value);
     showThresholdPanel(metrics.lrPositive.value, metrics.lrNegative.value, metrics.preTestProbability.value);
+    showThresholdDemo(metrics.sensitivity.value, metrics.specificity.value, metrics.preTestProbability.value);
     showRocPanel(data);
     saveToHistory(data, metrics);
     renderHistory();
@@ -1264,6 +1271,243 @@ document.addEventListener("DOMContentLoaded", () => {
     ctx.fillRect(margin.left + 66, margin.top + 4, 14, 3);
     ctx.fillStyle = textColor;
     ctx.fillText("NPV", margin.left + 84, margin.top + 9);
+  }
+
+  // ── Threshold explorer demo ──────────────────────────────────────────────
+  // Adapted from the ia-saude "Sensibilidade vs especificidade" demo.
+  // Generates two Gaussian score distributions (diseased + healthy) with
+  // overlap, renders them as a Canvas scatter plot, and lets the user drag
+  // a threshold slicer to see how TP/FP/FN/TN and all metrics shift in real
+  // time. Uses core.calculateMetrics() so the numbers match the main
+  // calculator exactly.
+  const thresholdDemoEl = document.getElementById("thresholdDemo");
+  const thresholdDemoCanvas = document.getElementById("thresholdDemoCanvas");
+  const thresholdDemoSliderEl = document.getElementById("thresholdDemoSlider");
+  const thresholdDemoValueEl = document.getElementById("thresholdDemoValue");
+  const thresholdDemoNoteEl = document.getElementById("thresholdDemoNote");
+
+  // Seeded LCG so the scatter plot looks the same on every page load.
+  function makeSeededRng(seed) {
+    let s = seed;
+    return () => {
+      s = (s * 9301 + 49297) % 233280;
+      return s / 233280;
+    };
+  }
+
+  function gaussSeeded(rng, mu, sigma) {
+    const u = rng();
+    const v = rng();
+    return mu + sigma * Math.sqrt(-2 * Math.log(u || 0.0001)) * Math.cos(2 * Math.PI * v);
+  }
+
+  // State: the score distributions are regenerated whenever the scenario
+  // changes, so the demo reflects the current case's sens/spec/prevalence.
+  // We use a binormal model: healthy scores ~ N(0, 1), diseased ~ N(d, 1)
+  // where d = Φ⁻¹(sens) + Φ⁻¹(spec) (the binormal separation). Scores are
+  // then normalised to [0, 1] via Φ for display.
+  let tdDiseasedScores = [];
+  let tdHealthyScores = [];
+  let tdDiseasedJitter = [];
+  let tdHealthyJitter = [];
+
+  function regenerateThresholdDemoData(sens, spec, prevalence) {
+    const rng = makeSeededRng(42);
+    const N = 200;
+    const nDiseased = Math.max(1, Math.round(N * prevalence));
+    const nHealthy = N - nDiseased;
+
+    const eps = 1 / (2 * N);
+    const sClamp = Math.min(1 - eps, Math.max(eps, sens));
+    const pClamp = Math.min(1 - eps, Math.max(eps, spec));
+    const d = core.invStdNormal(sClamp) + core.invStdNormal(pClamp);
+
+    tdHealthyScores = [];
+    for (let i = 0; i < nHealthy; i += 1) {
+      const raw = gaussSeeded(rng, 0, 1);
+      tdHealthyScores.push(Math.max(0, Math.min(1, core.stdNormalCdf(raw))));
+    }
+    tdDiseasedScores = [];
+    for (let i = 0; i < nDiseased; i += 1) {
+      const raw = gaussSeeded(rng, d, 1);
+      tdDiseasedScores.push(Math.max(0, Math.min(1, core.stdNormalCdf(raw))));
+    }
+    tdDiseasedJitter = tdDiseasedScores.map(() => (rng() - 0.5) * 16);
+    tdHealthyJitter = tdHealthyScores.map(() => (rng() - 0.5) * 14);
+  }
+
+  function showThresholdDemo(sens, spec, prevalence) {
+    if (!thresholdDemoEl) return;
+    regenerateThresholdDemoData(sens, spec, prevalence);
+    thresholdDemoEl.style.display = "block";
+    renderThresholdDemo();
+  }
+
+  function hideThresholdDemo() {
+    if (!thresholdDemoEl) return;
+    thresholdDemoEl.style.display = "none";
+    thresholdDemoEl.open = false;
+    if (thresholdDemoCanvas) {
+      const ctx = thresholdDemoCanvas.getContext("2d");
+      if (ctx) {
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.clearRect(0, 0, thresholdDemoCanvas.width, thresholdDemoCanvas.height);
+      }
+    }
+  }
+
+  function renderThresholdDemo() {
+    if (!thresholdDemoCanvas || !thresholdDemoSliderEl) return;
+    const t = parseFloat(thresholdDemoSliderEl.value) / 100;
+    thresholdDemoValueEl.textContent = t.toFixed(2);
+
+    const ctx = thresholdDemoCanvas.getContext("2d");
+    if (!ctx) return;
+
+    const dpr = window.devicePixelRatio || 1;
+    const rect = thresholdDemoCanvas.getBoundingClientRect();
+    thresholdDemoCanvas.width = rect.width * dpr;
+    thresholdDemoCanvas.height = rect.height * dpr;
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.scale(dpr, dpr);
+
+    const W = rect.width;
+    const H = rect.height;
+    const margin = { l: 40, r: 20, t: 20, b: 30 };
+    const plotW = W - margin.l - margin.r;
+    const plotH = H - margin.t - margin.b;
+    ctx.clearRect(0, 0, W, H);
+
+    const styles = getComputedStyle(document.documentElement);
+    const axisColor = styles.getPropertyValue("--axis").trim();
+    const mutedColor = styles.getPropertyValue("--text-muted").trim();
+    const successColor = styles.getPropertyValue("--success").trim();
+    const errorColor = styles.getPropertyValue("--error").trim();
+    const primaryColor = styles.getPropertyValue("--primary").trim();
+    const textColor = styles.getPropertyValue("--text").trim();
+
+    const px = (p) => margin.l + p * plotW;
+    const yMid = H - margin.b - 20;
+    const yLow = H - margin.b - 8;
+
+    // Axis
+    ctx.strokeStyle = axisColor;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(margin.l, H - margin.b);
+    ctx.lineTo(W - margin.r, H - margin.b);
+    ctx.stroke();
+
+    // Ticks
+    ctx.fillStyle = mutedColor;
+    ctx.font = "10px 'JetBrains Mono', ui-monospace, monospace";
+    ctx.textAlign = "center";
+    for (const v of [0, 0.25, 0.5, 0.75, 1]) {
+      const x = px(v);
+      ctx.beginPath();
+      ctx.moveTo(x, H - margin.b);
+      ctx.lineTo(x, H - margin.b + 4);
+      ctx.strokeStyle = axisColor;
+      ctx.stroke();
+      ctx.fillText(v.toFixed(2), x, H - margin.b + 18);
+    }
+
+    // Healthy dots (bottom row) — green if below threshold, red if above
+    for (let i = 0; i < tdHealthyScores.length; i += 1) {
+      const s = tdHealthyScores[i];
+      const x = px(s);
+      ctx.fillStyle = s >= t ? errorColor : successColor;
+      ctx.beginPath();
+      ctx.arc(x, yLow + tdHealthyJitter[i], 3.5, 0, 2 * Math.PI);
+      ctx.fill();
+    }
+
+    // Diseased dots (top row) — blue if above threshold (TP), red if below (FN)
+    for (let i = 0; i < tdDiseasedScores.length; i += 1) {
+      const s = tdDiseasedScores[i];
+      const x = px(s);
+      ctx.fillStyle = s >= t ? primaryColor : errorColor;
+      ctx.beginPath();
+      ctx.arc(x, yMid + tdDiseasedJitter[i] - 30, 3.5, 0, 2 * Math.PI);
+      ctx.fill();
+    }
+
+    // Threshold line
+    const tx = px(t);
+    ctx.strokeStyle = textColor;
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([4, 3]);
+    ctx.beginPath();
+    ctx.moveTo(tx, margin.t);
+    ctx.lineTo(tx, H - margin.b);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Labels
+    ctx.fillStyle = mutedColor;
+    ctx.font = "10px 'JetBrains Mono', ui-monospace, monospace";
+    ctx.textAlign = "left";
+    ctx.fillText("diseased", margin.l, yMid - 25);
+    ctx.fillText("healthy", margin.l, yLow - 14);
+
+    // Compute confusion matrix at this threshold
+    const tp = tdDiseasedScores.filter((s) => s >= t).length;
+    const fn = tdDiseasedScores.length - tp;
+    const fp = tdHealthyScores.filter((s) => s >= t).length;
+    const tn = tdHealthyScores.length - fp;
+
+    // Update matrix cells
+    const setCell = (id, value) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = String(value);
+    };
+    setCell("tdTp", tp);
+    setCell("tdFp", fp);
+    setCell("tdFn", fn);
+    setCell("tdTn", tn);
+
+    // Compute metrics using core.calculateMetrics for consistency
+    const prevalence = (tp + fn) / (tp + fp + fn + tn);
+    const preTestProb = prevalence * 100;
+    const metrics = core.calculateMetrics(
+      { tp, fp, fn, tn, preTestProb },
+      { continuityCorrection: "auto" }
+    );
+
+    const setStat = (id, value) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = core.formatPercentage(value);
+    };
+    setStat("tdSens", metrics.sensitivity.value);
+    setStat("tdSpec", metrics.specificity.value);
+    setStat("tdPpv", metrics.ppv.value);
+    setStat("tdNpv", metrics.npv.value);
+
+    // Contextual note
+    const sens = metrics.sensitivity.value;
+    const spec = metrics.specificity.value;
+    let noteKey;
+    if (sens > 0.95 && spec < 0.4) {
+      noteKey = "thresholdDemo.note.low";
+    } else if (spec > 0.95 && sens < 0.5) {
+      noteKey = "thresholdDemo.note.high";
+    } else if (sens > 0.8 && spec > 0.8) {
+      noteKey = "thresholdDemo.note.balanced";
+    } else if (sens >= spec) {
+      noteKey = "thresholdDemo.note.sens";
+    } else {
+      noteKey = "thresholdDemo.note.spec";
+    }
+    if (thresholdDemoNoteEl) {
+      thresholdDemoNoteEl.textContent = tr(noteKey, {
+        sens: core.formatPercentage(sens),
+        spec: core.formatPercentage(spec),
+      });
+    }
+  }
+
+  if (thresholdDemoSliderEl) {
+    thresholdDemoSliderEl.addEventListener("input", renderThresholdDemo);
   }
 
   function redrawFaganNomogram() {

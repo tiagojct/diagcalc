@@ -2,6 +2,25 @@
 
 Todas as alterações relevantes deste projeto são registadas aqui. As datas seguem o formato ISO (AAAA-MM-DD).
 
+## [4.4.0] - 2026-07-14 — "Glauca"
+
+### Alterado
+- **Tema Glauca.** A paleta migra de Pequod (neutros quentes papel→tinta + acentos "crew") para **Glauca** (github.com/tiagojct/glauca), o irmão claro do Try-Works. Os neutros passam a uma escala fria pálido→profundo (**Pruina** no modo claro, **Profundum** no escuro) e o azul `dies` #007AFF torna-se a marca de carga — link, anel de foco, cursor. Para preservar a codificação por cor das métricas, os slots semânticos herdam as hues estendidas do próprio Glauca: verde folium (LR−/sucesso), vermelho bacca (erro/rule-out) e o eixo azul-cobre (LR+/limiar). Implementação cirúrgica — só mudaram os valores dos ~20 tokens `--log-*` e `--crew-*`; os nomes dos slots e as ~130 referências a jusante (incluindo as leituras de canvas em `script.js`) ficam intactos. Verde e âmbar do modo claro foram aprofundados para garantir contraste AA como texto (≥4.5:1 sobre fundo e superfície). A fonte mantém-se Atkinson Hyperlegible (escolha de acessibilidade). Sem alterações de lógica.
+
+### Corrigido
+- **Texto claro voltou a aparecer em fundos escuros no modo claro.** Um `*/` acidental dentro de um comentário CSS (no padrão `--log-*/--crew-*`) fechava o comentário mais cedo, e o texto restante consumia a declaração `--log-50` seguinte — deixando `--log-50` (e portanto `--bg`) indefinido. Resultado: cabeçalhos azuis, labels de linha e botões primários herdavam `--text` (escuro) em vez do branco `--log-50`, invisíveis em modo claro (o modo escuro escapava por o fallback já ser claro). Verificado headless com chrome-headless-shell: `getComputedStyle` confirma `--log-50` = `#F0F4F6` e render correcto.
+
+### Técnico
+- Contraste WCAG validado em todos os pares semânticos AA-críticos (corpo, muted, sucesso, erro, aviso, link, botão, anel de foco) em ambos os modos. 83 testes continuam a passar (sem alterações de lógica).
+
+## [4.3.0] - 2026-07-14 — "Threshold explorer"
+
+### Adicionado
+- **Explorador de limiar (threshold explorer).** Novo painel `<details>` no lado direito, adaptado do demo "Sensibilidade vs especificidade" do projecto `ia-saude`. Gera duas distribuições Gaussianas de scores (80 doentes μ=0.65 σ=0.13, 120 saudáveis μ=0.38 σ=0.14) com sobreposição, usando um LCG seeded para determinismo. Um slider de limiar (0–100%) controla uma linha vertical no canvas; à medida que o utilizador arrasta, todos os pontos recolorem, a matriz 2×2 (TP/FP/FN/TN) actualiza em directo, e as métricas (sensibilidade, especificidade, VPP, VPN) recalculam via `core.calculateMetrics()` — garantindo que os números correspondem exactamente aos do calculador principal. Uma nota contextual interpreta o equilíbrio sens/spec em cada posição. Canvas com DPR scaling, cores lidas de CSS custom properties, redraw on theme toggle. 22 novas keys i18n (en + pt-PT).
+
+### Técnico
+- 83 testes passam — o smoke test de i18n valida automaticamente as 22 novas keys; nenhum teste de engine precisou de alteração porque o demo usa `core.calculateMetrics()` já testado.
+
 ## [4.2.0] - 2026-05-14 — "Cockpit polish"
 
 ### Adicionado

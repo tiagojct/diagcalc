@@ -1,33 +1,40 @@
 :root {
-  /* Pequod palette — github.com/tiagojct/pequod */
-  /* Log scale (neutrals): warm paper → deep ink */
-  --log-50:  #F7F3EE;
-  --log-100: #EAE1D7;
-  --log-150: #DBC9B6;
-  --log-200: #CFAD8E;
-  --log-300: #BD8C68;
-  --log-400: #A16E50;
-  --log-500: #835A49;
-  --log-600: #335260;
-  --log-700: #163F54;
-  --log-800: #0D2F42;
-  --log-900: #0C222F;
-  --log-950: #0B1720;
+  /* Glauca palette — github.com/tiagojct/glauca (Pruina light / Profundum dark).
+     The --log- and --crew- slot names are inherited from the prior Pequod theme
+     so the ~130 downstream references (and script.js canvas reads) keep working with
+     only the values changed. The neutral ramp is one fixed pale→deep cool scale
+     shared by both modes: light picks pale steps for surfaces + deep for ink,
+     dark inverts. Crew slots carry Glauca's blue mark plus the extended hues
+     (folium green, bacca red) and the blue-copper warm axis that diagcalc's
+     colour-coded metrics still need. */
+  /* Neutrals (glaucum/pruina/saxum): pale bloom → deep sea */
+  --log-50:  #F0F4F6;
+  --log-100: #E8EEF2;
+  --log-150: #D9E2E7;
+  --log-200: #CDD7DC;
+  --log-300: #B7CDD6;
+  --log-400: #93B7C9;
+  --log-500: #6C93A8;
+  --log-600: #4D7391;
+  --log-700: #2A3540;
+  --log-800: #16303F;
+  --log-900: #171F26;
+  --log-950: #10161C;
 
-  /* Crew accents (light variants) */
-  --crew-ahab:     #A83732;  /* red — error / rule-out failed */
-  --crew-starbuck: #0082B1;  /* cyan-blue — info / pre-test marker */
-  --crew-queequeg: #253E82;  /* deep blue — primary action */
-  --crew-pip:      #6A4A00;  /* gold — warning / threshold bands */
-  --crew-ishmael:  #76716B;  /* warm gray — muted / axis */
-  --crew-stubb:    #CA6435;  /* warm orange — LR+ trace */
-  --crew-tashtego: #177C55;  /* green — LR− / success */
-  --crew-daggoo:   #552823;  /* deep brown — sequential second-stage */
+  /* Crew accents (light variants) — Glauca hues, deepened for AA on the pale ground */
+  --crew-ahab:     #B34A44;  /* bacca red — error / rule-out failed */
+  --crew-starbuck: #007AFF;  /* dies blue — info / focus ring / pre-test marker */
+  --crew-queequeg: #0B62CF;  /* accent blue — primary action */
+  --crew-pip:      #8F5E08;  /* copper — warning / threshold bands (AA text 5.0:1) */
+  --crew-ishmael:  #55646D;  /* cinis gray — muted / axis */
+  --crew-stubb:    #B97435;  /* copper — LR+ trace (mark, not text) */
+  --crew-tashtego: #307719;  /* folium green — LR− / success (AA text 5.0:1) */
+  --crew-daggoo:   #8F4F16;  /* deep copper — sequential second-stage */
 
-  /* Semantic tokens — Pequod-native names (v4.0). */
+  /* Semantic tokens — legacy Pequod slot names, Glauca values. */
   --bg:             var(--log-50);
   --surface:        var(--log-100);
-  --surface-soft:   rgba(247, 243, 238, 0.92);
+  --surface-soft:   rgba(240, 244, 246, 0.92);
   --border:         var(--log-200);
   --text:           var(--log-800);
   --text-strong:    var(--log-900);
@@ -73,8 +80,8 @@
   --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
 
   /* Elevation — used sparingly for hover lifts only */
-  --shadow-1: 0 1px 2px rgba(13, 47, 66, 0.06), 0 1px 3px rgba(13, 47, 66, 0.04);
-  --shadow-2: 0 2px 4px rgba(13, 47, 66, 0.08), 0 4px 10px rgba(13, 47, 66, 0.06);
+  --shadow-1: 0 1px 2px rgba(16, 22, 28, 0.06), 0 1px 3px rgba(16, 22, 28, 0.04);
+  --shadow-2: 0 2px 4px rgba(16, 22, 28, 0.08), 0 4px 10px rgba(16, 22, 28, 0.06);
 
   font-family: "Atkinson Hyperlegible Next", "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
   font-feature-settings: normal;
@@ -1988,6 +1995,215 @@ button:hover {
   margin: 0 auto;
 }
 
+/* ── Threshold explorer demo ────────────────────────────────────────────── */
+
+.threshold-demo {
+  background-color: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  padding: 1.25rem 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.threshold-demo > summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--text-strong);
+  font-size: 1.05rem;
+  line-height: 1.4;
+  list-style: none;
+}
+
+.threshold-demo > summary::-webkit-details-marker {
+  display: none;
+}
+
+.threshold-demo .help-text {
+  margin: 0.75rem 0 1rem;
+}
+
+.threshold-demo canvas {
+  width: 100%;
+  max-width: 600px;
+  height: 200px;
+  border: 1px solid var(--log-150);
+  border-radius: 4px;
+  background: var(--bg);
+  display: block;
+  margin: 0 auto;
+}
+
+.threshold-demo-controls {
+  margin: 1rem 0 1.25rem;
+}
+
+.threshold-demo-controls label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-weight: 600;
+  margin-bottom: 0.6rem;
+  color: var(--text);
+}
+
+.threshold-demo-controls output {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  font-variant-numeric: tabular-nums;
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+.threshold-demo-controls input[type="range"] {
+  width: 100%;
+  height: 1.5rem;
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.threshold-demo-controls input[type="range"]::-webkit-slider-runnable-track {
+  height: 6px;
+  background: var(--log-150);
+  border-radius: 3px;
+}
+
+.threshold-demo-controls input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  background: var(--primary);
+  border-radius: 50%;
+  margin-top: -6px;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.threshold-demo-controls input[type="range"]::-webkit-slider-thumb:hover {
+  background: var(--crew-starbuck);
+  transform: scale(1.1);
+}
+
+.threshold-demo-controls input[type="range"]::-moz-range-track {
+  height: 6px;
+  background: var(--log-150);
+  border-radius: 3px;
+}
+
+.threshold-demo-controls input[type="range"]::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  background: var(--primary);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.threshold-demo-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.75rem;
+  margin: 1rem 0 1.25rem;
+}
+
+.threshold-demo-stat {
+  background-color: var(--surface-soft);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.65rem 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.threshold-demo-stat-label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+}
+
+.threshold-demo-stat-value {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  font-variant-numeric: tabular-nums;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.threshold-demo-stat-sub {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+.threshold-demo-matrix {
+  display: grid;
+  grid-template-columns: 80px 1fr 1fr;
+  grid-template-rows: 32px 1fr 1fr;
+  gap: 1px;
+  background: var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  font-size: 0.85rem;
+  margin: 1rem 0;
+}
+
+.threshold-demo-cell {
+  background: var(--surface);
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.threshold-demo-cell.head {
+  background: var(--surface-soft);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.threshold-demo-cell-n {
+  font-size: 1.4rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+
+.threshold-demo-cell.tp .threshold-demo-cell-n { color: var(--success); }
+.threshold-demo-cell.tn .threshold-demo-cell-n { color: var(--success); }
+.threshold-demo-cell.fp .threshold-demo-cell-n { color: var(--error); }
+.threshold-demo-cell.fn .threshold-demo-cell-n { color: var(--error); }
+
+.threshold-demo-cell-meta {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+.threshold-demo-note {
+  font-size: 0.85rem;
+  color: var(--text);
+  margin-top: 0.75rem;
+  min-height: 2.2rem;
+  line-height: 1.5;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .threshold-demo-controls input[type="range"]::-webkit-slider-thumb {
+    transition: none;
+  }
+}
+
 /* References Section */
 .references {
   margin-top: 0;
@@ -2066,22 +2282,22 @@ button:hover {
   opacity: 1;
 }
 
-/* Dark Mode — Pequod dark variants */
+/* Dark Mode — Glauca Profundum */
 [data-theme="dark"] {
-  /* Crew accents (dark variants) */
-  --crew-ahab:     #E3877C;
-  --crew-starbuck: #A6DFFF;
-  --crew-queequeg: #838CCF;
-  --crew-pip:      #DEC577;
-  --crew-ishmael:  #BFBBB6;
-  --crew-stubb:    #FFD9BB;
-  --crew-tashtego: #82C4A2;
-  --crew-daggoo:   #A17069;
+  /* Crew accents (dark variants) — Glauca hues, brightened for the Profundum ground */
+  --crew-ahab:     #E08C8C;  /* bacca red */
+  --crew-starbuck: #8FD0FF;  /* dies bright — info / focus ring */
+  --crew-queequeg: #3D97FF;  /* accent — primary action */
+  --crew-pip:      #DCB36A;  /* copper — warning / threshold bands */
+  --crew-ishmael:  #8C8C8C;  /* cinis — Glauca's exact dark muted (5.4:1) */
+  --crew-stubb:    #E0A878;  /* copper — LR+ trace */
+  --crew-tashtego: #7FC95F;  /* folium bright — LR− / success */
+  --crew-daggoo:   #D3A26E;  /* copper mid — sequential second-stage */
 
-  /* Semantic tokens — Pequod-native names (v4.0). */
+  /* Semantic tokens — legacy slot names, Glauca Profundum values. */
   --bg:             var(--log-950);
   --surface:        var(--log-900);
-  --surface-soft:   rgba(13, 47, 66, 0.9);
+  --surface-soft:   rgba(16, 22, 28, 0.9);
   --border:         var(--log-700);
   --text:           var(--log-100);
   --text-strong:    var(--log-100);

@@ -15,7 +15,7 @@
       <div class="app-bar-inner">
         <div class="app-bar-brand">
           <span class="brand-mark">DIAGCALC</span>
-          <span class="app-bar-version" aria-label="version">v4.2.0</span>
+          <span class="app-bar-version" aria-label="version">v4.4.0</span>
           <span class="app-bar-divider" aria-hidden="true">·</span>
           <span class="app-bar-case" id="appCaseStrip" data-i18n="app.case.empty">No case yet</span>
         </div>
@@ -313,6 +313,66 @@
             </div>
             <div id="prevalenceReadout" class="prevalence-readout"></div>
             <canvas id="prevalenceCanvas" width="600" height="320" aria-label="PPV and NPV as a function of prevalence"></canvas>
+          </details>
+          <details id="thresholdDemo" class="threshold-demo" style="display: none;">
+            <summary><span class="summary-tag summary-tag--tool" data-i18n="panel.tag.tool">Tool</span><strong data-i18n="thresholdDemo.summary">Threshold explorer</strong> — <span data-i18n="thresholdDemo.summary.sub">drag the slicer to see how TP, FP, FN, TN and all metrics shift in real time</span></summary>
+            <p class="help-text" data-i18n="thresholdDemo.help">
+              A continuous test produces scores for 200 individuals: 80 diseased (higher scores) and 120 healthy (lower scores), with overlap. Move the threshold slider to see how the confusion matrix and all performance metrics change in real time. There is no perfect threshold — only trade-offs.
+            </p>
+            <canvas id="thresholdDemoCanvas" width="600" height="200" role="img" aria-label="Score distribution with threshold line"></canvas>
+            <div class="threshold-demo-controls">
+              <label for="thresholdDemoSlider">
+                <span data-i18n="thresholdDemo.threshold">Threshold</span>
+                <output id="thresholdDemoValue" for="thresholdDemoSlider">0.50</output>
+              </label>
+              <input type="range" id="thresholdDemoSlider" min="0" max="100" step="1" value="50" aria-describedby="thresholdDemoValue" />
+            </div>
+            <div id="thresholdDemoStats" class="threshold-demo-stats" aria-live="polite">
+              <div class="threshold-demo-stat">
+                <div class="threshold-demo-stat-label" data-i18n="thresholdDemo.sens">Sensitivity</div>
+                <div class="threshold-demo-stat-value" id="tdSens">—</div>
+                <div class="threshold-demo-stat-sub">TP / (TP + FN)</div>
+              </div>
+              <div class="threshold-demo-stat">
+                <div class="threshold-demo-stat-label" data-i18n="thresholdDemo.spec">Specificity</div>
+                <div class="threshold-demo-stat-value" id="tdSpec">—</div>
+                <div class="threshold-demo-stat-sub">TN / (TN + FP)</div>
+              </div>
+              <div class="threshold-demo-stat">
+                <div class="threshold-demo-stat-label" data-i18n="thresholdDemo.ppv">PPV</div>
+                <div class="threshold-demo-stat-value" id="tdPpv">—</div>
+                <div class="threshold-demo-stat-sub">TP / (TP + FP)</div>
+              </div>
+              <div class="threshold-demo-stat">
+                <div class="threshold-demo-stat-label" data-i18n="thresholdDemo.npv">NPV</div>
+                <div class="threshold-demo-stat-value" id="tdNpv">—</div>
+                <div class="threshold-demo-stat-sub">TN / (TN + FN)</div>
+              </div>
+            </div>
+            <div class="threshold-demo-matrix" aria-label="Confusion matrix at current threshold">
+              <div class="threshold-demo-cell head"></div>
+              <div class="threshold-demo-cell head" data-i18n="thresholdDemo.disease">Disease +</div>
+              <div class="threshold-demo-cell head" data-i18n="thresholdDemo.healthy">Disease −</div>
+              <div class="threshold-demo-cell head" data-i18n="thresholdDemo.testpos">Test +</div>
+              <div class="threshold-demo-cell tp">
+                <div class="threshold-demo-cell-n" id="tdTp">0</div>
+                <div class="threshold-demo-cell-meta" data-i18n="thresholdDemo.tp">True positives</div>
+              </div>
+              <div class="threshold-demo-cell fp">
+                <div class="threshold-demo-cell-n" id="tdFp">0</div>
+                <div class="threshold-demo-cell-meta" data-i18n="thresholdDemo.fp">False positives</div>
+              </div>
+              <div class="threshold-demo-cell head" data-i18n="thresholdDemo.testneg">Test −</div>
+              <div class="threshold-demo-cell fn">
+                <div class="threshold-demo-cell-n" id="tdFn">0</div>
+                <div class="threshold-demo-cell-meta" data-i18n="thresholdDemo.fn">False negatives</div>
+              </div>
+              <div class="threshold-demo-cell tn">
+                <div class="threshold-demo-cell-n" id="tdTn">0</div>
+                <div class="threshold-demo-cell-meta" data-i18n="thresholdDemo.tn">True negatives</div>
+              </div>
+            </div>
+            <p id="thresholdDemoNote" class="threshold-demo-note" aria-live="polite"></p>
           </details>
         </section>
       </div>
