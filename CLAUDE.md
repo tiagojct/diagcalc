@@ -70,7 +70,7 @@ Mathematical edge cases (divide-by-zero, p=1, infinite odds) are absorbed inside
 
 ### Deployment surface
 
-`.github/workflows/deploy-pages.yml` publishes only `index.html`, `script.js`, `styles.css`, and `lib/` to GitHub Pages. The `tui/` and `bin/` directories are **not** part of the deployed web app — they only ship via npm (see the `files` array in `package.json`). Keep browser-only code out of `lib/` (no `window.*`, no DOM access) so the shared modules stay loadable from Node.
+`.github/workflows/deploy-pages.yml` publishes only `index.html`, `script.js`, `styles.css`, `CNAME`, and `lib/` to GitHub Pages. Pages must stay on the **GitHub Actions** source (`build_type: workflow`); on the legacy branch source the artifact is ignored, the whole repo root is served and the test gate is bypassed. `CNAME` holds the custom domain (`diagcalc.tiagojacinto.eu`) and must stay in the copied bundle or the domain drops on the next deploy. The `tui/` and `bin/` directories are **not** part of the deployed web app — they only ship via npm (see the `files` array in `package.json`). Keep browser-only code out of `lib/` (no `window.*`, no DOM access) so the shared modules stay loadable from Node.
 
 ### Theming and the Fagan nomogram
 

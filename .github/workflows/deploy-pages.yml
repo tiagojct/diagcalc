@@ -46,7 +46,7 @@ jobs:
       - name: Prepare static site
         run: |
           mkdir public
-          cp index.html script.js styles.css public/
+          cp index.html script.js styles.css CNAME public/
           cp -R lib public/lib
 
       - name: Upload static site

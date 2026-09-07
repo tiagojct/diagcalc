@@ -26,7 +26,7 @@ The workflow in `.github/workflows/deploy-pages.yml` will publish the web app.
 
 Current custom domain:
 
-- `diagcalc.tiagojct.eu`
+- `diagcalc.tiagojacinto.eu`
 
 ## Create a release
 

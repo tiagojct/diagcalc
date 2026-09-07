@@ -2,6 +2,19 @@
 
 Todas as alterações relevantes deste projeto são registadas aqui. As datas seguem o formato ISO (AAAA-MM-DD).
 
+## [4.4.1] - 2026-09-07 — "Deploy"
+
+### Corrigido
+- **O deploy do GitHub Pages ignorava silenciosamente o workflow.** O Pages estava na origem legacy (`build_type: legacy`, `source: main /`), pelo que o artefacto produzido por `.github/workflows/deploy-pages.yml` era descartado e o site servido era a raiz completa do repositório. Duas consequências: o gate de testes não bloqueava nada (um `node --test` vermelho publicava na mesma, porque quem publicava era o job legacy `pages-build-deployment`), e ficheiros fora do bundle — `package.json`, `CLAUDE.md`, `AGENTS.md`, `CHANGELOG.md`, `bin/`, `tui/`, `test/` — respondiam 200 em produção. A origem passa a **GitHub Actions** (`build_type: workflow`).
+- **`CNAME` não era copiado para o bundle de deploy.** Com a origem legacy isto passava despercebido (a raiz do repo já continha o ficheiro); ao mudar para Actions, o domínio personalizado cairia no deploy seguinte. O passo "Prepare static site" passa a copiar `CNAME` para `public/`.
+
+### Alterado
+- **Domínio do site passa a `diagcalc.tiagojacinto.eu`** (era `diagcalc.tiagojct.eu`). Actualizados `CNAME`, `package.json` (`homepage`), `README.md` e `GITHUB_SETUP.md`. O domínio antigo redirecciona via regra do Cloudflare. As referências a `analytics.tiagojct.eu` e ao site pessoal `tiagojct.eu` em `index.html` são serviços distintos e ficam inalteradas.
+
+### Técnico
+- Novo smoke test: `the Pages workflow ships CNAME so the custom domain survives a deploy` — valida que `CNAME` é um hostname simples e que o workflow o copia para `public/`. 84 testes passam.
+- `CLAUDE.md` ("Deployment surface") passa a registar o bundle correcto, a exigência de `build_type: workflow` e o papel do `CNAME`.
+
 ## [4.4.0] - 2026-07-14 — "Glauca"
 
 ### Alterado

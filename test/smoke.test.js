@@ -63,6 +63,17 @@ test("the deploy bundle covers every local asset referenced by index.html", () =
   }
 });
 
+// The custom domain lives in CNAME. The Actions deploy serves only what the
+// workflow copies into /public, so a CNAME left out of that copy drops the
+// domain on the next deploy.
+
+test("the Pages workflow ships CNAME so the custom domain survives a deploy", () => {
+  const workflow = fs.readFileSync(path.join(ROOT, ".github/workflows/deploy-pages.yml"), "utf8");
+  const domain = fs.readFileSync(path.join(ROOT, "CNAME"), "utf8").trim();
+  assert.match(domain, /^[a-z0-9.-]+\.[a-z]{2,}$/, `CNAME is not a bare hostname: ${domain}`);
+  assert.match(workflow, /cp\b[^\n]*\bCNAME\b[^\n]*\bpublic\//, "workflow does not copy CNAME into public/");
+});
+
 // ── Engine surface smoke ───────────────────────────────────────────────────
 // If a contributor removes or renames a public export, the live page silently
 // breaks (e.g. setFeedback shows nothing). Lock the contract.
