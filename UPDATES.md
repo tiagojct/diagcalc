@@ -1,3 +1,5 @@
+> Historical notes for version 3.1. Current behaviour and checks are documented in README.md and CHANGELOG.md. References below provide background; current preset counts are classified as illustrative, not verified study extractions.
+
 # DIAGCALC - Melhorias Implementadas
 
 **Data:** 19 de outubro de 2025  

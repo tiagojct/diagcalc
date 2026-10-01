@@ -58,7 +58,7 @@ test("the deploy bundle covers every local asset referenced by index.html", () =
   const localScripts = SCRIPT_SRCS.filter(isLocal);
   const localStyles = STYLE_HREFS.filter(isLocal);
   for (const asset of [...localScripts, ...localStyles]) {
-    const inDeployed = deployed.has(asset) || asset.startsWith("lib/");
+    const inDeployed = deployed.has(asset) || asset.startsWith("lib/") || asset.startsWith("web/");
     assert.ok(inDeployed, `asset ${asset} is referenced but not in the Pages deploy bundle`);
   }
 });
@@ -71,7 +71,7 @@ test("the Pages workflow ships CNAME so the custom domain survives a deploy", ()
   const workflow = fs.readFileSync(path.join(ROOT, ".github/workflows/deploy-pages.yml"), "utf8");
   const domain = fs.readFileSync(path.join(ROOT, "CNAME"), "utf8").trim();
   assert.match(domain, /^[a-z0-9.-]+\.[a-z]{2,}$/, `CNAME is not a bare hostname: ${domain}`);
-  assert.match(workflow, /cp\b[^\n]*\bCNAME\b[^\n]*\bpublic\//, "workflow does not copy CNAME into public/");
+  assert.match(workflow, /npm run prepare:site/, "workflow must use the tested site preparation command");
 });
 
 // ── Engine surface smoke ───────────────────────────────────────────────────
@@ -125,4 +125,23 @@ test("every data-i18n key in index.html resolves in both locales", () => {
     assert.ok(i18n.translations.en[key] !== undefined, `missing en translation for ${key}`);
     assert.ok(i18n.translations["pt-PT"][key] !== undefined, `missing pt-PT translation for ${key}`);
   }
+});
+
+
+test("release versions stay aligned across engine metadata, npm, lockfile, and browser", () => {
+  const version = require("../package.json").version;
+  assert.equal(require("../package-lock.json").version, version);
+  assert.equal(require("../package-lock.json").packages[""].version, version);
+  assert.equal(require("../lib/diagcalc-meta").version, version);
+  assert.ok(HTML.includes(`>v${version}</span>`));
+});
+
+test("pull requests run checks while deployment credentials are confined to deploy", () => {
+  const workflow = fs.readFileSync(path.join(ROOT, ".github/workflows/deploy-pages.yml"), "utf8");
+  assert.match(workflow, /pull_request:/);
+  assert.match(workflow, /needs: \[test, browser\]/);
+  assert.match(workflow, /if: github.event_name != 'pull_request'/);
+  assert.match(workflow, /npm ci/);
+  assert.match(workflow, /npm run test:browser/);
+  assert.match(workflow, /npm run typecheck/);
 });

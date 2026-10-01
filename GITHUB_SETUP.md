@@ -22,7 +22,7 @@ git push -u origin main
 4. Set the source to `GitHub Actions`.
 5. Push to `main`.
 
-The workflow in `.github/workflows/deploy-pages.yml` will publish the web app.
+The workflow in `.github/workflows/deploy-pages.yml` verifies pull requests and main on Node 22/24 and Chromium/Firefox/WebKit. Deployment on main requires both verification jobs to pass. It uploads the allowlisted `public/` bundle, including `CNAME`, rather than the repository root.
 
 Current custom domain:
 
@@ -34,7 +34,7 @@ After you push the repo:
 
 1. Open `Releases` on GitHub.
 2. Click `Draft a new release`.
-3. Create a tag such as `v3.2.0`.
+3. Create a tag such as `v5.0.0`.
 4. Add release notes.
 5. Publish the release.
 
@@ -50,6 +50,7 @@ npm publish --access public
 If you want to test the package locally first:
 
 ```bash
+npm run check
 npm pack --dry-run
 npm link
 diag --help

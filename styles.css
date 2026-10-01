@@ -2644,3 +2644,36 @@ a:hover {
     scroll-behavior: auto !important;
   }
 }
+
+/* Charts must not impose their intrinsic bitmap width on a grid track. */
+.workspace, .resource-grid {
+  grid-template-columns: minmax(0, 1fr);
+}
+.panel, details, .roc-table-wrap {
+  min-width: 0;
+}
+.fagan-nomogram canvas, .prevalence-explorer canvas {
+  display: block;
+  width: 100%;
+  max-width: 600px;
+  height: auto;
+  aspect-ratio: 3 / 2;
+  box-sizing: border-box;
+}
+.threshold-demo canvas {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 3 / 1;
+  box-sizing: border-box;
+}
+.roc-panel canvas {
+  box-sizing: border-box;
+}
+@media (min-width: 960px) {
+  .workspace {
+    grid-template-columns: minmax(340px, 34%) minmax(0, 1fr);
+  }
+  .resource-grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  }
+}

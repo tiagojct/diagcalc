@@ -4,169 +4,9 @@ const blessed = require("blessed");
 const core = require("../lib/diagcalc-core");
 const datasetStore = require("../lib/diagcalc-datasets");
 
-function renderResults(metrics) {
-  const performance = [
-    renderMetricLine(metrics.sensitivity, "sensitivity"),
-    renderMetricLine(metrics.specificity, "specificity"),
-    renderMetricLine(metrics.ppv, "ppv"),
-    renderMetricLine(metrics.npv, "npv"),
-    renderMetricLine(metrics.dor, "dor"),
-    renderMetricLine(metrics.numberNeededToScreen, "nns"),
-  ];
-
-  const bayes = [
-    renderMetricLine(metrics.lrPositive, "lrPositive"),
-    renderMetricLine(metrics.lrNegative, "lrNegative"),
-    renderMetricLine(metrics.preTestProbability, "neutral"),
-    renderMetricLine(metrics.postTestPositive, "postPositive"),
-    renderMetricLine(metrics.postTestNegative, "postNegative"),
-  ];
-
-  const bars = [
-    `Pre-test      [${core.buildProbabilityBar(metrics.preTestProbability.value, 24)}] ${core.formatPercentage(metrics.preTestProbability.value)}`,
-    `Post-test (+) [${core.buildProbabilityBar(metrics.postTestPositive.value, 24)}] ${core.formatPercentage(metrics.postTestPositive.value)}`,
-    `Post-test (-) [${core.buildProbabilityBar(metrics.postTestNegative.value, 24)}] ${core.formatPercentage(metrics.postTestNegative.value)}`,
-  ];
-
-  return [
-    "{bold}Performance Measures{/bold}",
-    performance.join("\n"),
-    "",
-    "{bold}Bayesian Update{/bold}",
-    bayes.join("\n"),
-    "",
-    "{bold}Probability Shift{/bold}",
-    bars.join("\n"),
-    "",
-    "{bold}Interpretation{/bold}",
-    `Sensitivity  ${metrics.sensitivity.note}`,
-    `Specificity  ${metrics.specificity.note}`,
-    `LR+          ${metrics.lrPositive.note}`,
-    `LR-          ${metrics.lrNegative.note}`,
-  ].join("\n");
-}
-
-function renderMetricLine(metric, kind) {
-  const value = core.formatValue(metric.value, metric.formatter);
-  const valueTag = colourValue(value, kind, metric.value);
-  const confidence = renderConfidence(metric);
-  const confidenceText = confidence ? `  {gray-fg}${confidence}{/}` : "";
-  return `${metric.label.padEnd(36)} ${valueTag}${confidenceText}`;
-}
-
-function renderConfidence(metric) {
-  if (!metric.ci) {
-    return "";
-  }
-
-  const lo = core.formatValue(metric.ci.lower, metric.formatter);
-  const hi = core.formatValue(metric.ci.upper, metric.formatter);
-  return `95% CI ${lo} to ${hi}`;
-}
-
-function colourValue(value, kind, numericValue) {
-  const { colour, badge } = metricTone(kind, numericValue);
-  return `{${colour}-fg}${value}{/} {bold}{${colour}-fg}[${badge}]{/}{/}`;
-}
-
-// Pequod crew accents — dark variants (TUI assumes dark terminal background)
-const CREW = {
-  ahab:     "#E3877C", // red — WEAK / LOW / HIGH
-  starbuck: "#A6DFFF", // cyan — INFO
-  queequeg: "#838CCF", // blue — primary / selection / focus
-  pip:      "#DEC577", // gold — MOD / USEFUL / LIMITED / MID
-  ishmael:  "#BFBBB6", // warm gray — borders / muted
-  stubb:    "#FFD9BB", // warm orange — LR+ accent
-  tashtego: "#82C4A2", // green — STRONG / RULE-IN / RULE-OUT / HIGH(post+) / LOW(post-)
-  daggoo:   "#A17069", // brown — EXTREME (infinite values) / second-stage trace
-};
-
-function metricTone(kind, value) {
-  if (!Number.isFinite(value)) {
-    return { colour: CREW.daggoo, badge: "EXTREME" };
-  }
-
-  if (kind === "sensitivity" || kind === "specificity" || kind === "ppv" || kind === "npv") {
-    if (value >= 0.9) {
-      return { colour: CREW.tashtego, badge: "STRONG" };
-    }
-    if (value >= 0.7) {
-      return { colour: CREW.pip, badge: "MOD" };
-    }
-    return { colour: CREW.ahab, badge: "WEAK" };
-  }
-
-  if (kind === "lrPositive") {
-    if (value >= 10) {
-      return { colour: CREW.tashtego, badge: "RULE-IN" };
-    }
-    if (value >= 5) {
-      return { colour: CREW.pip, badge: "USEFUL" };
-    }
-    if (value >= 2) {
-      return { colour: CREW.pip, badge: "LIMITED" };
-    }
-    return { colour: CREW.ahab, badge: "WEAK" };
-  }
-
-  if (kind === "dor") {
-    if (value >= 100) {
-      return { colour: CREW.tashtego, badge: "VERY STRONG" };
-    }
-    if (value >= 10) {
-      return { colour: CREW.tashtego, badge: "USEFUL" };
-    }
-    if (value > 1) {
-      return { colour: CREW.pip, badge: "LIMITED" };
-    }
-    return { colour: CREW.ahab, badge: "POOR" };
-  }
-
-  if (kind === "nns") {
-    if (value < 10) {
-      return { colour: CREW.tashtego, badge: "EFFICIENT" };
-    }
-    if (value < 100) {
-      return { colour: CREW.pip, badge: "MODERATE" };
-    }
-    return { colour: CREW.ahab, badge: "LOW YIELD" };
-  }
-
-  if (kind === "lrNegative") {
-    if (value <= 0.1) {
-      return { colour: CREW.tashtego, badge: "RULE-OUT" };
-    }
-    if (value <= 0.2) {
-      return { colour: CREW.pip, badge: "USEFUL" };
-    }
-    if (value <= 0.5) {
-      return { colour: CREW.pip, badge: "LIMITED" };
-    }
-    return { colour: CREW.ahab, badge: "WEAK" };
-  }
-
-  if (kind === "postPositive") {
-    if (value >= 0.8) {
-      return { colour: CREW.tashtego, badge: "HIGH" };
-    }
-    if (value >= 0.4) {
-      return { colour: CREW.pip, badge: "MID" };
-    }
-    return { colour: CREW.ahab, badge: "LOW" };
-  }
-
-  if (kind === "postNegative") {
-    if (value <= 0.1) {
-      return { colour: CREW.tashtego, badge: "LOW" };
-    }
-    if (value <= 0.3) {
-      return { colour: CREW.pip, badge: "MID" };
-    }
-    return { colour: CREW.ahab, badge: "HIGH" };
-  }
-
-  return { colour: CREW.starbuck, badge: "INFO" };
-}
+const { renderResults, renderConfidence, CREW } = require("./presentation");
+const { sanitiseRawInput, isAcceptedCharacter } = require("./input");
+const { buildTextExport, buildMarkdownExport } = require("./report");
 
 function runTui() {
   const datasets = [
@@ -363,16 +203,15 @@ function runTui() {
     {
       key: "preTestProb",
       label: "Pre-test probability (%)",
-      parser: (value) => {
-        const normalised = core.normaliseDecimal(value);
-        return normalised === "" ? NaN : parseFloat(normalised);
-      },
+      parser: core.parseProbability,
     },
   ];
 
   const state = {
     activeCaseLabel: "Ad hoc case",
     activeDatasetKey: "ad_hoc",
+    originDatasetKey: null,
+    previousTestSnapshot: null,
     selectedFieldIndex: 0,
     modalOpen: false,
     rawInput: {
@@ -551,7 +390,7 @@ function runTui() {
     }
 
     const metrics = core.calculateMetrics(state.input);
-    const warnings = core.buildBiasWarnings(state.input);
+    const warnings = [...core.buildBiasWarnings(state.input), ...datasetStore.buildDatasetWarnings(datasetStore.getDataset(state.originDatasetKey))];
     resultsBox.setLabel(` Results - ${state.activeCaseLabel} `);
     resultsBox.setContent(buildResultSummary(state.activeCaseLabel, state.input, metrics, warnings));
     resultsBox.setScrollPerc(0);
@@ -567,6 +406,8 @@ function runTui() {
 
     state.activeCaseLabel = dataset.name;
     state.activeDatasetKey = dataset.key;
+    state.originDatasetKey = dataset.key;
+    state.previousTestSnapshot = null;
     state.selectedFieldIndex = 0;
     setFieldValue("tp", String(dataset.tp));
     setFieldValue("fp", String(dataset.fp));
@@ -580,6 +421,8 @@ function runTui() {
   }
 
   function resetForm() {
+    state.originDatasetKey = null;
+    state.previousTestSnapshot = null;
     resetFieldValues();
     state.activeCaseLabel = "Ad hoc case";
     state.activeDatasetKey = "ad_hoc";
@@ -593,6 +436,8 @@ function runTui() {
   }
 
   function startAdHocCase() {
+    state.originDatasetKey = null;
+    state.previousTestSnapshot = null;
     state.activeCaseLabel = "Ad hoc case";
     state.activeDatasetKey = "ad_hoc";
     state.selectedFieldIndex = 0;
@@ -621,14 +466,20 @@ function runTui() {
       screen.render();
       return;
     }
-    const newPrePercent = Math.min(99.9999, Math.max(0, posteriorFraction * 100));
+    const newPrePercent = core.chainedPreTestProbability(posteriorFraction);
+    state.previousTestSnapshot = require("../lib/diagcalc-case").createSnapshot(state.input, {}, {
+      label: state.activeCaseLabel, datasetKey: state.originDatasetKey,
+      modified: state.activeDatasetKey === "ad_hoc" && Boolean(state.originDatasetKey),
+      provenance: datasetStore.getDataset(state.originDatasetKey)?.provenance || null,
+    });
+    state.originDatasetKey = null;
     const previousLabel = state.activeCaseLabel.replace(/^Chained from: /, "");
     state.activeCaseLabel = `Chained from: ${previousLabel}`;
     state.activeDatasetKey = "ad_hoc";
     state.selectedFieldIndex = 0;
     resetFieldValues();
-    setFieldValue("preTestProb", newPrePercent.toFixed(2));
-    datasetInfo.setContent(`{bold}Chained second test{/bold}\nPre-test set to ${core.formatPercentage(newPrePercent / 100)} from previous post-test (+).\n\nEnter the new TP/FP/FN/TN, then the result panel will update.`);
+    setFieldValue("preTestProb", String(newPrePercent));
+    datasetInfo.setContent(`{bold}Chained second test{/bold}\nPre-test set to ${core.formatPercentage(newPrePercent / 100)} from previous post-test (+). Results must be conditionally independent given disease status.\n\nEnter the new TP/FP/FN/TN, then the result panel will update.`);
     updateInputForm();
     resultsBox.setLabel(` Results - ${state.activeCaseLabel} `);
     resultsBox.setContent(buildPendingResults(state.activeCaseLabel, `Pre-test chained to ${core.formatPercentage(newPrePercent / 100)}. Enter the second test's matrix.`));
@@ -684,7 +535,7 @@ function runTui() {
       setFieldValue(field.key, "");
     } else if (typeof character === "string" && character !== "") {
       const next = sanitiseRawInput(field.key, `${current}${character}`);
-      if (next === current && !isAcceptedCharacter(field.key, character, current)) {
+      if (!isAcceptedCharacter(field.key, character, current)) {
         return;
       }
       setFieldValue(field.key, next);
@@ -706,7 +557,7 @@ function runTui() {
     const defaultPath = path.join(process.cwd(), currentCaseSlug(extension));
 
     runModal((done) => {
-      prompt.input(`Export ${format} to path`, defaultPath, (error, outputPath) => {
+      prompt.input(`Export ${format} to a new path`, defaultPath, async (error, outputPath) => {
         if (!error && outputPath !== null) {
           const trimmedPath = outputPath.trim();
           if (!trimmedPath) {
@@ -722,7 +573,7 @@ function runTui() {
             : buildTextExport(state, metrics, validation);
 
           try {
-            fs.writeFileSync(trimmedPath, content, "utf8");
+            await fs.promises.writeFile(trimmedPath, content, { encoding: "utf8", flag: "wx" });
             setFeedback(`Exported ${format} report to ${trimmedPath}`);
             message.display(`{green-fg}Saved{/}\n${trimmedPath}`, 3, () => {
               done();
@@ -792,10 +643,12 @@ function runTui() {
   resultsBox.key(["pagedown"], () => resultsBox.scroll(10));
 
   screen.key(["C-c"], () => {
+    screen.destroy();
     process.exit(0);
   });
   screen.key(["q"], () => {
     if (!state.modalOpen) {
+      screen.destroy();
       process.exit(0);
     }
   });
@@ -936,141 +789,8 @@ function renderFieldCell(state, fields, index, width = 10) {
   return `{bold}${padded}{/bold}`;
 }
 
-function sanitiseRawInput(fieldKey, rawValue) {
-  if (typeof rawValue !== "string") {
-    return "";
-  }
-
-  if (fieldKey === "preTestProb") {
-    let cleaned = rawValue.replace(/,/g, ".").replace(/[^0-9.]/g, "");
-    const firstDotIndex = cleaned.indexOf(".");
-    if (firstDotIndex !== -1) {
-      cleaned = `${cleaned.slice(0, firstDotIndex + 1)}${cleaned.slice(firstDotIndex + 1).replace(/\./g, "")}`;
-    }
-    return cleaned;
-  }
-
-  return rawValue.replace(/\D/g, "");
-}
-
-function isAcceptedCharacter(fieldKey, character, current) {
-  if (fieldKey === "preTestProb") {
-    if (/^[0-9]$/.test(character)) {
-      return true;
-    }
-    if ((character === "." || character === ",") && !current.includes(".") && !current.includes(",")) {
-      return true;
-    }
-    return false;
-  }
-
-  return /^[0-9]$/.test(character);
-}
-
 function buildStatusStrip({ caseLabel, status, statusColour, summary }) {
   return `{bold}${caseLabel}{/bold}  {${statusColour}-fg}[${status}]{/}  ${summary}`;
-}
-
-function buildTextExport(state, metrics, validation) {
-  const lines = [
-    `DIAGCALC - ${state.activeCaseLabel}`,
-    "",
-    "Confusion matrix",
-    `  TP ${displayValue(state.input.tp)}   FP ${displayValue(state.input.fp)}`,
-    `  FN ${displayValue(state.input.fn)}   TN ${displayValue(state.input.tn)}`,
-    `  Pre-test probability ${formatPreTest(state.input.preTestProb)}`,
-    "",
-  ];
-
-  if (!validation.valid || !metrics) {
-    lines.push(`Validation: ${validation.message}`);
-    return `${lines.join("\n")}\n`;
-  }
-
-  lines.push(...buildPlainMetricSections(metrics));
-  return `${lines.join("\n")}\n`;
-}
-
-function buildMarkdownExport(state, metrics, validation) {
-  const lines = [
-    `# DIAGCALC - ${state.activeCaseLabel}`,
-    "",
-    "## Case Input",
-    "",
-    "|                | Disease + | Disease - |",
-    "|----------------|-----------|-----------|",
-    `| Test +         | ${displayValue(state.input.tp)} | ${displayValue(state.input.fp)} |`,
-    `| Test -         | ${displayValue(state.input.fn)} | ${displayValue(state.input.tn)} |`,
-    "",
-    `Pre-test probability: ${formatPreTest(state.input.preTestProb)}`,
-    "",
-  ];
-
-  if (!validation.valid || !metrics) {
-    lines.push("## Validation");
-    lines.push("");
-    lines.push(validation.message);
-    lines.push("");
-    return `${lines.join("\n")}`;
-  }
-
-  lines.push(...buildMarkdownMetricSections(metrics));
-  return `${lines.join("\n")}`;
-}
-
-function buildPlainMetricSections(metrics) {
-  return [
-    "Performance Measures",
-    `  Sensitivity: ${core.formatValue(metrics.sensitivity.value)} (${renderConfidence(metrics.sensitivity)})`,
-    `  Specificity: ${core.formatValue(metrics.specificity.value)} (${renderConfidence(metrics.specificity)})`,
-    `  PPV: ${core.formatValue(metrics.ppv.value)} (${renderConfidence(metrics.ppv)})`,
-    `  NPV: ${core.formatValue(metrics.npv.value)} (${renderConfidence(metrics.npv)})`,
-    `  DOR: ${core.formatValue(metrics.dor.value, metrics.dor.formatter)} (${renderConfidence(metrics.dor)})`,
-    `  NNS: ${core.formatValue(metrics.numberNeededToScreen.value, metrics.numberNeededToScreen.formatter)}`,
-    "",
-    "Bayesian Update",
-    `  LR+: ${core.formatValue(metrics.lrPositive.value, metrics.lrPositive.formatter)} (${renderConfidence(metrics.lrPositive)})`,
-    `  LR-: ${core.formatValue(metrics.lrNegative.value, metrics.lrNegative.formatter)} (${renderConfidence(metrics.lrNegative)})`,
-    `  Post-test probability (+): ${core.formatValue(metrics.postTestPositive.value)} (${renderConfidence(metrics.postTestPositive)})`,
-    `  Post-test probability (-): ${core.formatValue(metrics.postTestNegative.value)} (${renderConfidence(metrics.postTestNegative)})`,
-    "",
-    "Interpretation",
-    `  Sensitivity: ${metrics.sensitivity.note}`,
-    `  Specificity: ${metrics.specificity.note}`,
-    `  LR+: ${metrics.lrPositive.note}`,
-    `  LR-: ${metrics.lrNegative.note}`,
-  ];
-}
-
-function buildMarkdownMetricSections(metrics) {
-  return [
-    "## Performance Measures",
-    "",
-    "| Metric | Value | Confidence interval |",
-    "|--------|-------|---------------------|",
-    `| Sensitivity | ${core.formatValue(metrics.sensitivity.value)} | ${renderConfidence(metrics.sensitivity)} |`,
-    `| Specificity | ${core.formatValue(metrics.specificity.value)} | ${renderConfidence(metrics.specificity)} |`,
-    `| PPV | ${core.formatValue(metrics.ppv.value)} | ${renderConfidence(metrics.ppv)} |`,
-    `| NPV | ${core.formatValue(metrics.npv.value)} | ${renderConfidence(metrics.npv)} |`,
-    `| DOR | ${core.formatValue(metrics.dor.value, metrics.dor.formatter)} | ${renderConfidence(metrics.dor)} |`,
-    `| NNS | ${core.formatValue(metrics.numberNeededToScreen.value, metrics.numberNeededToScreen.formatter)} | — |`,
-    "",
-    "## Bayesian Update",
-    "",
-    `- LR+: ${core.formatValue(metrics.lrPositive.value, metrics.lrPositive.formatter)}${metrics.lrPositive.ci ? ` (95% CI ${core.formatValue(metrics.lrPositive.ci.lower, metrics.lrPositive.formatter)} – ${core.formatValue(metrics.lrPositive.ci.upper, metrics.lrPositive.formatter)})` : ""}`,
-    `- LR-: ${core.formatValue(metrics.lrNegative.value, metrics.lrNegative.formatter)}${metrics.lrNegative.ci ? ` (95% CI ${core.formatValue(metrics.lrNegative.ci.lower, metrics.lrNegative.formatter)} – ${core.formatValue(metrics.lrNegative.ci.upper, metrics.lrNegative.formatter)})` : ""}`,
-    `- Pre-test probability: ${core.formatValue(metrics.preTestProbability.value)}`,
-    `- Post-test probability (+): ${core.formatValue(metrics.postTestPositive.value)}${metrics.postTestPositive.ci ? ` (95% CI ${core.formatPercentage(metrics.postTestPositive.ci.lower)} – ${core.formatPercentage(metrics.postTestPositive.ci.upper)})` : ""}`,
-    `- Post-test probability (-): ${core.formatValue(metrics.postTestNegative.value)}${metrics.postTestNegative.ci ? ` (95% CI ${core.formatPercentage(metrics.postTestNegative.ci.lower)} – ${core.formatPercentage(metrics.postTestNegative.ci.upper)})` : ""}`,
-    "",
-    "## Interpretation",
-    "",
-    `- Sensitivity: ${metrics.sensitivity.note}`,
-    `- Specificity: ${metrics.specificity.note}`,
-    `- LR+: ${metrics.lrPositive.note}`,
-    `- LR-: ${metrics.lrNegative.note}`,
-    "",
-  ];
 }
 
 module.exports = {

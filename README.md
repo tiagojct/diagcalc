@@ -47,14 +47,14 @@ The web and terminal interfaces both follow that workflow.
 - sensitivity, specificity, PPV, NPV
 - LR+ and LR-
 - positive and negative post-test probability
-- 95% confidence intervals with the Wilson method
-- preset study scenarios
+- Wilson 95% intervals for proportions and log-normal intervals for likelihood ratios and DOR
+- illustrative teaching scenarios with explicit provenance
 - Fagan nomogram in the web app
 - TUI, text CLI, and JSON CLI output in the terminal app
 
 ## Case Studies
 
-The app includes both generic teaching scenarios and literature-based examples.
+All current presets are illustrative teaching scenarios. Medical references provide background; their confusion-matrix counts have not been verified against retained source-table extractions. They must not be presented as published study estimates.
 
 - `screening` - low-prevalence population screening workflow
 - `caseControl` - balanced case-control teaching example
@@ -99,7 +99,7 @@ http://localhost:8080
 
 ## Terminal App
 
-The terminal app requires Node.js 18 or newer.
+The terminal app requires Node.js 22 or newer.
 
 It is intended for keyboard-first use, quick calculations, reproducible terminal workflows, and scripting.
 
@@ -165,6 +165,38 @@ The CLI is useful when you want a one-shot calculation or when you want to integ
 - `r`: reset current case
 - `q`: quit
 
+## Validation and reproducibility
+
+Counts must be non-negative safe integers, including their total. Both disease cohorts must be present. Pre-test probability accepts complete dot/comma decimal strings from 0 through 100 inclusive. Impossible conditioning events remain undefined and display an em dash; infinite ratios display infinity. Chaining retains full precision and assumes tests are conditionally independent given disease status.
+
+The browser's history retains the inputs, continuity correction, engine version and origin for each calculation. Editing a preset marks it customised and invalidates previous results. Storage restrictions fall back to session memory; they do not prevent calculations. Older history entries are explicitly marked as recalculated legacy cases because their original correction settings were not recorded.
+
+### Version 5 JSON compatibility
+
+`--format json` now emits schema version 2. Every metric and CI endpoint encodes exceptional numbers explicitly:
+
+```json
+{"value": null, "status": "infinite", "ci": null}
+```
+
+Statuses are `finite`, `infinite`, `negative-infinite`, and `undefined`; finite values are unrounded. Consumers of the previous JSON format must migrate. Outputs include engine version, inputs, correction options and provenance. TUI text/Markdown exports append a reproducible JSON snapshot and refuse to overwrite existing paths.
+
+ROC rows must represent the same cohorts with monotonic operating points and consistently ordered cutoffs. Synthetic points and edited synthetic points remain labelled illustrative, including their AUC. Decision thresholds are unavailable for uninformative or inverted tests. Nomogram lines outside its labelled axis range are explicitly omitted; numeric probabilities remain available.
+
+## Development checks
+
+```bash
+npm ci
+npx playwright install chromium firefox webkit
+npm run check
+```
+
+`check` runs JavaScript type checking, engine/CLI/TUI/package tests and browser tests in Chromium, Firefox and WebKit. Browser tests prepare the actual static deployment bundle automatically. Python 3 and a pseudo-terminal are required for the real terminal test on Unix; that test is skipped on Windows. There are no runtime browser dependencies or compilation step.
+
+Pull requests run checks on Node 22 and 24 and all three browser engines. Main-branch deployment requires both verification jobs. `npm run prepare:site` copies only browser assets and `CNAME` into `public/`; package tests also extract and execute the actual npm archive outside the checkout.
+
+See [lib/README.md](lib/README.md) for API contracts and [docs/PROVENANCE.md](docs/PROVENANCE.md) for dataset evidence requirements.
+
 ## Deployment
 
 ### GitHub Pages
@@ -204,8 +236,13 @@ Package page:
 
 - `index.html` - web app markup
 - `styles.css` - web app styles
-- `script.js` - web app logic and Fagan nomogram rendering
-- `lib/diagcalc-core.js` - shared calculations and validation
+- `script.js` - web state and event handling
+- `web/` - result rendering and scheduled DPR-aware charts
+- `lib/diagcalc-core.js` - shared numeric calculations and validation
+- `lib/diagcalc-presentation.js` - English/Portuguese metric labels and interpretation
+- `lib/diagcalc-case.js` - versioned snapshots and safe exceptional-number encoding
+- `lib/diagcalc-storage.js` - resilient browser preferences and session fallback
+- `lib/diagcalc-geometry.js` - independently testable nomogram geometry
 - `lib/diagcalc-datasets.js` - shared preset datasets
 - `tui/index.js` - terminal UI
 - `bin/diagcalc.js` - CLI and TUI entrypoint

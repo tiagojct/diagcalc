@@ -2,6 +2,29 @@
 
 Todas as alterações relevantes deste projeto são registadas aqui. As datas seguem o formato ISO (AAAA-MM-DD).
 
+## [5.0.0] - 2026-10-01
+
+### Adicionado
+- Versioned calculation snapshots, explicit exceptional-number statuses in JSON schema 2, and full-precision terminal report snapshots.
+- Engine, CLI, real pseudo-terminal, package artifact and three-browser regression coverage; accessibility and direct-file loading checks.
+- Shared presentation, storage, metadata and chart geometry modules; incremental JavaScript type checking.
+
+### Alterado
+- CLI JSON consumers must migrate to schema 2. Node 22+ is required for development and terminal tools.
+- All current presets are labelled illustrative; medical citations are background references pending retained independent count extraction.
+- History retains correction settings, version and customised origins. Legacy history is marked recalculated.
+- Pull requests are verified on Node 22/24 and three browser engines; deployment requires passing checks and ships only browser assets.
+
+### Corrigido
+- Strict parsing and finite/safe count validation; exact Bayesian boundaries and chaining without artificial clipping.
+- Marginal-adjusted kappa variance; tied-FPR ROC integration and cohort/cutoff validation; persistent simulated AUC qualifications.
+- Uninformative/inverted decision thresholds, undefined-event confidence intervals, calibrated Fagan axes and responsive theme-aware chart redraws.
+- Storage exception handling, safe history text rendering, stale results after editing presets and terminal shortcut/input interference.
+- Terminal report export refuses existing paths and restores terminal state on exit.
+
+### Técnico
+- Updated architecture, API, development and provenance documentation. Static browser usage still requires no compilation or runtime dependencies.
+
 ## [4.4.1] - 2026-09-07 — "Deploy"
 
 ### Corrigido

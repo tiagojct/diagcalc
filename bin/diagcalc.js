@@ -4,42 +4,30 @@ const core = require("../lib/diagcalc-core");
 const datasetStore = require("../lib/diagcalc-datasets");
 const pkg = require("../package.json");
 
-const ENGINE_METADATA = Object.freeze({
-  name: "diagcalc",
-  version: pkg.version,
-  ciMethods: Object.freeze({
-    proportions: "Wilson 95%",
-    likelihoodRatios: "Simel-Samsa-Matchar 1991 log-normal 95% with +0.5 continuity correction on zero cells",
-    postTestProbabilities: "delta method through Bayes' update on the log-LR scale",
-    diagnosticOddsRatio: "log-normal 95% with +0.5 continuity correction on zero cells",
-  }),
-});
+const caseStore = require("../lib/diagcalc-case");
 
 function parseArgs(argv) {
-  const args = {
-    raw: [],
-  };
-
+  const flags = new Set(["help", "tui", "chain", "list-datasets"]);
+  const values = new Set(["dataset", "tp", "fp", "fn", "tn", "pre", "tp2", "fp2", "fn2", "tn2", "chain-from", "format", "continuity"]);
+  const args = {};
   for (let index = 0; index < argv.length; index += 1) {
     const token = argv[index];
-    if (!token.startsWith("--")) {
-      args.raw.push(token);
-      continue;
-    }
-
-    const key = token.slice(2);
-    const next = argv[index + 1];
-    const isFlag = !next || next.startsWith("--");
-
-    if (isFlag) {
+    if (!token.startsWith("--")) return { error: `Unexpected argument: ${token}` };
+    const [key, ...parts] = token.slice(2).split("=");
+    if (!flags.has(key) && !values.has(key)) return { error: `Unknown option: --${key}` };
+    if (Object.prototype.hasOwnProperty.call(args, key)) return { error: `Duplicate option: --${key}` };
+    if (flags.has(key)) {
+      if (parts.length) return { error: `--${key} does not take a value.` };
       args[key] = true;
       continue;
     }
-
-    args[key] = next;
-    index += 1;
+    const value = parts.length ? parts.join("=") : argv[++index];
+    if (value === undefined || value === "" || value.startsWith("--")) return { error: `Missing value for --${key}.` };
+    args[key] = value;
   }
-
+  if (!args.chain && ["tp2", "fp2", "fn2", "tn2", "chain-from"].some((key) => key in args)) {
+    return { error: "Second-test options require --chain." };
+  }
   return args;
 }
 
@@ -77,33 +65,32 @@ function printHelp() {
   ].join("\n"));
 }
 
-function serialiseMetric(metric) {
-  return {
-    label: metric.label,
-    value: metric.value,
-    formatted: core.formatValue(metric.value, metric.formatter),
-    ci: metric.ci || null,
-    note: metric.note || null,
-  };
-}
-
-function printJsonReport(dataset, input, metrics, chained, warnings) {
+function printJsonReport(dataset, input, metrics, chained, warnings, continuity) {
+  const modified = Boolean(dataset && ["tp", "fp", "fn", "tn", "preTestProb"].some((key) => input[key] !== dataset[key]));
+  const snapshot = caseStore.createSnapshot(input, { continuityCorrection: continuity }, {
+    label: dataset ? `${modified ? "Customised: " : ""}${dataset.name}` : "Ad hoc case",
+    datasetKey: dataset ? dataset.key : null,
+    modified,
+    provenance: dataset ? dataset.provenance : null,
+  });
   const payload = {
-    engine: { ...ENGINE_METADATA, generatedAt: new Date().toISOString() },
-    case: dataset ? dataset.name : "Ad hoc case",
-    datasetKey: dataset ? dataset.key || null : null,
-    input,
-    metrics: Object.fromEntries(Object.entries(metrics).map(([key, metric]) => [key, serialiseMetric(metric)])),
-    warnings: Array.isArray(warnings) && warnings.length ? warnings : [],
+    ...snapshot,
+    engine: { name: "diagcalc", version: pkg.version, generatedAt: snapshot.savedAt, ciMethods: caseStore.methodMetadata(snapshot.options) },
+    case: snapshot.label,
+    warnings,
+    metrics: Object.fromEntries(Object.entries(metrics).map(([key, metric]) => [key, {
+      ...snapshot.metrics[key], label: metric.label,
+      formatted: core.formatValue(metric.value, metric.formatter), note: metric.note,
+    }])),
   };
   if (chained) {
     payload.chained = {
+      ...caseStore.createSnapshot(chained.input, { continuityCorrection: continuity }, { label: "Chained second test" }),
       from: chained.from,
-      input: chained.input,
-      metrics: Object.fromEntries(Object.entries(chained.metrics).map(([key, metric]) => [key, serialiseMetric(metric)])),
+      assumption: "Test results are conditionally independent given disease status.",
+      warnings: core.buildBiasWarnings(chained.input),
     };
   }
-
   process.stdout.write(`${JSON.stringify(payload, null, 2)}\n`);
 }
 
@@ -141,8 +128,7 @@ function buildInputFromArgs(args) {
     merged.tn = core.safeParseInt(args.tn);
   }
   if (typeof args.pre === "string") {
-    const normalised = core.normaliseDecimal(args.pre);
-    merged.preTestProb = normalised === "" ? NaN : parseFloat(normalised);
+    merged.preTestProb = core.parseProbability(args.pre);
   }
 
   return {
@@ -204,6 +190,11 @@ function printReport(dataset, metrics, warnings) {
 
 function main() {
   const args = parseArgs(process.argv.slice(2));
+  if (args.error) {
+    process.stderr.write(`${args.error}\n`);
+    process.exitCode = 1;
+    return;
+  }
 
   if (args.help) {
     printHelp();
@@ -264,10 +255,10 @@ function main() {
     }
   }
 
-  const warnings = core.buildBiasWarnings(built.input);
+  const warnings = [...core.buildBiasWarnings(built.input), ...datasetStore.buildDatasetWarnings(built.dataset)];
 
   if (format === "json") {
-    printJsonReport(built.dataset, built.input, metrics, chained, warnings);
+    printJsonReport(built.dataset, built.input, metrics, chained, warnings, continuity);
     return;
   }
 
@@ -277,7 +268,9 @@ function main() {
     return;
   }
 
-  printReport(built.dataset, metrics, warnings);
+  const modified = built.dataset && ["tp", "fp", "fn", "tn", "preTestProb"].some((key) => built.input[key] !== built.dataset[key]);
+  printReport(built.dataset ? { ...built.dataset, name: `${modified ? "Customised: " : ""}${built.dataset.name}` } : null, metrics, warnings);
+  process.stdout.write(`Engine ${pkg.version}; continuity correction: ${continuity}.\n`);
   if (chained) {
     printChainedReport(chained);
   }
@@ -292,7 +285,7 @@ function buildChainedTest(args, firstMetrics, continuity) {
   if (!Number.isFinite(sourceProb)) {
     return { error: "Test 1's post-test probability is not finite; cannot chain." };
   }
-  const preTestProb = Math.min(99.9999, Math.max(0, sourceProb * 100));
+  const preTestProb = core.chainedPreTestProbability(sourceProb);
 
   const input = {
     tp: typeof args.tp2 === "string" ? core.safeParseInt(args.tp2) : NaN,
@@ -314,6 +307,7 @@ function buildChainedTest(args, firstMetrics, continuity) {
 
 function printChainedReport(chained) {
   process.stdout.write(`\n— Chained second test (following test 1's ${chained.from} result) —\n`);
+  process.stdout.write("Assumption: results are conditionally independent given disease status.\n");
   process.stdout.write(`Test 2 pre-test probability: ${core.formatPercentage(chained.input.preTestProb / 100)}\n\n`);
   const entries = [
     chained.metrics.sensitivity,

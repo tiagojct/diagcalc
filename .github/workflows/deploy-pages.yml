@@ -1,37 +1,75 @@
-name: Deploy GitHub Pages
+name: Verify and deploy GitHub Pages
 
 on:
   push:
+    branches:
+      - main
+  pull_request:
     branches:
       - main
   workflow_dispatch:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
-  group: pages
+  group: pages-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [22, 24]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Check JavaScript contracts
+        run: npm run typecheck
+      - name: Test engine, CLI, terminal sessions and release artifacts
+        run: npm test
 
-      - name: Run tests
-        run: node --test test/core.test.js test/smoke.test.js
+  browser:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies and browser engines
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium firefox webkit
+      - name: Prepare the deployed site
+        run: npm run prepare:site
+      - name: Test browser workflows and accessibility
+        run: npm run test:browser
+      - name: Retain failure traces
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-failure-traces
+          path: test-results/
+          retention-days: 7
 
   deploy:
-    needs: test
+    needs: [test, browser]
+    if: github.event_name != 'pull_request'
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
     runs-on: ubuntu-latest
     environment:
       name: github-pages
@@ -39,21 +77,18 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
       - name: Configure Pages
         uses: actions/configure-pages@v5
-
       - name: Prepare static site
-        run: |
-          mkdir public
-          cp index.html script.js styles.css CNAME public/
-          cp -R lib public/lib
-
+        run: npm run prepare:site
       - name: Upload static site
         uses: actions/upload-pages-artifact@v3
         with:
           path: public
-
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4

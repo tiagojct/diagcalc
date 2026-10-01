@@ -1,6 +1,6 @@
 {
   "name": "diagcalc",
-  "version": "4.4.1",
+  "version": "5.0.0",
   "description": "Diagnostic calculator for the browser, terminal, and plain CLI.",
   "homepage": "https://diagcalc.tiagojacinto.eu/",
   "repository": {
@@ -19,15 +19,17 @@
     "tui"
   ],
   "engines": {
-    "node": ">=18"
+    "node": ">=22"
   },
   "files": [
     "bin",
     "lib",
     "tui",
+    "web",
     "index.html",
     "script.js",
     "styles.css",
+    "docs",
     "README.md",
     "LICENSE"
   ],
@@ -41,9 +43,20 @@
   "scripts": {
     "tui": "node bin/diagcalc.js --tui",
     "cli": "node bin/diagcalc.js --help",
-    "test": "node --test test/core.test.js test/smoke.test.js"
+    "test": "node --test test/*.test.js",
+    "test:browser": "playwright test",
+    "typecheck": "tsc --project jsconfig.json",
+    "check": "npm run typecheck && npm test && npm run test:browser",
+    "prepare:site": "node scripts/prepare-site.js",
+    "pretest:browser": "npm run prepare:site"
   },
   "dependencies": {
     "blessed": "^0.1.81"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
+    "@playwright/test": "^1.63.0",
+    "@types/node": "^26.6.3",
+    "typescript": "^7.0.2"
   }
 }

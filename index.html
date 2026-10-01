@@ -15,7 +15,7 @@
       <div class="app-bar-inner">
         <div class="app-bar-brand">
           <span class="brand-mark">DIAGCALC</span>
-          <span class="app-bar-version" aria-label="version">v4.4.1</span>
+          <span class="app-bar-version" aria-label="version">v5.0.0</span>
           <span class="app-bar-divider" aria-hidden="true">·</span>
           <span class="app-bar-case" id="appCaseStrip" data-i18n="app.case.empty">No case yet</span>
         </div>
@@ -50,7 +50,7 @@
                   <option value="caseControl">Case-control study</option>
                   <option value="clinic">Specialist clinic</option>
                 </optgroup>
-                <optgroup label="Medical literature cases" data-i18n-attr="label=form.scenario.group.literature">
+                <optgroup label="Illustrative medical scenarios" data-i18n-attr="label=form.scenario.group.literature">
                   <option value="ddimer">D-dimer for pulmonary embolism</option>
                   <option value="troponin">High-sensitivity troponin for AMI</option>
                   <option value="mammography">Screening mammography</option>
@@ -109,12 +109,9 @@
               <label for="preTestProb" data-i18n="form.pre.label">Pre-test probability (%)</label>
               <input
                 class="preTestProb"
-                type="number"
+                type="text"
                 id="preTestProb"
                 inputmode="decimal"
-                min="0"
-                max="100"
-                step="0.1"
                 placeholder="e.g. 12.5"
                 required
               />
@@ -129,7 +126,7 @@
                 <select id="continuityModeSelect" class="full">
                   <option value="auto" selected data-i18n="form.advanced.continuity.auto">Auto — apply +0.5 only when a 2×2 cell is zero</option>
                   <option value="always" data-i18n="form.advanced.continuity.always">Always — apply +0.5 to every cell</option>
-                  <option value="never" data-i18n="form.advanced.continuity.never">Never — return ∞ if any cell is zero</option>
+                  <option value="never" data-i18n="form.advanced.continuity.never">Never — leave undefined intervals unavailable</option>
                 </select>
                 <p class="help-text" data-i18n="form.advanced.continuity.help">
                   When any cell of the confusion matrix is zero the log-normal CI for LR+ / LR− / DOR is undefined.
@@ -163,7 +160,7 @@
           <div id="resultsSecondary" class="results-secondary" aria-live="polite"></div>
           <div id="faganNomogram" class="fagan-nomogram" style="display: none;">
             <h3 data-i18n="fagan.h">Fagan Nomogram</h3>
-            <p class="help-text" data-i18n="fagan.help">Graphical representation of the relationship between pre-test probability, likelihood ratio, and post-test probability.</p>
+            <p class="help-text" data-i18n="fagan.help">Calibrated logarithmic axes: pre-test odds × LR = post-test odds. Off-scale or undefined values are shown in the summary.</p>
             <canvas id="faganCanvas" width="600" height="400" role="img" aria-label="Fagan nomogram" aria-describedby="faganSummary"></canvas>
             <dl id="faganSummary" class="fagan-summary">
               <div class="fagan-summary-item">
@@ -266,6 +263,8 @@
               For a continuous test (e.g. troponin, D-dimer, score), each candidate cutoff defines its own 2×2 table. Add one row per cutoff and the plot draws sensitivity vs (1 − specificity), the trapezoidal AUC, and highlights the cutoff with the largest Youden's J (sens + spec − 1).
             </p>
             <div class="roc-table-wrapper">
+              <label for="rocDirection">Positive result direction</label>
+              <select id="rocDirection"><option value="higher">Higher scores are positive</option><option value="lower">Lower scores are positive</option></select>
               <table class="roc-table">
                 <thead>
                   <tr>
@@ -282,7 +281,7 @@
             </div>
             <div class="form-actions">
               <button type="button" id="rocAddRow">+ Add cutoff row</button>
-              <button type="button" id="rocFillSynthetic" class="secondary" title="Fit a binormal model to the first row and scaffold five synthetic cutoffs around it.">+ Fill synthetic cutoffs</button>
+              <button type="button" id="rocFillSynthetic" class="secondary" title="Fit an illustrative equal-variance binormal model and generate seven simulated cutoffs.">+ Fill synthetic cutoffs</button>
               <button type="button" id="rocReset" class="secondary">Reset rows</button>
             </div>
             <canvas id="rocCanvas" width="480" height="480" role="img" aria-label="Receiver operating characteristic curve" aria-describedby="rocReadout"></canvas>
@@ -309,7 +308,7 @@
                 <span>Prevalence</span>
                 <output id="prevalenceValue" for="prevalenceSlider">10.0%</output>
               </label>
-              <input type="range" id="prevalenceSlider" min="0.1" max="99.9" step="0.1" value="10" aria-describedby="prevalenceValue" />
+              <input type="range" id="prevalenceSlider" min="0.1" max="100" step="0.1" value="10" aria-describedby="prevalenceValue" />
             </div>
             <div id="prevalenceReadout" class="prevalence-readout"></div>
             <canvas id="prevalenceCanvas" width="600" height="320" aria-label="PPV and NPV as a function of prevalence"></canvas>
@@ -383,7 +382,7 @@
           <p class="panel-kicker">Companion tool</p>
           <h2 id="kappa-title">Inter-rater agreement (Cohen's κ)</h2>
           <p class="help-text">
-            Two raters classify the same items as positive / negative. Enter the four counts to get Cohen's κ with 95% CI (Fleiss 1969) and a Landis–Koch qualitative label. Useful for imaging or pathology cases where the "test" is a human judgement.
+            Two raters classify the same items as positive / negative. Enter the four counts to get Cohen's κ with 95% asymptotic CI adjusted for estimated rater marginals and a Landis–Koch qualitative label. Useful for imaging or pathology cases where the "test" is a human judgement.
           </p>
         </div>
         <fieldset class="confusion-matrix kappa-matrix">
@@ -570,7 +569,14 @@
     </footer>
     <script src="lib/diagcalc-i18n.js"></script>
     <script src="lib/diagcalc-datasets.js"></script>
+    <script src="lib/diagcalc-presentation.js"></script>
     <script src="lib/diagcalc-core.js"></script>
+    <script src="lib/diagcalc-meta.js"></script>
+    <script src="lib/diagcalc-case.js"></script>
+    <script src="lib/diagcalc-storage.js"></script>
+    <script src="lib/diagcalc-geometry.js"></script>
+    <script src="web/results.js"></script>
+    <script src="web/charts.js"></script>
     <script src="script.js"></script>
   </body>
 </html>

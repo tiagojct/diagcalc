@@ -55,10 +55,9 @@ test("validateInputs accepts pre-test just below 100", () => {
   assert.equal(result.valid, true);
 });
 
-test("validateInputs rejects pre-test = 100 with the [0, 100) message", () => {
+test("validateInputs accepts exact pre-test = 100 for boundary-preserving chaining", () => {
   const result = core.validateInputs({ tp: 10, fp: 2, fn: 1, tn: 87, preTestProb: 100 });
-  assert.equal(result.valid, false);
-  assert.match(result.message, /below 100%/);
+  assert.equal(result.valid, true);
 });
 
 test("validateInputs flags indeterminate sensitivity when no diseased cases", () => {
@@ -235,10 +234,10 @@ test("calculateOdds at boundaries", () => {
   close(core.calculateOdds(0.5), 1);
 });
 
-test("multiplyOdds absorbs 0 even with infinite ratio", () => {
+test("multiplyOdds keeps indeterminate zero-times-infinity undefined", () => {
   // Pragmatic choice: 0 × ∞ → 0 (low prior remains low)
-  assert.equal(core.multiplyOdds(0, Infinity), 0);
-  assert.equal(core.multiplyOdds(Infinity, 0), 0);
+  assert.ok(Number.isNaN(core.multiplyOdds(0, Infinity)));
+  assert.ok(Number.isNaN(core.multiplyOdds(Infinity, 0)));
 });
 
 test("probabilityFromOdds round-trips with calculateOdds", () => {
@@ -267,9 +266,9 @@ test("formatLikelihood uses 1 decimal at >= 10 and 2 decimals below", () => {
   assert.equal(core.formatLikelihood(0.01), "0.01");
 });
 
-test("formatLikelihood collapses non-finite to ∞ and 0", () => {
+test("formatLikelihood distinguishes undefined values from infinity", () => {
   assert.equal(core.formatLikelihood(Infinity), "∞");
-  assert.equal(core.formatLikelihood(NaN), "∞");
+  assert.equal(core.formatLikelihood(NaN), "—");
   assert.equal(core.formatLikelihood(0), "0");
 });
 
