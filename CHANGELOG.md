@@ -2,6 +2,21 @@
 
 Todas as alterações relevantes deste projeto são registadas aqui. As datas seguem o formato ISO (AAAA-MM-DD).
 
+## [5.1.0] - 2026-10-01
+
+### Alterado
+- Reworked browser typography and colours with system fonts, neutral surfaces, restrained actions and clear section rules. Removed repeated accordion badges and shortened summaries.
+- Reference sections use at most two columns; the agreement calculator has its own full-width row. Matrix inputs adapt to their available space.
+
+### Corrigido
+- Completed pt-PT UI copy across scenarios, references, tools, validation, history, charts, input placeholders and accessible names. Language changes refresh existing panels without creating history entries.
+- Prevented overlapping reference panels and overflowing matrix cells at desktop, tablet and mobile sizes.
+- Theme changes apply immediately to avoid temporarily unreadable text during colour transitions.
+
+### Técnico
+- Added regression checks for reference/matrix geometry at six widths, language round trips and light/dark accessibility across Chromium, Firefox and WebKit.
+- Removed external font downloads; scientific citation titles retain their original language.
+
 ## [5.0.0] - 2026-10-01
 
 ### Adicionado

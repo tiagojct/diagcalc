@@ -14,10 +14,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const missing = [!core && "DiagcalcCore", !datasetStore && "DiagcalcDatasets"].filter(Boolean).join(" and ");
     console.error(`DIAGCALC: required script(s) failed to load: ${missing}.`);
     if (feedbackEl) {
-      feedbackEl.textContent = "Calculator failed to load. Refresh the page or check the network tab for missing scripts.";
+      feedbackEl.textContent = i18n ? i18n.t("feedback.load.failed") : "Calculator failed to load. Refresh the page or check the network tab for missing scripts.";
       feedbackEl.classList.add("error");
     }
     return;
+  }
+
+  function uiText(source) {
+    return i18n.text(source);
   }
 
   function tr(key, vars) {
@@ -36,7 +40,9 @@ document.addEventListener("DOMContentLoaded", () => {
       appCaseStrip.classList.remove("has-case");
       return;
     }
-    const name = caseState.kind === "adhoc" ? tr("app.case.adhoc") : caseState.label;
+    const name = caseState.kind === "adhoc" ? tr("app.case.adhoc") : caseState.datasetKey
+      ? (caseState.modified ? tr("case.modified", { name: tr("dataset." + caseState.datasetKey + ".name") }) : tr("dataset." + caseState.datasetKey + ".name"))
+      : i18n.relocalise(caseState.label);
     appCaseStrip.textContent = `${tr("app.case.prefix")} ${name}`;
     appCaseStrip.classList.add("has-case");
   }
@@ -248,7 +254,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!validation.valid) {
       activeSnapshot = null;
       clearMainResults();
-      setFeedback(validation.message, false);
+      setFeedback(i18n.message(validation.message), false);
       clearFaganNomogram(faganNomogramEl, faganCanvas);
       hidePrevalenceExplorer();
       hideSequentialTest();
@@ -261,7 +267,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const metrics = core.calculateMetrics(data, { continuityCorrection: currentContinuityMode(), locale: i18n ? i18n.getLocale() : "en" });
     activeSnapshot = caseStore.createSnapshot(data, { continuityCorrection: currentContinuityMode() }, {
-      label: caseState.label || "Custom case", datasetKey: caseState.datasetKey,
+      label: caseState.label || uiText("Custom case"), datasetKey: caseState.datasetKey,
       modified: caseState.modified, provenance: caseState.datasetKey ? datasets[caseState.datasetKey].provenance : null,
     });
     if (caseState.kind === "empty") {
@@ -315,6 +321,14 @@ document.addEventListener("DOMContentLoaded", () => {
     writeHistory(entries.slice(0, HISTORY_MAX));
   }
 
+  function historyLabel(entry) {
+    if (entry.datasetKey && datasets[entry.datasetKey]) {
+      const name = tr("dataset." + entry.datasetKey + ".name");
+      return entry.modified ? tr("case.modified", { name }) : name;
+    }
+    return i18n.relocalise(entry.label);
+  }
+
   function renderHistory() {
     if (!historyPanelEl || !historyListEl) return;
     const entries = readHistory();
@@ -345,12 +359,12 @@ document.addEventListener("DOMContentLoaded", () => {
       const labelEl = document.createElement("label");
       labelEl.htmlFor = checkbox.id;
       labelEl.className = "history-item-label";
-      const ts = new Date(entry.savedAt).toLocaleString();
+      const ts = new Date(entry.savedAt).toLocaleString(i18n.getLocale());
       const fields = [
-        ["history-item-title", entry.label],
-        ["history-item-meta", `TP ${entry.input.tp} · FP ${entry.input.fp} · FN ${entry.input.fn} · TN ${entry.input.tn} · pre ${entry.input.preTestProb}%`],
-        ["history-item-stats", `sens ${core.formatPercentage(entry.summary.sensitivity)} · spec ${core.formatPercentage(entry.summary.specificity)} · post+ ${core.formatPercentage(entry.summary.postTestPositive)} · post− ${core.formatPercentage(entry.summary.postTestNegative)}`],
-        ["history-item-date", `${ts} · v${entry.engineVersion} · ${entry.options.continuityCorrection}${entry.legacy ? " · Legacy: original settings unknown; recomputed with auto" : ""}`],
+        ["history-item-title", historyLabel(entry)],
+        ["history-item-meta", tr("history.matrix", { ...entry.input, pre: entry.input.preTestProb })],
+        ["history-item-stats", tr("history.stats", { sens: core.formatPercentage(entry.summary.sensitivity), spec: core.formatPercentage(entry.summary.specificity), pos: core.formatPercentage(entry.summary.postTestPositive), neg: core.formatPercentage(entry.summary.postTestNegative) })],
+        ["history-item-date", `${ts} · v${entry.engineVersion} · ${uiText(entry.options.continuityCorrection)}${entry.legacy ? " · " + tr("history.legacy") : ""}`],
       ];
       for (const [className, text] of fields) {
         const span = document.createElement("span");
@@ -364,14 +378,14 @@ document.addEventListener("DOMContentLoaded", () => {
       const reloadBtn = document.createElement("button");
       reloadBtn.type = "button";
       reloadBtn.className = "secondary";
-      reloadBtn.textContent = "Reload";
+      reloadBtn.textContent = uiText("Reload");
       reloadBtn.addEventListener("click", () => reloadHistoryEntry(entry));
       const deleteBtn = document.createElement("button");
       deleteBtn.type = "button";
       deleteBtn.className = "secondary history-item-delete";
       deleteBtn.textContent = "×";
-      deleteBtn.title = "Delete this entry";
-      deleteBtn.setAttribute("aria-label", "Delete history entry");
+      deleteBtn.title = uiText("Delete this entry");
+      deleteBtn.setAttribute("aria-label", uiText("Delete history entry"));
       deleteBtn.addEventListener("click", () => deleteHistoryEntry(entry.id));
       actions.appendChild(reloadBtn);
       actions.appendChild(deleteBtn);
@@ -412,10 +426,10 @@ document.addEventListener("DOMContentLoaded", () => {
       else datasetReferenceEl.style.display = "none";
       setCase("named", entry.label);
     }
-    setFeedback(tr("feedback.history.reloaded", { label: entry.label }), true);
+    setFeedback(tr("feedback.history.reloaded", { label: historyLabel(entry) }), true);
     calculateAndRender();
     if (entry.legacy || entry.engineVersion !== window.DiagcalcMeta.version) {
-      setFeedback("Case recalculated with the current engine. Legacy history used auto because its original settings were not recorded.", true);
+      setFeedback(uiText("Case recalculated with the current engine. Legacy history used auto because its original settings were not recorded."), true);
     }
   }
 
@@ -434,24 +448,24 @@ document.addEventListener("DOMContentLoaded", () => {
     for (const e of entries) {
       const th = document.createElement("th");
       th.scope = "col";
-      th.textContent = e.label;
+      th.textContent = historyLabel(e);
       headerRow.appendChild(th);
     }
     thead.appendChild(headerRow);
     table.appendChild(thead);
     const tbody = document.createElement("tbody");
     const rows = [
-      ["TP/FP/FN/TN", (e) => `${e.input.tp} / ${e.input.fp} / ${e.input.fn} / ${e.input.tn}`],
-      ["Pre-test", (e) => `${e.input.preTestProb}%`],
-      ["Engine / continuity", (e) => `${e.engineVersion} / ${e.options.continuityCorrection}`],
-      ["Sensitivity", (e) => core.formatPercentage(e.summary.sensitivity)],
-      ["Specificity", (e) => core.formatPercentage(e.summary.specificity)],
-      ["PPV", (e) => core.formatPercentage(e.summary.ppv)],
-      ["NPV", (e) => core.formatPercentage(e.summary.npv)],
+      [uiText("TP/FP/FN/TN"), (e) => `${e.input.tp} / ${e.input.fp} / ${e.input.fn} / ${e.input.tn}`],
+      [uiText("Pre-test"), (e) => `${e.input.preTestProb}%`],
+      [uiText("Engine / continuity"), (e) => `${e.engineVersion} / ${uiText(e.options.continuityCorrection)}`],
+      [uiText("Sensitivity"), (e) => core.formatPercentage(e.summary.sensitivity)],
+      [uiText("Specificity"), (e) => core.formatPercentage(e.summary.specificity)],
+      [uiText("PPV"), (e) => core.formatPercentage(e.summary.ppv)],
+      [uiText("NPV"), (e) => core.formatPercentage(e.summary.npv)],
       ["LR+", (e) => core.formatLikelihood(e.summary.lrPositive)],
       ["LR−", (e) => core.formatLikelihood(e.summary.lrNegative)],
-      ["Post-test (+)", (e) => core.formatPercentage(e.summary.postTestPositive)],
-      ["Post-test (−)", (e) => core.formatPercentage(e.summary.postTestNegative)],
+      [uiText("Post-test (+)"), (e) => core.formatPercentage(e.summary.postTestPositive)],
+      [uiText("Post-test (−)"), (e) => core.formatPercentage(e.summary.postTestNegative)],
     ];
     for (const [label, fn] of rows) {
       const tr = document.createElement("tr");
@@ -472,7 +486,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (historyClearAllBtn) {
     historyClearAllBtn.addEventListener("click", () => {
-      if (!confirm("Clear all saved history? This cannot be undone.")) return;
+      if (!confirm(uiText("Clear all saved history? This cannot be undone."))) return;
       writeHistory([]);
       historySelected.clear();
       renderHistory();
@@ -507,11 +521,11 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function addRocRow(prefill, opts) {
-    const tr = document.createElement("tr");
-    tr.dataset.provenance = opts && opts.synthetic ? "simulated" : "observed";
+    const rowEl = document.createElement("tr");
+    rowEl.dataset.provenance = opts && opts.synthetic ? "simulated" : "observed";
     if (opts && opts.synthetic) {
-      tr.classList.add("roc-row--synthetic");
-      tr.title = "Synthetic cutoff — generated from a binormal fit of the first row.";
+      rowEl.classList.add("roc-row--synthetic");
+      rowEl.title = uiText("Synthetic cutoff — generated from a binormal fit of the first row.");
     }
     const fields = ["cutoff", "tp", "fp", "fn", "tn"];
     for (const field of fields) {
@@ -526,29 +540,29 @@ document.addEventListener("DOMContentLoaded", () => {
         input.value = prefill[field];
       }
       input.addEventListener("input", () => {
-        if (tr.dataset.provenance !== "observed") {
-          tr.dataset.provenance = "edited-simulated";
-          tr.title = "Edited simulated cutoff — still derived from a binormal model.";
+        if (rowEl.dataset.provenance !== "observed") {
+          rowEl.dataset.provenance = "edited-simulated";
+          rowEl.title = uiText("Edited simulated cutoff — still derived from a binormal model.");
         }
         recomputeRoc();
       });
-      input.setAttribute("aria-label", `ROC row ${field}`);
+      input.setAttribute("aria-label", tr("roc.rowAria", { field: field === "cutoff" ? uiText("Cutoff") : uiText(field.toUpperCase()) }));
       td.appendChild(input);
-      tr.appendChild(td);
+      rowEl.appendChild(td);
     }
     const removeTd = document.createElement("td");
     const removeBtn = document.createElement("button");
     removeBtn.type = "button";
     removeBtn.className = "roc-remove";
     removeBtn.textContent = "×";
-    removeBtn.setAttribute("aria-label", "Remove this cutoff row");
+    removeBtn.setAttribute("aria-label", uiText("Remove this cutoff row"));
     removeBtn.addEventListener("click", () => {
-      tr.remove();
+      rowEl.remove();
       recomputeRoc();
     });
     removeTd.appendChild(removeBtn);
-    tr.appendChild(removeTd);
-    rocRowsEl.appendChild(tr);
+    rowEl.appendChild(removeTd);
+    rocRowsEl.appendChild(rowEl);
   }
 
   function readRocRows() {
@@ -576,7 +590,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const validation = core.validateRocRows(rows, { direction });
     if (!validation.valid) {
       rocReadoutEl.textContent = validation.errors.map((error) =>
-        `${error.row ? `Row ${error.row}: ` : ""}${error.message}`).join(" ");
+        `${error.row ? tr("roc.row", { row: error.row }) : ""}${i18n.message(error.message)}`).join(" ");
       window.DiagcalcCharts.clearCanvas(rocCanvas);
       return;
     }
@@ -589,14 +603,14 @@ document.addEventListener("DOMContentLoaded", () => {
     rocReadoutEl.innerHTML = "";
     if (roc.simulated) {
       const warning = document.createElement("p");
-      warning.textContent = "Includes simulated or edited simulated cutoffs. AUC and optimum are illustrative, not empirical estimates.";
+      warning.textContent = uiText("Includes simulated or edited simulated cutoffs. AUC and optimum are illustrative, not empirical estimates.");
       rocReadoutEl.appendChild(warning);
     }
     const stats = [
-      [roc.simulated ? "Illustrative AUC (includes simulated rows)" : "AUC (trapezoid estimate)", roc.auc.toFixed(3)],
-      ["Cutoffs", String(roc.points.length)],
-      [roc.simulated ? "Illustrative Youden optimum" : "Youden optimum", roc.optimalPoint
-        ? `cutoff ${roc.optimalPoint.cutoff ?? "—"} (sens ${core.formatPercentage(roc.optimalPoint.sens)}, spec ${core.formatPercentage(roc.optimalPoint.spec)}, J=${roc.optimalPoint.youden.toFixed(3)})`
+      [roc.simulated ? uiText("Illustrative AUC (includes simulated rows)") : uiText("AUC (trapezoid estimate)"), roc.auc.toFixed(3)],
+      [uiText("Cutoffs"), String(roc.points.length)],
+      [roc.simulated ? uiText("Illustrative Youden optimum") : uiText("Youden optimum"), roc.optimalPoint
+        ? tr("roc.optimum", { cutoff: roc.optimalPoint.cutoff ?? "—", sens: core.formatPercentage(roc.optimalPoint.sens), spec: core.formatPercentage(roc.optimalPoint.spec), j: roc.optimalPoint.youden.toFixed(3) })
         : "—"],
     ];
     for (const [label, value] of stats) {
@@ -638,7 +652,7 @@ document.addEventListener("DOMContentLoaded", () => {
         Number.isInteger(r.fn) && Number.isInteger(r.tn) &&
         (r.tp + r.fn > 0) && (r.tn + r.fp > 0);
       let seed = rocRows.find(isValid);
-      let seedSource = "ROC row 1";
+      let seedSource = uiText("ROC row 1");
       if (!seed) {
         const form = readFormValues();
         if (isValid(form)) {
@@ -648,7 +662,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       if (!seed) {
         if (rocReadoutEl) {
-          rocReadoutEl.textContent = "Need a valid 2×2 (TP / FP / FN / TN) before synthetic cutoffs can be generated — fill the main form or row 1 first.";
+          rocReadoutEl.textContent = uiText("Need a valid 2×2 (TP / FP / FN / TN) before synthetic cutoffs can be generated — fill the main form or row 1 first.");
         }
         return;
       }
@@ -656,7 +670,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const synth = core.generateSyntheticRocPoints(seed, 7);
       if (synth.length === 0) {
         if (rocReadoutEl) {
-          rocReadoutEl.textContent = "Could not fit a binormal model to that 2×2 — the synthetic scaffold needs at least one diseased and one non-diseased case.";
+          rocReadoutEl.textContent = uiText("Could not fit a binormal model to that 2×2 — the synthetic scaffold needs at least one diseased and one non-diseased case.");
         }
         return;
       }
@@ -674,7 +688,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (rocReadoutEl) {
         const flash = document.createElement("p");
         flash.className = "roc-flash";
-        flash.textContent = `Added ${synth.length} synthetic cutoffs from a binormal fit (seed: ${seedSource}). Editing a row preserves its simulated origin.`;
+        flash.textContent = tr("roc.added", { count: synth.length, seed: i18n.relocalise(seedSource) });
         rocReadoutEl.prepend(flash);
         setTimeout(() => { if (flash.isConnected) flash.remove(); }, 5000);
       }
@@ -720,22 +734,22 @@ document.addEventListener("DOMContentLoaded", () => {
       bothNeg: core.safeParseInt(document.getElementById("kappaBothNeg").value),
     };
     if (Object.values(inputs).some((v) => !Number.isInteger(v) || v < 0)) {
-      kappaResultEl.innerHTML = `<p class="kappa-error">Enter non-negative integers in all four cells.</p>`;
+      kappaResultEl.innerHTML = `<p class="kappa-error">${uiText("Enter non-negative integers in all four cells.")}</p>`;
       return;
     }
     const result = core.calcCohenKappa(inputs);
     if (!result) {
-      kappaResultEl.innerHTML = `<p class="kappa-error">Total cannot be zero.</p>`;
+      kappaResultEl.innerHTML = `<p class="kappa-error">${uiText("Total cannot be zero.")}</p>`;
       return;
     }
     kappaResultEl.innerHTML = "";
     const stats = [
       ["κ", Number.isFinite(result.value) ? result.value.toFixed(3) : "—"],
-      ["95% CI", result.ci ? `${result.ci.lower.toFixed(3)} to ${result.ci.upper.toFixed(3)}` : "—"],
-      ["Observed agreement (p_o)", core.formatPercentage(result.observed)],
-      ["Expected agreement (p_e)", core.formatPercentage(result.expected)],
+      [uiText("95% CI"), result.ci ? `${result.ci.lower.toFixed(3)} – ${result.ci.upper.toFixed(3)}` : "—"],
+      [uiText("Observed agreement (p_o)"), core.formatPercentage(result.observed)],
+      [uiText("Expected agreement (p_e)"), core.formatPercentage(result.expected)],
       ["N", String(result.n)],
-      ["Interpretation", result.interpretation],
+      [uiText("Interpretation"), window.DiagcalcPresentation.noteFor("interpretKappa", result.value, i18n.getLocale())],
     ];
     for (const [label, value] of stats) {
       const cell = document.createElement("div");
@@ -768,13 +782,13 @@ document.addEventListener("DOMContentLoaded", () => {
     biasWarningsEl.classList.add("visible");
     const heading = document.createElement("p");
     heading.className = "bias-warnings-heading";
-    heading.textContent = warnings.length === 1 ? "Heads up" : "Heads up";
+    heading.textContent = uiText("Heads up");
     biasWarningsEl.appendChild(heading);
     const list = document.createElement("ul");
     list.className = "bias-warnings-list";
     for (const msg of warnings) {
       const li = document.createElement("li");
-      li.textContent = msg;
+      li.textContent = i18n.message(msg);
       list.appendChild(li);
     }
     biasWarningsEl.appendChild(list);
@@ -811,7 +825,7 @@ document.addEventListener("DOMContentLoaded", () => {
       lrNegative: thresholdState.lrNegative,
     });
     if (!t) {
-      thresholdReadoutEl.textContent = "Thresholds unavailable: this display requires LR+ > 1 and 0 ≤ LR− < 1. Review test direction.";
+      thresholdReadoutEl.textContent = uiText("Thresholds unavailable: this display requires LR+ > 1 and 0 ≤ LR− < 1. Review test direction.");
       return;
     }
 
@@ -838,10 +852,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     thresholdReadoutEl.innerHTML = "";
     const stats = [
-      ["Testing threshold (don't test below)", core.formatPercentage(Plow)],
-      ["Treatment threshold (Pt)", core.formatPercentage(Pt)],
-      ["Test-treatment threshold (just treat above)", core.formatPercentage(Phigh)],
-      ["Decision at current pre-test", classifyPreTest(prePct, lowPct, highPct, Ptpercent)],
+      [uiText("Testing threshold (don't test below)"), core.formatPercentage(Plow)],
+      [uiText("Treatment threshold (Pt)"), core.formatPercentage(Pt)],
+      [uiText("Test-treatment threshold (just treat above)"), core.formatPercentage(Phigh)],
+      [uiText("Decision at current pre-test"), classifyPreTest(prePct, lowPct, highPct, Ptpercent)],
     ];
     for (const [label, value] of stats) {
       const cell = document.createElement("div");
@@ -860,9 +874,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function classifyPreTest(prePct, lowPct, highPct, Ptpct) {
     if (!Number.isFinite(prePct)) return "—";
-    if (prePct < lowPct) return "Don't test — even a positive result wouldn't reach Pt.";
-    if (prePct > highPct) return "Treat without testing — even a negative result stays above Pt.";
-    return `Test useful — result can move you across the Pt=${Ptpct.toFixed(0)}% line.`;
+    if (prePct < lowPct) return uiText("Don't test — even a positive result wouldn't reach Pt.");
+    if (prePct > highPct) return uiText("Treat without testing — even a negative result stays above Pt.");
+    return tr("threshold.decision", { pt: Ptpct.toFixed(0) });
   }
 
   if (treatmentThresholdInputEl) {
@@ -908,7 +922,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
     const fromLabel = sequentialFromEl && sequentialFromEl.value === "negative" ? "negative" : "positive";
-    sequentialPretestEl.textContent = `Test 2 pre-test probability: ${core.formatPercentage(pct / 100)} (from test 1's post-test after a ${fromLabel} result).`;
+    sequentialPretestEl.textContent = tr("chain.pre", { pre: core.formatPercentage(pct / 100), result: tr("chain.result." + fromLabel) });
   }
 
   function setSequentialFeedback(message, isSuccess) {
@@ -923,7 +937,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!sequentialResultsEl) return;
     const preTestProb = chainedPreTestPercent();
     if (!Number.isFinite(preTestProb)) {
-      setSequentialFeedback("Calculate test 1 first.", false);
+      setSequentialFeedback(uiText("Calculate test 1 first."), false);
       return;
     }
 
@@ -937,14 +951,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const validation = core.validateInputs(input);
     if (!validation.valid) {
       sequentialResultsEl.innerHTML = "";
-      setSequentialFeedback(validation.message, false);
+      setSequentialFeedback(i18n.message(validation.message), false);
       return;
     }
 
     const metrics = core.calculateMetrics(input, { continuityCorrection: currentContinuityMode(), locale: i18n ? i18n.getLocale() : "en" });
     renderResults(sequentialResultsEl, metrics);
     setSequentialFeedback(
-      `Test 2 complete. Post-test (+) ${core.formatPercentage(metrics.postTestPositive.value)}, post-test (−) ${core.formatPercentage(metrics.postTestNegative.value)}.`,
+      tr("chain.done", { positive: core.formatPercentage(metrics.postTestPositive.value), negative: core.formatPercentage(metrics.postTestNegative.value) }),
       true
     );
   }
@@ -966,7 +980,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (el) el.value = "";
       });
       sequentialResultsEl.innerHTML = "";
-      setSequentialFeedback("Test 2 fields cleared.", true);
+      setSequentialFeedback(uiText("Test 2 fields cleared."), true);
     });
   }
 
@@ -1006,10 +1020,10 @@ document.addEventListener("DOMContentLoaded", () => {
     prevalenceValueEl.textContent = `${prevPercent.toFixed(1)}%`;
     prevalenceReadoutEl.innerHTML = "";
     const stats = [
-      ["PPV", ppv],
-      ["NPV", npv],
-      ["Post-test (+)", postPositive],
-      ["Post-test (−)", postNegative],
+      [uiText("PPV"), ppv],
+      [uiText("NPV"), npv],
+      [uiText("Post-test (+)"), postPositive],
+      [uiText("Post-test (−)"), postNegative],
     ];
     for (const [label, value] of stats) {
       const cell = document.createElement("div");
@@ -1164,7 +1178,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Ticks
     ctx.fillStyle = mutedColor;
-    ctx.font = "10px 'JetBrains Mono', ui-monospace, monospace";
+    ctx.font = "10px ui-monospace, monospace";
     ctx.textAlign = "center";
     for (const v of [0, 0.25, 0.5, 0.75, 1]) {
       const x = px(v);
@@ -1209,10 +1223,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Labels
     ctx.fillStyle = mutedColor;
-    ctx.font = "10px 'JetBrains Mono', ui-monospace, monospace";
+    ctx.font = "10px ui-monospace, monospace";
     ctx.textAlign = "left";
-    ctx.fillText("diseased", margin.l, yMid - 25);
-    ctx.fillText("healthy", margin.l, yLow - 14);
+    ctx.fillText(uiText("diseased"), margin.l, yMid - 25);
+    ctx.fillText(uiText("healthy"), margin.l, yLow - 14);
 
     }
 
@@ -1294,7 +1308,27 @@ document.addEventListener("DOMContentLoaded", () => {
   scheduler.register(thresholdDemoCanvas, renderThresholdDemo, () => thresholdDemoEl.style.display !== "none");
 
   refreshLocaleResults = () => {
+    feedbackEl.textContent = i18n.relocalise(feedbackEl.textContent);
+    sequentialFeedbackEl.textContent = i18n.relocalise(sequentialFeedbackEl.textContent);
+    renderHistory();
+    renderCompare();
+    if (kappaResultEl.children.length) computeKappa();
+    if (caseState.datasetKey) displayDatasetReference(datasets[caseState.datasetKey]);
     if (!activeSnapshot) return;
+    renderBiasWarnings([...core.buildBiasWarnings(activeSnapshot.input), ...datasetStore.buildDatasetWarnings(datasets[caseState.datasetKey])]);
+    updateSequentialPretestLabel();
+    updateThresholdView();
+    updatePrevalenceReadout(Number(prevalenceSliderEl.value));
+    recomputeRoc();
+    for (const row of rocRowsEl.children) {
+      row.title = row.dataset.provenance === "simulated" ? uiText("Synthetic cutoff — generated from a binormal fit of the first row.")
+        : row.dataset.provenance === "edited-simulated" ? uiText("Edited simulated cutoff — still derived from a binormal model.") : "";
+      for (const input of row.querySelectorAll("input")) {
+        const field = input.dataset.field;
+        input.setAttribute("aria-label", tr("roc.rowAria", { field: field === "cutoff" ? uiText("Cutoff") : uiText(field.toUpperCase()) }));
+      }
+      row.querySelector("button").setAttribute("aria-label", uiText("Remove this cutoff row"));
+    }
     const metrics = core.calculateMetrics(activeSnapshot.input, { ...activeSnapshot.options, locale: i18n.getLocale() });
     renderHeadline(resultsHeadlineEl, metrics);
     renderSecondary(resultsSecondaryEl, metrics);
@@ -1309,14 +1343,14 @@ document.addEventListener("DOMContentLoaded", () => {
     if (caseState.datasetKey) {
       caseState.modified = true;
       datasetSelect.value = "";
-      setCase("named", `Customised: ${datasets[caseState.datasetKey].name}`);
+      setCase("named", tr("case.modified", { name: tr("dataset." + caseState.datasetKey + ".name") }));
     }
     activeSnapshot = null;
     clearMainResults();
     clearFaganNomogram(faganNomogramEl, faganCanvas);
     hidePrevalenceExplorer(); hideSequentialTest(); hideThresholdPanel(); hideThresholdDemo(); hideRocPanel();
     renderBiasWarnings([]);
-    setFeedback("Inputs changed. Calculate to update results.", false);
+    setFeedback(uiText("Inputs changed. Calculate to update results."), false);
   });
 
   function applyDataset(dataset) {
@@ -1379,17 +1413,17 @@ function displayDatasetReference(dataset) {
   referenceEl.innerHTML = "";
 
   const heading = document.createElement("h4");
-  heading.textContent = "Illustrative teaching scenario";
+  heading.textContent = window.DiagcalcI18n.text("Illustrative teaching scenario");
   referenceEl.appendChild(heading);
 
   const desc = document.createElement("p");
   const descStrong = document.createElement("strong");
-  descStrong.textContent = dataset.description;
+  descStrong.textContent = window.DiagcalcI18n.text(dataset.description);
   desc.appendChild(descStrong);
   referenceEl.appendChild(desc);
 
   const provenance = document.createElement("p");
-  provenance.textContent = dataset.provenance.note;
+  provenance.textContent = window.DiagcalcI18n.text(dataset.provenance.note);
   referenceEl.appendChild(provenance);
   referenceEl.style.display = "block";
   if (!ref) return;

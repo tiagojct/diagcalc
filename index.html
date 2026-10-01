@@ -4,9 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DIAG-CALC</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:ital,wght@0,200..800;1,200..800&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" />
     <link rel="stylesheet" href="styles.css" />
     <script defer src="https://analytics.tiagojct.eu/script.js" data-website-id="2c7df365-61e6-42e6-8298-a20ada3e296a"></script>
   </head>
@@ -15,19 +12,19 @@
       <div class="app-bar-inner">
         <div class="app-bar-brand">
           <span class="brand-mark">DIAGCALC</span>
-          <span class="app-bar-version" aria-label="version">v5.0.0</span>
+          <span class="app-bar-version" aria-label="version" data-i18n-attr="aria-label=attr.version">v5.1.0</span>
           <span class="app-bar-divider" aria-hidden="true">·</span>
           <span class="app-bar-case" id="appCaseStrip" data-i18n="app.case.empty">No case yet</span>
         </div>
         <div class="app-bar-controls">
           <label class="lang-picker" for="languageSelect">
             <span class="visually-hidden" data-i18n="lang.label">Language</span>
-            <select id="languageSelect" aria-label="Language">
+            <select id="languageSelect" aria-label="Language" data-i18n-attr="aria-label=attr.language">
               <option value="en">English</option>
               <option value="pt-PT">Português</option>
             </select>
           </label>
-          <button id="themeToggle" class="theme-toggle" type="button" data-i18n-attr="aria-label=theme.toggle.label">
+          <button id="themeToggle" class="theme-toggle" type="button" data-i18n-attr="aria-label=theme.toggle.label" >
             <span class="theme-icon">◐</span>
           </button>
         </div>
@@ -45,25 +42,25 @@
               <label class="full" for="datasetSelect" data-i18n="form.scenario">Scenario</label>
               <select id="datasetSelect" class="full" aria-describedby="dataset-help">
                 <option value="" data-i18n="form.scenario.empty">— Select —</option>
-                <optgroup label="Generic scenarios" data-i18n-attr="label=form.scenario.group.generic">
-                  <option value="screening">Screening programme (low prevalence)</option>
-                  <option value="caseControl">Case-control study</option>
-                  <option value="clinic">Specialist clinic</option>
+                <optgroup label="Generic scenarios" data-i18n-attr="label=form.scenario.group.generic" >
+                  <option value="screening" data-i18n="dataset.screening.name">Screening programme (low prevalence)</option>
+                  <option value="caseControl" data-i18n="dataset.caseControl.name">Case-control study</option>
+                  <option value="clinic" data-i18n="dataset.clinic.name">Specialist clinic</option>
                 </optgroup>
-                <optgroup label="Illustrative medical scenarios" data-i18n-attr="label=form.scenario.group.literature">
-                  <option value="ddimer">D-dimer for pulmonary embolism</option>
-                  <option value="troponin">High-sensitivity troponin for AMI</option>
-                  <option value="mammography">Screening mammography</option>
-                  <option value="covid_antigen">Rapid COVID-19 antigen test</option>
-                  <option value="hiv_elisa">HIV ELISA</option>
-                  <option value="strep_throat">Rapid Streptococcus test</option>
-                  <option value="xray_pneumonia">Chest X-ray for pneumonia</option>
-                  <option value="wells_dvt">Wells score (≥2) for DVT</option>
-                  <option value="heart_acs">HEART score (≥4) for MACE in chest pain</option>
-                  <option value="curb65">CURB-65 (≥2) for severe community-acquired pneumonia</option>
-                  <option value="qsofa">qSOFA (≥2) for sepsis screening</option>
-                  <option value="apgar_5min">APGAR &lt; 7 at 5 min for severe neonatal outcome</option>
-                  <option value="fast_trauma">FAST ultrasound for blunt abdominal trauma</option>
+                <optgroup label="Illustrative medical scenarios" data-i18n-attr="label=form.scenario.group.literature" >
+                  <option value="ddimer" data-i18n="dataset.ddimer.name">D-dimer for pulmonary embolism</option>
+                  <option value="troponin" data-i18n="dataset.troponin.name">High-sensitivity troponin for AMI</option>
+                  <option value="mammography" data-i18n="dataset.mammography.name">Screening mammography</option>
+                  <option value="covid_antigen" data-i18n="dataset.covid_antigen.name">Rapid COVID-19 antigen test</option>
+                  <option value="hiv_elisa" data-i18n="dataset.hiv_elisa.name">HIV ELISA</option>
+                  <option value="strep_throat" data-i18n="dataset.strep_throat.name">Rapid Streptococcus test</option>
+                  <option value="xray_pneumonia" data-i18n="dataset.xray_pneumonia.name">Chest X-ray for pneumonia</option>
+                  <option value="wells_dvt" data-i18n="dataset.wells_dvt.name">Wells score (≥2) for DVT</option>
+                  <option value="heart_acs" data-i18n="dataset.heart_acs.name">HEART score (≥4) for MACE in chest pain</option>
+                  <option value="curb65" data-i18n="dataset.curb65.name">CURB-65 (≥2) for severe community-acquired pneumonia</option>
+                  <option value="qsofa" data-i18n="dataset.qsofa.name">qSOFA (≥2) for sepsis screening</option>
+                  <option value="apgar_5min" data-i18n="dataset.apgar_5min.name">APGAR &lt; 7 at 5 min for severe neonatal outcome</option>
+                  <option value="fast_trauma" data-i18n="dataset.fast_trauma.name">FAST ultrasound for blunt abdominal trauma</option>
                 </optgroup>
               </select>
               <p id="dataset-help" class="help-text" data-i18n="library.help">
@@ -73,35 +70,35 @@
             </div>
             <fieldset class="confusion-matrix">
               <legend data-i18n="form.matrix.legend">Confusion matrix</legend>
-              <div class="grid-container" role="group" aria-label="Diagnostic test results">
+              <div class="grid-container" role="group" aria-label="Diagnostic test results" data-i18n-attr="aria-label=attr.diagnostic.test.results">
                 <span class="empty" aria-hidden="true"></span>
-                <span class="grid-header grid-header-pos" data-i18n="form.matrix.dpos">Disease +</span>
+                <span class="grid-header grid-header-pos" data-i18n="form.matrix.dpos"><span data-i18n="matrix.disease">Disease +</span></span>
                 <span class="grid-header grid-header-neg" data-i18n="form.matrix.dneg">Disease -</span>
-                <label class="grid-label grid-label-pos" for="tp" data-i18n="form.matrix.tpos">Test +</label>
+                <label class="grid-label grid-label-pos" for="tp" data-i18n="form.matrix.tpos"><span data-i18n="matrix.test">Test +</span></label>
                 <div class="grid-item">
                   <input type="number" id="tp" inputmode="numeric" min="0" step="1"
-                    placeholder="True positives"
+                    placeholder="TP"
                     aria-label="True positives (TP): disease present, test positive"
-                    required />
+                    required data-i18n-attr="placeholder=attr.tp;aria-label=attr.true.positives.tp.disease.present.test.positive" />
                 </div>
                 <div class="grid-item">
                   <input type="number" id="fp" inputmode="numeric" min="0" step="1"
-                    placeholder="False positives"
+                    placeholder="FP"
                     aria-label="False positives (FP): disease absent, test positive"
-                    required />
+                    required data-i18n-attr="placeholder=attr.fp;aria-label=attr.false.positives.fp.disease.absent.test.positive" />
                 </div>
                 <label class="grid-label grid-label-neg" for="fn" data-i18n="form.matrix.tneg">Test -</label>
                 <div class="grid-item">
                   <input type="number" id="fn" inputmode="numeric" min="0" step="1"
-                    placeholder="False negatives"
+                    placeholder="FN"
                     aria-label="False negatives (FN): disease present, test negative"
-                    required />
+                    required data-i18n-attr="placeholder=attr.fn;aria-label=attr.false.negatives.fn.disease.present.test.negative" />
                 </div>
                 <div class="grid-item">
                   <input type="number" id="tn" inputmode="numeric" min="0" step="1"
-                    placeholder="True negatives"
+                    placeholder="TN"
                     aria-label="True negatives (TN): disease absent, test negative"
-                    required />
+                    required data-i18n-attr="placeholder=attr.tn;aria-label=attr.true.negatives.tn.disease.absent.test.negative" />
                 </div>
               </div>
             </fieldset>
@@ -113,7 +110,7 @@
                 id="preTestProb"
                 inputmode="decimal"
                 placeholder="e.g. 12.5"
-                required
+                required data-i18n-attr="placeholder=attr.e.g.12.5"
               />
               <p class="help-text" data-i18n="form.pre.help">
                 Suggestion: estimate the disease prevalence in the study population or the clinical probability before the test.
@@ -161,7 +158,7 @@
           <div id="faganNomogram" class="fagan-nomogram" style="display: none;">
             <h3 data-i18n="fagan.h">Fagan Nomogram</h3>
             <p class="help-text" data-i18n="fagan.help">Calibrated logarithmic axes: pre-test odds × LR = post-test odds. Off-scale or undefined values are shown in the summary.</p>
-            <canvas id="faganCanvas" width="600" height="400" role="img" aria-label="Fagan nomogram" aria-describedby="faganSummary"></canvas>
+            <canvas id="faganCanvas" width="600" height="400" role="img" aria-label="Fagan nomogram" aria-describedby="faganSummary" data-i18n-attr="aria-label=attr.fagan.nomogram"></canvas>
             <dl id="faganSummary" class="fagan-summary">
               <div class="fagan-summary-item">
                 <dt data-i18n="fagan.pre">Pre-test</dt>
@@ -186,57 +183,57 @@
             </dl>
           </div>
           <details id="sequentialTest" class="sequential-test" style="display: none;">
-            <summary><span class="summary-tag summary-tag--tool" data-i18n="panel.tag.tool">Tool</span><strong>Chain a second test</strong> — feed the post-test probability of this test into a follow-up</summary>
+            <summary><strong><span data-i18n="chain.title">Chain a second test</span></strong></summary>
             <p class="help-text">
-              Real diagnostic workflows often chain tests (e.g. D-dimer → CT-PA, rapid antigen → PCR, screen → confirm). Choose which result of the first test you are following up on, then enter the second test's confusion matrix. The second test's pre-test probability is set automatically.
+              <span data-i18n="chain.help">Real diagnostic workflows often chain tests (e.g. D-dimer → CT-PA, rapid antigen → PCR, screen → confirm). Choose which result of the first test you are following up on, then enter the second test's confusion matrix. The second test's pre-test probability is set automatically.</span>
             </p>
             <div class="sequential-controls">
               <label for="sequentialFrom">
-                <span>Follow up on test 1 result</span>
+                <span><span data-i18n="chain.follow">Follow up on test 1 result</span></span>
                 <select id="sequentialFrom">
-                  <option value="positive">Positive (use post-test (+) as pre-test for test 2)</option>
-                  <option value="negative">Negative (use post-test (−) as pre-test for test 2)</option>
+                  <option value="positive" data-i18n="chain.positive">Positive (use post-test (+) as pre-test for test 2)</option>
+                  <option value="negative" data-i18n="chain.negative">Negative (use post-test (−) as pre-test for test 2)</option>
                 </select>
               </label>
               <p class="sequential-pretest" id="sequentialPretest"></p>
             </div>
             <fieldset class="confusion-matrix sequential-matrix">
-              <legend>Test 2 — confusion matrix</legend>
-              <div class="grid-container" role="group" aria-label="Diagnostic test 2 results">
+              <legend><span data-i18n="chain.matrix">Test 2 — confusion matrix</span></legend>
+              <div class="grid-container" role="group" aria-label="Diagnostic test 2 results" data-i18n-attr="aria-label=attr.diagnostic.test.2.results">
                 <span class="empty" aria-hidden="true"></span>
-                <span class="grid-header">Disease +</span>
-                <span class="grid-header">Disease −</span>
-                <label class="grid-label" for="tp2">Test +</label>
+                <span class="grid-header"><span data-i18n="matrix.disease">Disease +</span></span>
+                <span class="grid-header"><span data-i18n="matrix.disease.150">Disease −</span></span>
+                <label class="grid-label" for="tp2"><span data-i18n="matrix.test">Test +</span></label>
                 <div class="grid-item">
-                  <input type="number" id="tp2" inputmode="numeric" min="0" step="1" placeholder="True positives" aria-label="Test 2 true positives" />
+                  <input type="number" id="tp2" inputmode="numeric" min="0" step="1" placeholder="TP" aria-label="Test 2 true positives" data-i18n-attr="placeholder=attr.tp;aria-label=attr.test.2.true.positives" />
                 </div>
                 <div class="grid-item">
-                  <input type="number" id="fp2" inputmode="numeric" min="0" step="1" placeholder="False positives" aria-label="Test 2 false positives" />
+                  <input type="number" id="fp2" inputmode="numeric" min="0" step="1" placeholder="FP" aria-label="Test 2 false positives" data-i18n-attr="placeholder=attr.fp;aria-label=attr.test.2.false.positives" />
                 </div>
-                <label class="grid-label" for="fn2">Test −</label>
+                <label class="grid-label" for="fn2"><span data-i18n="matrix.test.152">Test −</span></label>
                 <div class="grid-item">
-                  <input type="number" id="fn2" inputmode="numeric" min="0" step="1" placeholder="False negatives" aria-label="Test 2 false negatives" />
+                  <input type="number" id="fn2" inputmode="numeric" min="0" step="1" placeholder="FN" aria-label="Test 2 false negatives" data-i18n-attr="placeholder=attr.fn;aria-label=attr.test.2.false.negatives" />
                 </div>
                 <div class="grid-item">
-                  <input type="number" id="tn2" inputmode="numeric" min="0" step="1" placeholder="True negatives" aria-label="Test 2 true negatives" />
+                  <input type="number" id="tn2" inputmode="numeric" min="0" step="1" placeholder="TN" aria-label="Test 2 true negatives" data-i18n-attr="placeholder=attr.tn;aria-label=attr.test.2.true.negatives" />
                 </div>
               </div>
             </fieldset>
             <div class="form-actions">
-              <button type="button" id="sequentialCalc">Calculate test 2 result</button>
-              <button type="button" id="sequentialClear" class="secondary">Clear test 2</button>
+              <button type="button" id="sequentialCalc"><span data-i18n="chain.calculate">Calculate test 2 result</span></button>
+              <button type="button" id="sequentialClear" class="secondary"><span data-i18n="chain.clear">Clear test 2</span></button>
             </div>
             <p id="sequentialFeedback" class="feedback" role="alert" aria-live="polite"></p>
             <div id="sequentialResults" class="results-grid sequential-results" aria-live="polite"></div>
           </details>
           <details id="thresholdPanel" class="threshold-panel" style="display: none;">
-            <summary><span class="summary-tag summary-tag--tool" data-i18n="panel.tag.tool">Tool</span><strong>Decision thresholds</strong> — when to test, when to treat without testing</summary>
+            <summary><strong><span data-i18n="threshold.title">Decision thresholds</span></strong></summary>
             <p class="help-text">
-              Pauker–Kassirer (1980) framework. Set the treatment threshold (the post-test probability at which you would act). Below the <em>testing</em> threshold even a positive result keeps you below the action level — testing changes nothing. Above the <em>test-treatment</em> threshold even a negative result keeps you above the action level — just treat. The "test is useful" zone is the interval between them.
+              <span data-i18n="threshold.help1">Pauker–Kassirer (1980) framework. Set the treatment threshold (the post-test probability at which you would act). Below the</span> <em><span data-i18n="threshold.help2">testing</span></em> <span data-i18n="threshold.help3">threshold even a positive result keeps you below the action level — testing changes nothing. Above the</span> <em><span data-i18n="threshold.help4">test-treatment</span></em> <span data-i18n="threshold.help5">threshold even a negative result keeps you above the action level — just treat. The "test is useful" zone is the interval between them.</span>
             </p>
             <div class="threshold-input">
               <label for="treatmentThresholdInput">
-                <span>Treatment threshold</span>
+                <span><span data-i18n="threshold.treatment">Treatment threshold</span></span>
                 <output id="treatmentThresholdValue" for="treatmentThresholdInput">30%</output>
               </label>
               <input type="range" id="treatmentThresholdInput" min="1" max="99" step="1" value="30" />
@@ -249,76 +246,76 @@
               <div class="threshold-marker threshold-marker-pre" id="thresholdMarkerPre"></div>
             </div>
             <div class="threshold-legend">
-              <span><span class="threshold-swatch threshold-zone-no"></span>Don't test</span>
-              <span><span class="threshold-swatch threshold-zone-test"></span>Test useful</span>
-              <span><span class="threshold-swatch threshold-zone-treat"></span>Treat without testing</span>
-              <span><span class="threshold-swatch threshold-swatch-pt"></span>Pt (treatment threshold)</span>
-              <span><span class="threshold-swatch threshold-swatch-pre"></span>Current pre-test</span>
+              <span><span class="threshold-swatch threshold-zone-no"></span><span data-i18n="threshold.no">Don't test</span></span>
+              <span><span class="threshold-swatch threshold-zone-test"></span><span data-i18n="threshold.useful">Test useful</span></span>
+              <span><span class="threshold-swatch threshold-zone-treat"></span><span data-i18n="threshold.treat">Treat without testing</span></span>
+              <span><span class="threshold-swatch threshold-swatch-pt"></span><span data-i18n="threshold.pt">Pt (treatment threshold)</span></span>
+              <span><span class="threshold-swatch threshold-swatch-pre"></span><span data-i18n="threshold.current">Current pre-test</span></span>
             </div>
             <div id="thresholdReadout" class="threshold-readout"></div>
           </details>
           <details id="rocPanel" class="roc-panel" style="display: none;">
-            <summary><span class="summary-tag summary-tag--tool" data-i18n="panel.tag.tool">Tool</span><strong>Build an ROC curve</strong> — combine multiple cutoffs of a continuous test</summary>
+            <summary><strong><span data-i18n="roc.title">Build an ROC curve</span></strong></summary>
             <p class="help-text">
-              For a continuous test (e.g. troponin, D-dimer, score), each candidate cutoff defines its own 2×2 table. Add one row per cutoff and the plot draws sensitivity vs (1 − specificity), the trapezoidal AUC, and highlights the cutoff with the largest Youden's J (sens + spec − 1).
+              <span data-i18n="roc.help">For a continuous test (e.g. troponin, D-dimer, score), each candidate cutoff defines its own 2×2 table. Add one row per cutoff and the plot draws sensitivity vs (1 − specificity), the trapezoidal AUC, and highlights the cutoff with the largest Youden's J (sens + spec − 1).</span>
             </p>
             <div class="roc-table-wrapper">
-              <label for="rocDirection">Positive result direction</label>
-              <select id="rocDirection"><option value="higher">Higher scores are positive</option><option value="lower">Lower scores are positive</option></select>
+              <label for="rocDirection"><span data-i18n="roc.direction">Positive result direction</span></label>
+              <select id="rocDirection"><option value="higher" data-i18n="roc.higher">Higher scores are positive</option><option value="lower" data-i18n="roc.lower">Lower scores are positive</option></select>
               <table class="roc-table">
                 <thead>
                   <tr>
-                    <th scope="col">Cutoff</th>
-                    <th scope="col">TP</th>
+                    <th scope="col"><span data-i18n="roc.cutoff">Cutoff</span></th>
+                    <th scope="col"><span data-i18n="matrix.tp">TP</span></th>
                     <th scope="col">FP</th>
                     <th scope="col">FN</th>
-                    <th scope="col">TN</th>
-                    <th scope="col" aria-label="Remove row"></th>
+                    <th scope="col"><span data-i18n="matrix.tn">TN</span></th>
+                    <th scope="col" aria-label="Remove row" data-i18n-attr="aria-label=attr.remove.row"></th>
                   </tr>
                 </thead>
                 <tbody id="rocRows"></tbody>
               </table>
             </div>
             <div class="form-actions">
-              <button type="button" id="rocAddRow">+ Add cutoff row</button>
-              <button type="button" id="rocFillSynthetic" class="secondary" title="Fit an illustrative equal-variance binormal model and generate seven simulated cutoffs.">+ Fill synthetic cutoffs</button>
-              <button type="button" id="rocReset" class="secondary">Reset rows</button>
+              <button type="button" id="rocAddRow"><span data-i18n="roc.add">+ Add cutoff row</span></button>
+              <button type="button" id="rocFillSynthetic" class="secondary" title="Fit an illustrative equal-variance binormal model and generate seven simulated cutoffs." data-i18n-attr="title=attr.fit.an.illustrative.equal.variance.binormal.model.and"><span data-i18n="roc.fill">+ Fill synthetic cutoffs</span></button>
+              <button type="button" id="rocReset" class="secondary"><span data-i18n="roc.reset">Reset rows</span></button>
             </div>
-            <canvas id="rocCanvas" width="480" height="480" role="img" aria-label="Receiver operating characteristic curve" aria-describedby="rocReadout"></canvas>
+            <canvas id="rocCanvas" width="480" height="480" role="img" aria-label="Receiver operating characteristic curve" aria-describedby="rocReadout" data-i18n-attr="aria-label=attr.receiver.operating.characteristic.curve"></canvas>
             <div id="rocReadout" class="roc-readout"></div>
           </details>
           <details id="historyPanel" class="history-panel" style="display: none;">
-            <summary><span class="summary-tag summary-tag--tool" data-i18n="panel.tag.tool">Tool</span><strong>History</strong> — last 10 calculations on this device</summary>
+            <summary><strong><span data-i18n="history.title">History</span></strong></summary>
             <p class="help-text">
-              Recent Calculate runs are saved in your browser. Click <em>Reload</em> to drop a case back into the form, tick two or more boxes to compare them side by side, or <em>Clear all</em> to wipe local storage. Nothing leaves this device.
+              <span data-i18n="history.help1">Recent Calculate runs are saved in your browser. Click</span> <em><span data-i18n="history.reload">Reload</span></em> <span data-i18n="history.help2">to drop a case back into the form, tick two or more boxes to compare them side by side, or</span> <em><span data-i18n="history.clear">Clear all</span></em> <span data-i18n="history.help3">to wipe local storage. Nothing leaves this device.</span>
             </p>
             <div id="historyCompare" class="history-compare" aria-live="polite"></div>
-            <ul id="historyList" class="history-list" aria-label="Saved calculations"></ul>
+            <ul id="historyList" class="history-list" aria-label="Saved calculations" data-i18n-attr="aria-label=attr.saved.calculations"></ul>
             <div class="form-actions">
-              <button type="button" id="historyClearAll" class="secondary">Clear all history</button>
+              <button type="button" id="historyClearAll" class="secondary"><span data-i18n="history.clearall">Clear all history</span></button>
             </div>
           </details>
           <details id="prevalenceExplorer" class="prevalence-explorer" style="display: none;">
-            <summary><span class="summary-tag summary-tag--tool" data-i18n="panel.tag.tool">Tool</span><strong>Explore prevalence sensitivity</strong> — see how PPV, NPV and post-test probabilities shift when prevalence changes</summary>
+            <summary><strong><span data-i18n="prevalence.title">Explore prevalence sensitivity</span></strong></summary>
             <p class="help-text">
-              Sensitivity and specificity are intrinsic to the test and stay fixed. Drag the slider to see how the predictive values and post-test probabilities respond if the disease were more or less common in the population you are testing.
+              <span data-i18n="prevalence.help">Sensitivity and specificity are intrinsic to the test and stay fixed. Drag the slider to see how the predictive values and post-test probabilities respond if the disease were more or less common in the population you are testing.</span>
             </p>
             <div class="prevalence-controls">
               <label for="prevalenceSlider">
-                <span>Prevalence</span>
+                <span><span data-i18n="prevalence.label">Prevalence</span></span>
                 <output id="prevalenceValue" for="prevalenceSlider">10.0%</output>
               </label>
               <input type="range" id="prevalenceSlider" min="0.1" max="100" step="0.1" value="10" aria-describedby="prevalenceValue" />
             </div>
             <div id="prevalenceReadout" class="prevalence-readout"></div>
-            <canvas id="prevalenceCanvas" width="600" height="320" aria-label="PPV and NPV as a function of prevalence"></canvas>
+            <canvas id="prevalenceCanvas" width="600" height="320" aria-label="PPV and NPV as a function of prevalence" data-i18n-attr="aria-label=attr.ppv.and.npv.as.a.function.of.prevalence"></canvas>
           </details>
           <details id="thresholdDemo" class="threshold-demo" style="display: none;">
-            <summary><span class="summary-tag summary-tag--tool" data-i18n="panel.tag.tool">Tool</span><strong data-i18n="thresholdDemo.summary">Threshold explorer</strong> — <span data-i18n="thresholdDemo.summary.sub">drag the slicer to see how TP, FP, FN, TN and all metrics shift in real time</span></summary>
+            <summary><strong data-i18n="thresholdDemo.summary">Threshold explorer</strong></summary>
             <p class="help-text" data-i18n="thresholdDemo.help">
               A continuous test produces scores for 200 individuals: 80 diseased (higher scores) and 120 healthy (lower scores), with overlap. Move the threshold slider to see how the confusion matrix and all performance metrics change in real time. There is no perfect threshold — only trade-offs.
             </p>
-            <canvas id="thresholdDemoCanvas" width="600" height="200" role="img" aria-label="Score distribution with threshold line"></canvas>
+            <canvas id="thresholdDemoCanvas" width="600" height="200" role="img" aria-label="Score distribution with threshold line" data-i18n-attr="aria-label=attr.score.distribution.with.threshold.line"></canvas>
             <div class="threshold-demo-controls">
               <label for="thresholdDemoSlider">
                 <span data-i18n="thresholdDemo.threshold">Threshold</span>
@@ -330,29 +327,29 @@
               <div class="threshold-demo-stat">
                 <div class="threshold-demo-stat-label" data-i18n="thresholdDemo.sens">Sensitivity</div>
                 <div class="threshold-demo-stat-value" id="tdSens">—</div>
-                <div class="threshold-demo-stat-sub">TP / (TP + FN)</div>
+                <div class="threshold-demo-stat-sub"><span data-i18n="matrix.tp.tp.fn">TP / (TP + FN)</span></div>
               </div>
               <div class="threshold-demo-stat">
                 <div class="threshold-demo-stat-label" data-i18n="thresholdDemo.spec">Specificity</div>
                 <div class="threshold-demo-stat-value" id="tdSpec">—</div>
-                <div class="threshold-demo-stat-sub">TN / (TN + FP)</div>
+                <div class="threshold-demo-stat-sub"><span data-i18n="matrix.tn.tn.fp">TN / (TN + FP)</span></div>
               </div>
               <div class="threshold-demo-stat">
                 <div class="threshold-demo-stat-label" data-i18n="thresholdDemo.ppv">PPV</div>
                 <div class="threshold-demo-stat-value" id="tdPpv">—</div>
-                <div class="threshold-demo-stat-sub">TP / (TP + FP)</div>
+                <div class="threshold-demo-stat-sub"><span data-i18n="matrix.tp.tp.fp">TP / (TP + FP)</span></div>
               </div>
               <div class="threshold-demo-stat">
                 <div class="threshold-demo-stat-label" data-i18n="thresholdDemo.npv">NPV</div>
                 <div class="threshold-demo-stat-value" id="tdNpv">—</div>
-                <div class="threshold-demo-stat-sub">TN / (TN + FN)</div>
+                <div class="threshold-demo-stat-sub"><span data-i18n="matrix.tn.tn.fn">TN / (TN + FN)</span></div>
               </div>
             </div>
-            <div class="threshold-demo-matrix" aria-label="Confusion matrix at current threshold">
+            <div class="threshold-demo-matrix" aria-label="Confusion matrix at current threshold" data-i18n-attr="aria-label=attr.confusion.matrix.at.current.threshold">
               <div class="threshold-demo-cell head"></div>
-              <div class="threshold-demo-cell head" data-i18n="thresholdDemo.disease">Disease +</div>
-              <div class="threshold-demo-cell head" data-i18n="thresholdDemo.healthy">Disease −</div>
-              <div class="threshold-demo-cell head" data-i18n="thresholdDemo.testpos">Test +</div>
+              <div class="threshold-demo-cell head" data-i18n="thresholdDemo.disease"><span data-i18n="matrix.disease">Disease +</span></div>
+              <div class="threshold-demo-cell head" data-i18n="thresholdDemo.healthy"><span data-i18n="matrix.disease.150">Disease −</span></div>
+              <div class="threshold-demo-cell head" data-i18n="thresholdDemo.testpos"><span data-i18n="matrix.test">Test +</span></div>
               <div class="threshold-demo-cell tp">
                 <div class="threshold-demo-cell-n" id="tdTp">0</div>
                 <div class="threshold-demo-cell-meta" data-i18n="thresholdDemo.tp">True positives</div>
@@ -361,7 +358,7 @@
                 <div class="threshold-demo-cell-n" id="tdFp">0</div>
                 <div class="threshold-demo-cell-meta" data-i18n="thresholdDemo.fp">False positives</div>
               </div>
-              <div class="threshold-demo-cell head" data-i18n="thresholdDemo.testneg">Test −</div>
+              <div class="threshold-demo-cell head" data-i18n="thresholdDemo.testneg"><span data-i18n="matrix.test.152">Test −</span></div>
               <div class="threshold-demo-cell fn">
                 <div class="threshold-demo-cell-n" id="tdFn">0</div>
                 <div class="threshold-demo-cell-meta" data-i18n="thresholdDemo.fn">False negatives</div>
@@ -379,105 +376,105 @@
       <div class="resource-grid">
       <section aria-labelledby="kappa-title" class="panel panel-docs kappa-panel">
         <div class="panel-heading">
-          <p class="panel-kicker">Companion tool</p>
-          <h2 id="kappa-title">Inter-rater agreement (Cohen's κ)</h2>
+          <p class="panel-kicker"><span data-i18n="kappa.kicker">Companion tool</span></p>
+          <h2 id="kappa-title"><span data-i18n="kappa.title">Inter-rater agreement (Cohen's κ)</span></h2>
           <p class="help-text">
-            Two raters classify the same items as positive / negative. Enter the four counts to get Cohen's κ with 95% asymptotic CI adjusted for estimated rater marginals and a Landis–Koch qualitative label. Useful for imaging or pathology cases where the "test" is a human judgement.
+            <span data-i18n="kappa.help">Two raters classify the same items as positive / negative. Enter the four counts to get Cohen's κ with 95% asymptotic CI adjusted for estimated rater marginals and a Landis–Koch qualitative label. Useful for imaging or pathology cases where the "test" is a human judgement.</span>
           </p>
         </div>
         <fieldset class="confusion-matrix kappa-matrix">
-          <legend>Rater 1 × Rater 2</legend>
-          <div class="grid-container" role="group" aria-label="Inter-rater agreement matrix">
+          <legend><span data-i18n="kappa.matrix">Rater 1 × Rater 2</span></legend>
+          <div class="grid-container" role="group" aria-label="Inter-rater agreement matrix" data-i18n-attr="aria-label=attr.inter.rater.agreement.matrix">
             <span class="empty" aria-hidden="true"></span>
-            <span class="grid-header">Rater 2 +</span>
-            <span class="grid-header">Rater 2 −</span>
-            <label class="grid-label" for="kappaBothPos">Rater 1 +</label>
+            <span class="grid-header"><span data-i18n="kappa.r2pos">Rater 2 +</span></span>
+            <span class="grid-header"><span data-i18n="kappa.r2neg">Rater 2 −</span></span>
+            <label class="grid-label" for="kappaBothPos"><span data-i18n="kappa.r1pos">Rater 1 +</span></label>
             <div class="grid-item">
-              <input type="number" id="kappaBothPos" inputmode="numeric" min="0" step="1" placeholder="Both +" aria-label="Both raters positive" />
+              <input type="number" id="kappaBothPos" inputmode="numeric" min="0" step="1" placeholder="++" aria-label="Both raters positive" data-i18n-attr="placeholder=attr.;aria-label=attr.both.raters.positive" />
             </div>
             <div class="grid-item">
-              <input type="number" id="kappaOnly1Pos" inputmode="numeric" min="0" step="1" placeholder="Only rater 1 +" aria-label="Only rater 1 positive" />
+              <input type="number" id="kappaOnly1Pos" inputmode="numeric" min="0" step="1" placeholder="+−" aria-label="Only rater 1 positive" data-i18n-attr="placeholder=attr..18;aria-label=attr.only.rater.1.positive" />
             </div>
-            <label class="grid-label" for="kappaOnly2Pos">Rater 1 −</label>
+            <label class="grid-label" for="kappaOnly2Pos"><span data-i18n="kappa.r1neg">Rater 1 −</span></label>
             <div class="grid-item">
-              <input type="number" id="kappaOnly2Pos" inputmode="numeric" min="0" step="1" placeholder="Only rater 2 +" aria-label="Only rater 2 positive" />
+              <input type="number" id="kappaOnly2Pos" inputmode="numeric" min="0" step="1" placeholder="−+" aria-label="Only rater 2 positive" data-i18n-attr="placeholder=attr..19;aria-label=attr.only.rater.2.positive" />
             </div>
             <div class="grid-item">
-              <input type="number" id="kappaBothNeg" inputmode="numeric" min="0" step="1" placeholder="Both −" aria-label="Both raters negative" />
+              <input type="number" id="kappaBothNeg" inputmode="numeric" min="0" step="1" placeholder="−−" aria-label="Both raters negative" data-i18n-attr="placeholder=attr..17;aria-label=attr.both.raters.negative" />
             </div>
           </div>
         </fieldset>
         <div class="form-actions">
-          <button type="button" id="kappaCalc">Compute κ</button>
-          <button type="button" id="kappaClear" class="secondary">Clear</button>
+          <button type="button" id="kappaCalc"><span data-i18n="kappa.calculate">Compute κ</span></button>
+          <button type="button" id="kappaClear" class="secondary"><span data-i18n="clear">Clear</span></button>
         </div>
         <div id="kappaResult" class="kappa-result" aria-live="polite"></div>
       </section>
       <section aria-labelledby="interpretation-title" class="interpretation panel panel-docs">
-        <h2 id="interpretation-title">Interpretation guide</h2>
+        <h2 id="interpretation-title"><span data-i18n="guide.title">Interpretation guide</span></h2>
         <details>
-          <summary><span class="summary-tag summary-tag--ref" data-i18n="panel.tag.ref">Reference</span>Sensitivity and specificity</summary>
+          <summary><span data-i18n="guide.sens">Sensitivity and specificity</span></summary>
           <p>
-            Quantify the test's ability to correctly identify people with and without the condition. Useful for understanding the intrinsic performance of the test. Learn more at <a href="https://en.wikipedia.org/wiki/Sensitivity_and_specificity" target="_blank" rel="noopener noreferrer">Wikipedia</a>.
+            <span data-i18n="guide.sens.help">Quantify the test's ability to correctly identify people with and without the condition. Useful for understanding the intrinsic performance of the test. Learn more at</span> <a href="https://en.wikipedia.org/wiki/Sensitivity_and_specificity" target="_blank" rel="noopener noreferrer">Wikipedia</a>.
           </p>
         </details>
         <details>
-          <summary><span class="summary-tag summary-tag--ref" data-i18n="panel.tag.ref">Reference</span>Predictive values</summary>
+          <summary><span data-i18n="guide.predictive">Predictive values</span></summary>
           <p>
-            Depend on prevalence (pre-test probability). Use them to estimate the probability that a person has or does not have the disease after a positive or negative result. See <a href="https://en.wikipedia.org/wiki/Positive_and_negative_predictive_values" target="_blank" rel="noopener noreferrer">Wikipedia</a> for further reading.
+            <span data-i18n="guide.predictive.help">Depend on prevalence (pre-test probability). Use them to estimate the probability that a person has or does not have the disease after a positive or negative result. See</span> <a href="https://en.wikipedia.org/wiki/Positive_and_negative_predictive_values" target="_blank" rel="noopener noreferrer">Wikipedia</a> <span data-i18n="guide.readmore">for further reading.</span>
           </p>
         </details>
         <details>
-          <summary><span class="summary-tag summary-tag--ref" data-i18n="panel.tag.ref">Reference</span>Likelihood ratios</summary>
+          <summary><span data-i18n="guide.lr">Likelihood ratios</span></summary>
           <p>
-            Relate the probability of a result in diseased vs. non-diseased individuals and can be applied directly in Bayes' formula to update the probability of disease. Further reference at <a href="https://en.wikipedia.org/wiki/Likelihood_ratio" target="_blank" rel="noopener noreferrer">Wikipedia</a>.
+            <span data-i18n="guide.lr.help">Relate the probability of a result in diseased vs. non-diseased individuals and can be applied directly in Bayes' formula to update the probability of disease. Further reference at</span> <a href="https://en.wikipedia.org/wiki/Likelihood_ratio" target="_blank" rel="noopener noreferrer">Wikipedia</a>.
           </p>
         </details>
         <details>
-          <summary><span class="summary-tag summary-tag--ref" data-i18n="panel.tag.ref">Reference</span>Post-test probabilities</summary>
+          <summary><span data-i18n="guide.post">Post-test probabilities</span></summary>
           <p>
-            Result from applying the LR to pre-test odds. They are crucial for clinical decisions such as initiating treatment or ordering additional tests. See also <a href="https://en.wikipedia.org/wiki/Posterior_probability" target="_blank" rel="noopener noreferrer">Wikipedia</a>.
+            <span data-i18n="guide.post.help">Result from applying the LR to pre-test odds. They are crucial for clinical decisions such as initiating treatment or ordering additional tests. See also</span> <a href="https://en.wikipedia.org/wiki/Posterior_probability" target="_blank" rel="noopener noreferrer">Wikipedia</a>.
           </p>
         </details>
       </section>
 
       <section aria-labelledby="stard-title" class="panel panel-docs stard-panel">
         <div class="panel-heading">
-          <p class="panel-kicker">Critical appraisal</p>
-          <h2 id="stard-title">STARD essentials</h2>
+          <p class="panel-kicker"><span data-i18n="stard.kicker">Critical appraisal</span></p>
+          <h2 id="stard-title"><span data-i18n="stard.title">STARD essentials</span></h2>
           <p class="help-text">
-            Numbers from a 2×2 only mean what the underlying study allows them to mean. The <a href="https://www.equator-network.org/reporting-guidelines/stard/" target="_blank" rel="noopener noreferrer">STARD 2015 checklist</a> has 30 items; six of them dominate the interpretation of sens / spec / PPV / NPV.
+            <span data-i18n="stard.intro1">Numbers from a 2×2 only mean what the underlying study allows them to mean. The</span> <a href="https://www.equator-network.org/reporting-guidelines/stard/" target="_blank" rel="noopener noreferrer"><span data-i18n="stard.link">STARD 2015 checklist</span></a> <span data-i18n="stard.intro2">has 30 items; six of them dominate the interpretation of sens / spec / PPV / NPV.</span>
           </p>
         </div>
         <details>
-          <summary><span class="summary-tag summary-tag--ref" data-i18n="panel.tag.ref">Reference</span>1. Reference standard — what counted as "truth"?</summary>
-          <p>If the gold standard is imperfect (e.g. expert consensus instead of biopsy), sensitivity and specificity are biased. Worse: if the reference standard incorporates the index test result, agreement is inflated (<em>incorporation bias</em>). Ask which standard was used and whether the index test fed into it.</p>
+          <summary><span data-i18n="stard.1">1. Reference standard — what counted as "truth"?</span></summary>
+          <p><span data-i18n="stard.1a">If the gold standard is imperfect (e.g. expert consensus instead of biopsy), sensitivity and specificity are biased. Worse: if the reference standard incorporates the index test result, agreement is inflated (</span><em><span data-i18n="stard.1b">incorporation bias</span></em><span data-i18n="stard.1c">). Ask which standard was used and whether the index test fed into it.</span></p>
         </details>
         <details>
-          <summary><span class="summary-tag summary-tag--ref" data-i18n="panel.tag.ref">Reference</span>2. Spectrum of patients — who got tested?</summary>
-          <p>Performance estimated in obvious cases ("sick" vs healthy volunteers) almost always overestimates real-world accuracy. Check whether enrolment was <em>consecutive</em> or <em>random</em>, and whether it spanned the clinical spectrum you'll apply the test to (mild, atypical, comorbid).</p>
+          <summary><span data-i18n="stard.2">2. Spectrum of patients — who got tested?</span></summary>
+          <p><span data-i18n="stard.2a">Performance estimated in obvious cases ("sick" vs healthy volunteers) almost always overestimates real-world accuracy. Check whether enrolment was</span> <em><span data-i18n="stard.2b">consecutive</span></em> <span data-i18n="stard.or">or</span> <em><span data-i18n="stard.2c">random</span></em><span data-i18n="stard.2d">, and whether it spanned the clinical spectrum you'll apply the test to (mild, atypical, comorbid).</span></p>
         </details>
         <details>
-          <summary><span class="summary-tag summary-tag--ref" data-i18n="panel.tag.ref">Reference</span>3. Verification — was the reference standard applied to everyone?</summary>
-          <p><em>Partial verification bias</em> arises when positive-index-test patients are more likely to receive the gold standard than negative ones — inflates sensitivity, deflates specificity. Look for differential or post-hoc verification protocols.</p>
+          <summary><span data-i18n="stard.3">3. Verification — was the reference standard applied to everyone?</span></summary>
+          <p><em><span data-i18n="stard.3a">Partial verification bias</span></em> <span data-i18n="stard.3b">arises when positive-index-test patients are more likely to receive the gold standard than negative ones — inflates sensitivity, deflates specificity. Look for differential or post-hoc verification protocols.</span></p>
         </details>
         <details>
-          <summary><span class="summary-tag summary-tag--ref" data-i18n="panel.tag.ref">Reference</span>4. Blinding — were readers independent?</summary>
-          <p>If the person interpreting the index test also knew the reference result (or vice versa), expect <em>review bias</em>: estimates drift toward perfect agreement. Imaging and pathology studies should explicitly report blinding between readers and from clinical context.</p>
+          <summary><span data-i18n="stard.4">4. Blinding — were readers independent?</span></summary>
+          <p><span data-i18n="stard.4a">If the person interpreting the index test also knew the reference result (or vice versa), expect</span> <em><span data-i18n="stard.4b">review bias</span></em><span data-i18n="stard.4c">: estimates drift toward perfect agreement. Imaging and pathology studies should explicitly report blinding between readers and from clinical context.</span></p>
         </details>
         <details>
-          <summary><span class="summary-tag summary-tag--ref" data-i18n="panel.tag.ref">Reference</span>5. Indeterminate results — where did the "?"s go?</summary>
-          <p>If indeterminate, missing, or excluded results were silently dropped, the 2×2 misrepresents real practice. Ask how many results fell outside the binary scheme and how they were handled (re-tested, excluded, counted as negative…).</p>
+          <summary><span data-i18n="stard.5">5. Indeterminate results — where did the "?"s go?</span></summary>
+          <p><span data-i18n="stard.5a">If indeterminate, missing, or excluded results were silently dropped, the 2×2 misrepresents real practice. Ask how many results fell outside the binary scheme and how they were handled (re-tested, excluded, counted as negative…).</span></p>
         </details>
         <details>
-          <summary><span class="summary-tag summary-tag--ref" data-i18n="panel.tag.ref">Reference</span>6. Subgroups — does one number describe everyone?</summary>
-          <p>Sensitivity / specificity often vary by age, severity, prior testing, or setting. A single 2×2 hides those differences. Check whether the authors pre-specified clinically meaningful subgroups and reported them separately.</p>
+          <summary><span data-i18n="stard.6">6. Subgroups — does one number describe everyone?</span></summary>
+          <p><span data-i18n="stard.6a">Sensitivity / specificity often vary by age, severity, prior testing, or setting. A single 2×2 hides those differences. Check whether the authors pre-specified clinically meaningful subgroups and reported them separately.</span></p>
         </details>
       </section>
       <section aria-labelledby="references-title" class="references panel panel-docs">
-        <h2 id="references-title">Resources and references</h2>
+        <h2 id="references-title"><span data-i18n="references.title">Resources and references</span></h2>
         <details>
-          <summary><span class="summary-tag summary-tag--ref" data-i18n="panel.tag.ref">Reference</span>Supporting literature</summary>
+          <summary><span data-i18n="references.literature">Supporting literature</span></summary>
           <ul class="reference-list">
             <li>
               <strong>Akobeng AK.</strong> Understanding diagnostic tests 1-3: sensitivity, specificity, and predictive values. 
@@ -497,33 +494,33 @@
           </ul>
         </details>
         <details>
-          <summary><span class="summary-tag summary-tag--ref" data-i18n="panel.tag.ref">Reference</span>Online resources</summary>
+          <summary><span data-i18n="references.online">Online resources</span></summary>
           <ul class="reference-list">
             <li>
               <strong>The Centre for Evidence-Based Medicine (CEBM):</strong> 
-              <a href="https://www.cebm.ox.ac.uk/resources/ebm-tools" target="_blank" rel="noopener noreferrer">EBM Tools and Resources</a>
+              <a href="https://www.cebm.ox.ac.uk/resources/ebm-tools" target="_blank" rel="noopener noreferrer"><span data-i18n="references.ebm">EBM Tools and Resources</span></a>
             </li>
             <li>
               <strong>StatPearls:</strong> 
-              <a href="https://www.ncbi.nlm.nih.gov/books/NBK557491/" target="_blank" rel="noopener noreferrer">Sensitivity and Specificity</a>
+              <a href="https://www.ncbi.nlm.nih.gov/books/NBK557491/" target="_blank" rel="noopener noreferrer"><span data-i18n="references.sens">Sensitivity and Specificity</span></a>
             </li>
             <li>
               <strong>Deeks JJ, Altman DG.</strong> Diagnostic tests 4: likelihood ratios. 
               <em>BMJ.</em> 2004;329(7458):168-169. 
-              <a href="https://www.bmj.com/content/329/7458/168" target="_blank" rel="noopener noreferrer">Open access</a>
+              <a href="https://www.bmj.com/content/329/7458/168" target="_blank" rel="noopener noreferrer"><span data-i18n="references.open">Open access</span></a>
             </li>
           </ul>
         </details>
         <details>
-          <summary><span class="summary-tag summary-tag--ref" data-i18n="panel.tag.ref">Reference</span>Complementary calculators</summary>
+          <summary><span data-i18n="references.calculators">Complementary calculators</span></summary>
           <ul class="reference-list">
             <li>
               <strong>MDCalc:</strong> 
-              <a href="https://www.mdcalc.com/" target="_blank" rel="noopener noreferrer">Medical calculators</a>
+              <a href="https://www.mdcalc.com/" target="_blank" rel="noopener noreferrer"><span data-i18n="references.medical">Medical calculators</span></a>
             </li>
             <li>
               <strong>ClinCalc:</strong> 
-              <a href="https://clincalc.com/Stats/SampleSize.aspx" target="_blank" rel="noopener noreferrer">Diagnostic Test Calculator</a>
+              <a href="https://clincalc.com/Stats/SampleSize.aspx" target="_blank" rel="noopener noreferrer"><span data-i18n="references.diagnostic">Diagnostic Test Calculator</span></a>
             </li>
           </ul>
         </details>
@@ -555,16 +552,16 @@
     </main>
     <footer>
       <p>
-        DIAGCALC is a diagnostic test performance calculator created for educational purposes and training of healthcare students.
+        <span data-i18n="footer.education">DIAGCALC is a diagnostic test performance calculator created for educational purposes and training of healthcare students.</span>
       </p>
       <p>
-        Any analyses, results and conclusions may not be used, interpreted or generalised beyond this specific context.
+        <span data-i18n="footer.scope">Any analyses, results and conclusions may not be used, interpreted or generalised beyond this specific context.</span>
       </p>
       <p class="privacy-note">
-        🔒 All calculations run locally in your browser. No inputs, datasets, or results leave this device.
+        <span data-i18n="footer.privacy">🔒 All calculations run locally in your browser. No inputs, datasets, or results leave this device.</span>
       </p>
       <p>
-        &copy; 2025 — MIT Licence — Developed by <a href="https://tiagojct.eu">Tiago Jacinto</a>. <a href="mailto:tiagojacinto@med.up.pt">Contact</a>
+        <span data-i18n="footer.credit">&copy; 2025 — MIT Licence — Developed by</span> <a href="https://tiagojct.eu">Tiago Jacinto</a>. <a href="mailto:tiagojacinto@med.up.pt"><span data-i18n="footer.contact">Contact</span></a>
       </p>
     </footer>
     <script src="lib/diagcalc-i18n.js"></script>

@@ -53,6 +53,7 @@ test("malformed and injected history cannot crash or inject HTML", async ({ page
   await page.evaluate(() => {
     const entry = JSON.parse(localStorage.getItem("diagcalc-history"))[0];
     entry.label = "<img src=x onerror='window.injected=true'>";
+    entry.datasetKey = null;
     localStorage.setItem("diagcalc-history", JSON.stringify([null, {}, entry]));
   });
   await page.reload();

@@ -218,7 +218,7 @@ test("terminal reports include engine, correction mode, provenance and bias warn
   const state = { input: dataset, activeDatasetKey: "ddimer", activeCaseLabel: dataset.name };
   for (const render of [buildTextExport, buildMarkdownExport]) {
     const text = render(state, core.calculateMetrics(dataset), core.validateInputs(dataset));
-    assert.match(text, /Engine 5\.0\.0; continuity correction: auto/);
+    assert.ok(text.includes(`Engine ${require("../package.json").version}; continuity correction: auto`));
     assert.match(text, /Illustrative teaching counts/);
   }
 });

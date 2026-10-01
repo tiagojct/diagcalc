@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "targets": {
+    "reference-material": {
+      "targetKind": "existing-ui",
+      "projectId": "d8d8e467-4340-4aac-baa0-8a244ae2bfca",
+      "activeDraftId": "2704480b-6991-4c62-9fc3-8c51722fc5ce",
+      "designSystemPath": ".superdesign/design-system.md",
+      "contextFiles": [
+        ".superdesign/design-system.md",
+        "index.html",
+        "styles.css:1:90",
+        "styles.css:2620:2724"
+      ],
+      "fingerprints": {
+        ".superdesign/design-system.md": "7e5caf28c8ca9ea26085df9663b0f14d7ac79002d61a2897665a50f2cb1c1039",
+        "index.html": "2895c177ab3f2283b78a332ec2f59a7dc1d1836f90080c07c373a148668ed177",
+        "styles.css": "6b27400baa7939de1288093c07b8d426af8efbd550c311159697061c547756c2"
+      },
+      "drafts": {
+        "2704480b-6991-4c62-9fc3-8c51722fc5ce": {
+          "title": "Referência clínica — grelha corrigida",
+          "visualDirection": "neutral clinical reference; system fonts, two columns, complete pt-PT",
+          "currentVersion": 2
+        }
+      },
+      "updatedAt": "2026-10-01T15:12:45.450893+00:00"
+    }
+  }
+}

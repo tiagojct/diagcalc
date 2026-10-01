@@ -94,7 +94,7 @@ window.DiagcalcCharts = (() => {
 
     // Tick labels
     ctx.fillStyle = mutedColor;
-    ctx.font = "10px 'JetBrains Mono', ui-monospace, monospace";
+    ctx.font = "10px ui-monospace, monospace";
     for (const t of [0, 0.25, 0.5, 0.75, 1]) {
       ctx.textAlign = "center";
       ctx.fillText(`${(t * 100).toFixed(0)}`, px(t), margin.top + plotH + 14);
@@ -103,13 +103,13 @@ window.DiagcalcCharts = (() => {
     }
 
     ctx.fillStyle = textColor;
-    ctx.font = "11px 'Atkinson Hyperlegible Next', system-ui, sans-serif";
+    ctx.font = "11px Arial, sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText("1 − specificity (FPR, %)", margin.left + plotW / 2, H - 8);
+    ctx.fillText(window.DiagcalcI18n.text("1 − specificity (FPR, %)"), margin.left + plotW / 2, H - 8);
     ctx.save();
     ctx.translate(14, margin.top + plotH / 2);
     ctx.rotate(-Math.PI / 2);
-    ctx.fillText("Sensitivity (TPR, %)", 0, 0);
+    ctx.fillText(window.DiagcalcI18n.text("Sensitivity (TPR, %)"), 0, 0);
     ctx.restore();
 
     // ROC line from (0,0) through points (sorted) to (1,1)
@@ -141,11 +141,11 @@ window.DiagcalcCharts = (() => {
       if (!hasCutoff && !isOptimal) continue;
       const labelText = hasCutoff
         ? (typeof p.cutoff === "number" ? p.cutoff.toString() : String(p.cutoff))
-        : "best";
+        : window.DiagcalcI18n.text("best");
       ctx.fillStyle = isOptimal ? textColor : mutedColor;
       ctx.font = isOptimal
-        ? "10px 'JetBrains Mono', ui-monospace, monospace"
-        : "9px 'JetBrains Mono', ui-monospace, monospace";
+        ? "10px ui-monospace, monospace"
+        : "9px ui-monospace, monospace";
       // Place labels outside the curve: upper-left of high-FPR points
       // (which sit near the top-right of the plot), lower-right of the rest.
       // Keeps text off both the curve line and the chance diagonal.
@@ -164,7 +164,7 @@ window.DiagcalcCharts = (() => {
     // AUC label inside plot
     ctx.fillStyle = textColor;
     ctx.textAlign = "right";
-    ctx.font = "12px 'JetBrains Mono', ui-monospace, monospace";
+    ctx.font = "12px ui-monospace, monospace";
     ctx.fillText(`AUC = ${roc.auc.toFixed(3)}`, margin.left + plotW - 8, margin.top + plotH - 10);
   }
 
@@ -198,16 +198,16 @@ window.DiagcalcCharts = (() => {
     ctx.stroke();
 
     ctx.fillStyle = textColor;
-    ctx.font = "11px 'Atkinson Hyperlegible Next', system-ui, sans-serif";
+    ctx.font = "11px Arial, sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText("Prevalence (%)", margin.left + plotW / 2, H - 10);
+    ctx.fillText(window.DiagcalcI18n.text("Prevalence (%)"), margin.left + plotW / 2, H - 10);
     ctx.save();
     ctx.translate(14, margin.top + plotH / 2);
     ctx.rotate(-Math.PI / 2);
-    ctx.fillText("Predictive value (%)", 0, 0);
+    ctx.fillText(window.DiagcalcI18n.text("Predictive value (%)"), 0, 0);
     ctx.restore();
 
-    ctx.font = "10px 'JetBrains Mono', ui-monospace, monospace";
+    ctx.font = "10px ui-monospace, monospace";
     ctx.fillStyle = mutedColor;
     ctx.strokeStyle = axisColor;
     for (const t of [0, 25, 50, 75, 100]) {
@@ -264,15 +264,15 @@ window.DiagcalcCharts = (() => {
     ctx.setLineDash([]);
 
     ctx.textAlign = "left";
-    ctx.font = "11px 'Atkinson Hyperlegible Next', system-ui, sans-serif";
+    ctx.font = "11px Arial, sans-serif";
     ctx.fillStyle = ppvColor;
     ctx.fillRect(margin.left + 8, margin.top + 4, 14, 3);
     ctx.fillStyle = textColor;
-    ctx.fillText("PPV", margin.left + 26, margin.top + 9);
+    ctx.fillText(window.DiagcalcI18n.text("PPV"), margin.left + 26, margin.top + 9);
     ctx.fillStyle = npvColor;
     ctx.fillRect(margin.left + 66, margin.top + 4, 14, 3);
     ctx.fillStyle = textColor;
-    ctx.fillText("NPV", margin.left + 84, margin.top + 9);
+    ctx.fillText(window.DiagcalcI18n.text("NPV"), margin.left + 84, margin.top + 9);
   }
 
   function drawFagan(canvas, data) {
@@ -295,7 +295,7 @@ window.DiagcalcCharts = (() => {
     for (let i = 0; i < 3; i += 1) {
       ctx.beginPath(); ctx.moveTo(xs[i], top); ctx.lineTo(xs[i], bottom); ctx.stroke();
       ctx.textAlign = "center";
-      ctx.fillText(["Pre-test", "LR", "Post-test"][i], xs[i], top - 20);
+      ctx.fillText([window.DiagcalcI18n.text("Pre-test"), "LR", window.DiagcalcI18n.text("Post-test")][i], xs[i], top - 20);
     }
     ctx.font = "9px ui-monospace, monospace";
     for (const probability of [0.001, 0.01, 0.1, 0.5, 0.9, 0.99, 0.999]) {
@@ -331,8 +331,8 @@ window.DiagcalcCharts = (() => {
     }
     ctx.fillStyle = colour("--text-muted");
     ctx.textAlign = "center";
-    ctx.fillText("Pre-test odds × LR = post-test odds", width / 2, height - 35);
-    if (offScale) ctx.fillText("Off-scale / undefined: see values above", width / 2, height - 16);
+    ctx.fillText(window.DiagcalcI18n.text("Pre-test odds × LR = post-test odds"), width / 2, height - 35);
+    if (offScale) ctx.fillText(window.DiagcalcI18n.text("Off-scale / undefined: see values above"), width / 2, height - 16);
   }
 
   return { prepareCanvas, clearCanvas, createScheduler, drawROC, drawPrevalence, drawFagan };

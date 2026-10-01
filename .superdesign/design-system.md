@@ -1,0 +1,5 @@
+# DIAGCALC — clinical reference tool
+Purpose: enter a 2x2 table, understand test performance and Bayesian updating, inspect teaching tools. Browser static and keyboard accessible, EN/PT-PT.
+Direction: sober editorial utility. White neutral surfaces, graphite text, restrained navy actions. System sans (Segoe UI/Helvetica/Arial), tabular numerals. No gradient, blur, floating cards, oversized heading, promotional hero, decorative icon, emoji, pill or repeated badges.
+Layout: input/results split on wide screens, one column on small screens. Reference sections max two columns; kappa spans both with explanation left and numeric matrix right. Rules and spacing express hierarchy. Native details summaries brief, plain, consistent. Matrices use minmax(0,1fr) and short cell placeholders. Borders 1–2px, corners4px, no shadows. Touch controls44px. Typographic scale14/16/18/22/28px. Muted text remains AA. Dark mode uses charcoal/navy and offwhite.
+Motion: colour changes only, respect reduced motion. No additional runtime browser dependencies.

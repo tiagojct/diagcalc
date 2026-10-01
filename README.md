@@ -71,7 +71,7 @@ These cases are included to support teaching across different prevalence setting
 
 ## Web App
 
-The web app is static. It does not need a build step.
+The web app is static. It does not need a build step. Its interface is available in English and European Portuguese, including scenarios, validation, history and chart labels. System fonts avoid external font downloads; neutral light/dark themes and responsive matrix tracks keep the calculator readable on phones, tablets and desktop screens.
 
 It is intended for teaching sessions, demonstrations, and direct interactive exploration.
 

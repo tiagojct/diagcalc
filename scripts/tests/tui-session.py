@@ -75,7 +75,7 @@ with tempfile.TemporaryDirectory(prefix="diagcalc-tui-") as folder:
         send(b"\x7f" * 200 + str(report).encode() + b"\r", 0.5)
         wait_until(report.exists, "UI did not export its report")
         content = report.read_text()
-        assert "Engine 5.0.0" in content, content
+        assert "Engine " + json.loads((root / "package.json").read_text())["version"] in content, content
         assert "100.0%" in content, content
         assert "Validation:" not in content, content
         snapshot = json.loads(content.split("Reproducible snapshot (JSON)\n", 1)[1])

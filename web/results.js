@@ -27,7 +27,7 @@ function renderMetricCard(metric, opts) {
     const ci = document.createElement("p");
     ci.className = "result-ci";
     const fmt = window.DiagcalcCore.formatValue;
-    ci.textContent = `95% CI: ${fmt(metric.ci.lower, metric.formatter)} – ${fmt(metric.ci.upper, metric.formatter)}`;
+    ci.textContent = window.DiagcalcI18n.t("ci", { lower: fmt(metric.ci.lower, metric.formatter), upper: fmt(metric.ci.upper, metric.formatter) });
     card.appendChild(ci);
   }
 
@@ -52,7 +52,7 @@ function renderInlineBar(value, variant) {
   fill.style.width = `${pct}%`;
   wrap.appendChild(fill);
   wrap.setAttribute("role", "img");
-  wrap.setAttribute("aria-label", `${pct.toFixed(1)} percent of 100`);
+  wrap.setAttribute("aria-label", window.DiagcalcI18n.t("bar.aria", { percent: pct.toFixed(1) }));
   return wrap;
 }
 
@@ -79,7 +79,8 @@ function bandPosition(value, stops) {
 }
 
 function renderBand(metric, kind) {
-  const def = BAND_DEFS[kind];
+  const sourceDef = BAND_DEFS[kind];
+  const def = sourceDef ? { ...sourceDef, labels: sourceDef.labels.map((label) => window.DiagcalcI18n.text(label)) } : null;
   if (!def) return document.createComment(`unknown band: ${kind}`);
   const wrap = document.createElement("div");
   wrap.className = `result-band result-band--${kind}`;
@@ -100,7 +101,7 @@ function renderBand(metric, kind) {
 
   // Underlying tier labels — visible on hover via CSS, always read by AT.
   const ariaTier = def.labels[Math.min(def.labels.length - 1, Math.floor(pos / (100 / def.labels.length)))] || def.labels[0];
-  wrap.setAttribute("aria-label", `${metric.label}: ${ariaTier} tier`);
+  wrap.setAttribute("aria-label", window.DiagcalcI18n.t("band.aria", { metric: metric.label, tier: ariaTier }));
 
   return wrap;
 }
@@ -154,8 +155,8 @@ function renderBayesianUpdate(container, metrics) {
   const fmtLR = window.DiagcalcCore.formatLikelihood;
   const pre = metrics.preTestProbability.value;
   const rows = [
-    { to: metrics.postTestPositive.value, label: "Positive test", lr: metrics.lrPositive.value, variant: "warm" },
-    { to: metrics.postTestNegative.value, label: "Negative test", lr: metrics.lrNegative.value, variant: "cool" },
+    { to: metrics.postTestPositive.value, label: window.DiagcalcI18n.text("Positive test"), lr: metrics.lrPositive.value, variant: "warm" },
+    { to: metrics.postTestNegative.value, label: window.DiagcalcI18n.text("Negative test"), lr: metrics.lrNegative.value, variant: "cool" },
   ];
 
   const preVal = Number.isFinite(pre) ? Math.min(1, Math.max(0, pre)) : 0;
@@ -183,7 +184,7 @@ function renderBayesianUpdate(container, metrics) {
     axis.setAttribute("role", "img");
     axis.setAttribute(
       "aria-label",
-      `${row.label}: pre-test ${fmtPct(pre)}, post-test ${fmtPct(row.to)}, likelihood ratio ${fmtLR(row.lr)}.`
+      window.DiagcalcI18n.t("bayes.aria", { label: row.label, pre: fmtPct(pre), post: fmtPct(row.to), lr: fmtLR(row.lr) })
     );
 
     const lo = Math.min(prePct, toPct);
@@ -198,13 +199,13 @@ function renderBayesianUpdate(container, metrics) {
     const preMarker = document.createElement("span");
     preMarker.className = "bayesian-axis-pre";
     preMarker.style.left = `${prePct}%`;
-    preMarker.title = `Pre-test ${fmtPct(pre)}`;
+    preMarker.title = window.DiagcalcI18n.t("bayes.pre", { value: fmtPct(pre) });
     axis.appendChild(preMarker);
 
     const postMarker = document.createElement("span");
     postMarker.className = "bayesian-axis-post";
     postMarker.style.left = `${toPct}%`;
-    postMarker.title = `Post-test ${fmtPct(row.to)}`;
+    postMarker.title = window.DiagcalcI18n.t("bayes.post", { value: fmtPct(row.to) });
     axis.appendChild(postMarker);
 
     const fromLabel = document.createElement("span");

@@ -4,3 +4,6 @@ public/
 playwright-report/
 test-results/
 *.tgz
+
+.superdesign/tmp/
+.superdesign/init/
