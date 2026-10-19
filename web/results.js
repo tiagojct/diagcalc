@@ -23,11 +23,18 @@ function renderMetricCard(metric, opts) {
     card.appendChild(renderBand(metric, o.band));
   }
 
-  if (metric.ci) {
+  if (metric.ci && !o.hideCi) {
     const ci = document.createElement("p");
     ci.className = "result-ci";
     const fmt = window.DiagcalcCore.formatValue;
-    ci.textContent = window.DiagcalcI18n.t(metric.ci.corrected ? "ci.corrected" : "ci", { lower: fmt(metric.ci.lower, metric.formatter), upper: fmt(metric.ci.upper, metric.formatter) });
+    const full = window.DiagcalcI18n.t(metric.ci.corrected ? "ci.corrected" : "ci", { lower: fmt(metric.ci.lower, metric.formatter), upper: fmt(metric.ci.upper, metric.formatter) });
+    ci.textContent = o.compactCi
+      ? `${fmt(metric.ci.lower, metric.formatter)}–${fmt(metric.ci.upper, metric.formatter)}`
+      : full;
+    if (o.compactCi) {
+      ci.title = full;
+      ci.setAttribute("aria-label", full);
+    }
     card.appendChild(ci);
   }
 
@@ -131,7 +138,7 @@ function renderHeadline(container, metrics) {
   ];
   for (const { metric, accent, barVariant } of items) {
     container.appendChild(renderMetricCard(metric, {
-      size: "lg", accent, hideNote: true, bar: true, barVariant,
+      size: "lg", accent, hideNote: true, compactCi: true, bar: true, barVariant,
     }));
   }
 }
@@ -152,7 +159,7 @@ function renderSecondary(container, metrics) {
   ];
   for (const item of items) {
     const { metric, ...chart } = item;
-    container.appendChild(renderMetricCard(metric, { size: "sm", ...chart }));
+    container.appendChild(renderMetricCard(metric, { size: "sm", hideNote: true, ...chart }));
   }
 }
 

@@ -2,6 +2,24 @@
 
 Todas as alterações relevantes deste projeto são registadas aqui. As datas seguem o formato ISO (AAAA-MM-DD).
 
+## [5.2.1] - 2026-10-19
+
+### Alterado
+- O separador **Explorar** passa a uma única coluna de ferramentas com regras horizontais; os painéis deixam de se esticar para a altura do vizinho e os gráficos mantêm a proporção original.
+- O **Fagan** usa uma grelha de duas colunas no desktop (nomograma e leitura) e empilha no tablet/telefone; a ROC fica centrada num máximo de 520 px.
+- **Aprender** passa a ter duas colunas independentes, eliminando o vazio deixado pela secção de interpretação mais curta.
+- O destaque de resultados mostra intervalos compactos numa linha e o ledger concentra-se em valores, intervalos e bandas, reduzindo a altura sem perder os IC.
+- Até 1240 px, o destaque de resultados usa 2×2 em vez de quatro colunas apertadas.
+
+### Corrigido
+- O formulário tinha espaçamento duplicado (gap da grelha + margens dos filhos); os selects deixaram de herdar o estilo de etiqueta em maiúsculas e passaram a 14 px.
+- A grelha de Aprender deixou de duplicar a regra superior e o afastamento de 80 px.
+- O painel de prevalência e o nomograma deixaram de ser esticados horizontalmente pelo `height`/`max-height` fixos.
+- A primeira dobra mostra a folha de caso mais curta e o rail completo no ecrã de 900 px.
+
+### Técnico
+- Sem alterações ao motor de cálculo, ao CLI/TUI ou ao schema 2 do histórico; testes de browser, contratos e terminal reexecutados.
+
 ## [5.2.0] - 2026-10-19
 
 ### Adicionado

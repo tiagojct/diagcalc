@@ -14,7 +14,7 @@
         <div class="brand-block">
           <h1 class="brand">DIAGCALC</h1>
           <p class="brand-sub" data-i18n="page.h1">Diagnostic test calculator</p>
-          <span class="app-version"><span class="visually-hidden" data-i18n="attr.version">version</span> v5.2.0</span>
+          <span class="app-version"><span class="visually-hidden" data-i18n="attr.version">version</span> v5.2.1</span>
           <span class="app-case" id="appCaseStrip" data-i18n="app.case.empty">No case yet</span>
         </div>
         <div class="app-controls">
@@ -185,19 +185,6 @@
             <canvas id="prevalenceCanvas" width="600" height="320" role="img" aria-label="PPV and NPV as a function of prevalence" aria-describedby="prevalenceReadout" data-i18n-attr="aria-label=attr.ppv.and.npv.as.a.function.of.prevalence"></canvas>
           </details>
 
-          <div id="faganNomogram" class="tool tool--fagan" style="display: none;">
-            <h3 data-i18n="fagan.h">Fagan Nomogram</h3>
-            <p class="help-text" data-i18n="fagan.help">Calibrated logarithmic axes: pre-test odds × LR = post-test odds. Off-scale or undefined values are shown in the summary.</p>
-            <canvas id="faganCanvas" width="600" height="400" role="img" aria-label="Fagan nomogram" aria-describedby="faganSummary" data-i18n-attr="aria-label=attr.fagan.nomogram"></canvas>
-            <dl id="faganSummary" class="fagan-summary">
-              <div class="fagan-summary-item"><dt data-i18n="fagan.pre">Pre-test</dt><dd id="faganPreValue">—</dd></div>
-              <div class="fagan-summary-item"><dt data-i18n="fagan.lrpos">LR+</dt><dd id="faganLrPosValue">—</dd></div>
-              <div class="fagan-summary-item"><dt data-i18n="fagan.lrneg">LR−</dt><dd id="faganLrNegValue">—</dd></div>
-              <div class="fagan-summary-item"><dt data-i18n="fagan.postpos">Post-test (+)</dt><dd id="faganPostPosValue">—</dd></div>
-              <div class="fagan-summary-item"><dt data-i18n="fagan.postneg">Post-test (−)</dt><dd id="faganPostNegValue">—</dd></div>
-            </dl>
-          </div>
-
           <details id="sequentialTest" class="tool" style="display: none;">
             <summary><span data-i18n="chain.title">Chain a second test</span></summary>
             <p class="help-text" data-i18n="chain.help">Real diagnostic workflows often chain tests (e.g. D-dimer → CT-PA, rapid antigen → PCR, screen → confirm). Choose which result of the first test you are following up on, then enter the second test's confusion matrix. The second test's pre-test probability is set automatically.</p>
@@ -256,7 +243,7 @@
             <div id="thresholdReadout" class="threshold-readout" role="status" aria-live="polite"></div>
           </details>
 
-          <details id="rocPanel" class="tool tool--wide" style="display: none;">
+          <details id="rocPanel" class="tool" style="display: none;">
             <summary><span data-i18n="roc.title">Build an ROC curve</span></summary>
             <p class="help-text" data-i18n="roc.help">For a continuous test (e.g. troponin, D-dimer, score), each candidate cutoff defines its own 2×2 table. Add one row per cutoff and the plot draws sensitivity vs (1 − specificity), the trapezoidal AUC, and highlights the cutoff with the largest Youden's J (sens + spec − 1).</p>
             <div class="roc-table-wrapper">
@@ -276,7 +263,7 @@
             <div id="rocReadout" class="roc-readout" role="status" aria-live="polite"></div>
           </details>
 
-          <details id="thresholdDemo" class="tool tool--wide" style="display: none;">
+          <details id="thresholdDemo" class="tool" style="display: none;">
             <summary><span data-i18n="thresholdDemo.summary">Threshold explorer</span></summary>
             <p class="help-text" data-i18n="thresholdDemo.help">A continuous test produces scores for 200 individuals, with group sizes adapted to the current case prevalence. Move the threshold slider to see how the confusion matrix and all performance metrics change in real time. There is no perfect threshold — only trade-offs.</p>
             <canvas id="thresholdDemoCanvas" width="600" height="200" role="img" aria-label="Score distribution with threshold line" aria-describedby="thresholdDemoStats thresholdDemoNote" data-i18n-attr="aria-label=attr.score.distribution.with.threshold.line"></canvas>
@@ -303,6 +290,21 @@
             </div>
             <p id="thresholdDemoNote" class="threshold-demo-note" aria-live="polite"></p>
           </details>
+
+          <div id="faganNomogram" class="tool" style="display: none;">
+            <h3 data-i18n="fagan.h">Fagan Nomogram</h3>
+            <p class="help-text" data-i18n="fagan.help">Calibrated logarithmic axes: pre-test odds × LR = post-test odds. Off-scale or undefined values are shown in the summary.</p>
+            <div class="fagan-layout">
+              <canvas id="faganCanvas" width="600" height="400" role="img" aria-label="Fagan nomogram" aria-describedby="faganSummary" data-i18n-attr="aria-label=attr.fagan.nomogram"></canvas>
+              <dl id="faganSummary" class="fagan-summary">
+                <div class="fagan-summary-item"><dt data-i18n="fagan.pre">Pre-test</dt><dd id="faganPreValue">—</dd></div>
+                <div class="fagan-summary-item"><dt data-i18n="fagan.lrpos">LR+</dt><dd id="faganLrPosValue">—</dd></div>
+                <div class="fagan-summary-item"><dt data-i18n="fagan.lrneg">LR−</dt><dd id="faganLrNegValue">—</dd></div>
+                <div class="fagan-summary-item"><dt data-i18n="fagan.postpos">Post-test (+)</dt><dd id="faganPostPosValue">—</dd></div>
+                <div class="fagan-summary-item"><dt data-i18n="fagan.postneg">Post-test (−)</dt><dd id="faganPostNegValue">—</dd></div>
+              </dl>
+            </div>
+          </div>
 
           <section class="tool kappa-panel" aria-labelledby="kappa-title">
             <h3 id="kappa-title" data-i18n="kappa.title">Inter-rater agreement (Cohen's κ)</h3>
@@ -333,6 +335,7 @@
           <p class="help-text" data-i18n="learn.help">The calculation is only the start. These notes explain what the numbers mean, what can bias them, and where to read further.</p>
         </div>
         <div class="resource-grid learn-grid">
+          <div class="learn-col">
           <section aria-labelledby="interpretation-title" class="learn-section interpretation">
             <h2 id="interpretation-title" data-i18n="guide.title">Interpretation guide</h2>
             <details><summary data-i18n="guide.sens">Sensitivity and specificity</summary><p><span data-i18n="guide.sens.help">Quantify the test's ability to correctly identify people with and without the condition. Useful for understanding the intrinsic performance of the test. Learn more at</span> <a href="https://en.wikipedia.org/wiki/Sensitivity_and_specificity" target="_blank" rel="noopener noreferrer">Wikipedia</a>.</p></details>
@@ -351,7 +354,9 @@
             <details><summary data-i18n="stard.5">5. Indeterminate results — where did the "?"s go?</summary><p><span data-i18n="stard.5a">If indeterminate, missing, or excluded results were silently dropped, the 2×2 misrepresents real practice. Ask how many results fell outside the binary scheme and how they were handled (re-tested, excluded, counted as negative…).</span></p></details>
             <details><summary data-i18n="stard.6">6. Subgroups — does one number describe everyone?</summary><p><span data-i18n="stard.6a">Sensitivity / specificity often vary by age, severity, prior testing, or setting. A single 2×2 hides those differences. Check whether the authors pre-specified clinically meaningful subgroups and reported them separately.</span></p></details>
           </section>
+          </div>
 
+          <div class="learn-col">
           <section aria-labelledby="references-title" class="learn-section references">
             <h2 id="references-title" data-i18n="references.title">Resources and references</h2>
             <details><summary data-i18n="references.literature">Supporting literature</summary><ul class="reference-list">
@@ -379,6 +384,7 @@
               <div><h3 data-i18n="intro.highlight3.h">Guided interpretation</h3><p data-i18n="intro.highlight3.p">Results explained to support self-directed learning.</p></div>
             </div>
           </section>
+          </div>
         </div>
       </section>
 
