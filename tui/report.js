@@ -5,20 +5,27 @@ const datasetStore = require("../lib/diagcalc-datasets");
 const { renderConfidence } = require("./presentation");
 const displayValue = (value) => Number.isFinite(value) ? String(value) : "—";
 const formatPreTest = (value) => core.formatPercentage(value / 100);
+const rawValue = (state, key) => {
+  const raw = state.rawInput && state.rawInput[key];
+  return typeof raw === "string" && raw.trim() !== "" ? raw.trim() : "—";
+};
 
 function buildTextExport(state, metrics, validation) {
+  const useRaw = !validation.valid || !metrics;
+  const cell = (key) => useRaw ? rawValue(state, key) : displayValue(state.input[key]);
+  const preTest = useRaw ? rawValue(state, "preTestProb") : formatPreTest(state.input.preTestProb);
   const lines = [
     `DIAGCALC - ${state.activeCaseLabel}`,
     "",
     `Engine ${meta.version}; continuity correction: auto`,
     "Confusion matrix",
-    `  TP ${displayValue(state.input.tp)}   FP ${displayValue(state.input.fp)}`,
-    `  FN ${displayValue(state.input.fn)}   TN ${displayValue(state.input.tn)}`,
-    `  Pre-test probability ${formatPreTest(state.input.preTestProb)}`,
+    `  TP ${cell("tp")}   FP ${cell("fp")}`,
+    `  FN ${cell("fn")}   TN ${cell("tn")}`,
+    `  Pre-test probability ${preTest}`,
     "",
   ];
 
-  if (!validation.valid || !metrics) {
+  if (useRaw) {
     lines.push(`Validation: ${validation.message}`);
     return `${lines.join("\n")}\n`;
   }
@@ -31,6 +38,9 @@ function buildTextExport(state, metrics, validation) {
 }
 
 function buildMarkdownExport(state, metrics, validation) {
+  const useRaw = !validation.valid || !metrics;
+  const cell = (key) => useRaw ? rawValue(state, key) : displayValue(state.input[key]);
+  const preTest = useRaw ? rawValue(state, "preTestProb") : formatPreTest(state.input.preTestProb);
   const lines = [
     `# DIAGCALC - ${state.activeCaseLabel}`,
     "",
@@ -39,14 +49,14 @@ function buildMarkdownExport(state, metrics, validation) {
     "",
     "|                | Disease + | Disease - |",
     "|----------------|-----------|-----------|",
-    `| Test +         | ${displayValue(state.input.tp)} | ${displayValue(state.input.fp)} |`,
-    `| Test -         | ${displayValue(state.input.fn)} | ${displayValue(state.input.tn)} |`,
+    `| Test +         | ${cell("tp")} | ${cell("fp")} |`,
+    `| Test -         | ${cell("fn")} | ${cell("tn")} |`,
     "",
-    `Pre-test probability: ${formatPreTest(state.input.preTestProb)}`,
+    `Pre-test probability: ${preTest}`,
     "",
   ];
 
-  if (!validation.valid || !metrics) {
+  if (useRaw) {
     lines.push("## Validation");
     lines.push("");
     lines.push(validation.message);

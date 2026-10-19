@@ -7,6 +7,13 @@ function sanitiseRawInput(fieldKey, rawValue) {
   return rawValue.trim();
 }
 
+// Escape braces before interpolating untrusted text into blessed widgets
+// configured with tags:true. Without this, typing "{red-fg}" can recolour or
+// hide subsequent terminal output.
+function escapeTags(value) {
+  return String(value).replace(/[{}]/g, (character) => character === "{" ? "{open}" : "{close}");
+}
+
 function isAcceptedCharacter(fieldKey, character, current) {
   if (fieldKey === "preTestProb") {
     if (/^[0-9]$/.test(character)) {
@@ -21,4 +28,4 @@ function isAcceptedCharacter(fieldKey, character, current) {
   return /^[0-9]$/.test(character);
 }
 
-module.exports = { sanitiseRawInput, isAcceptedCharacter };
+module.exports = { sanitiseRawInput, escapeTags, isAcceptedCharacter };

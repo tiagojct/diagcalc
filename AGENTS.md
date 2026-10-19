@@ -1,15 +1,18 @@
 # AGENTS.md — diagcalc
 
+Read `DESIGN.md` before changing the browser interface; it owns the Probability Rail visual system and its tokens. Read `PRODUCT.md` for product truth.
+
 ## Architecture and running
 
 The static browser, plain CLI and Blessed TUI share `lib/` UMD modules. Browser assets load directly from `index.html`, including via `file://`, without compilation or runtime dependencies. Node 22+ is required for terminal/development tools. Blessed is the only runtime npm dependency.
 
 - `lib/diagcalc-core.js`: validation and numeric calculation; `calculateResults` returns data, `calculateMetrics` is the presentation compatibility adapter.
 - `lib/diagcalc-presentation.js`: metric labels/notes in English and pt-PT.
+- `lib/diagcalc-i18n.js`: browser translation tables, DOM application and relocalisation.
 - `lib/diagcalc-case.js`, `diagcalc-meta.js`: versioned snapshots and explicit exceptional-number encoding.
 - `lib/diagcalc-datasets.js`: frozen teaching scenarios and provenance; consult `docs/PROVENANCE.md`.
 - `lib/diagcalc-storage.js`, `diagcalc-geometry.js`: safe preference storage and pure chart geometry.
-- `script.js`: browser state/events; `web/results.js` and `web/charts.js`: rendering/lifecycle.
+- `script.js`: browser state/events and tab navigation; `web/results.js`, `web/charts.js` and `web/rail.js`: rendering and lifecycle. `web/rail.css` owns the Probability Rail design layer; `web/fonts/` holds the self-hosted IBM Plex files.
 - `bin/diagcalc.js`: strict CLI; `tui/`: terminal interaction, presentation and reports.
 
 Keep DOM/terminal access out of shared calculation modules. Preserve CommonJS and browser-global loading. Do not introduce a browser bundler.

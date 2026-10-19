@@ -33,6 +33,11 @@ test("every local stylesheet <link href> in index.html points at an existing fil
   }
 });
 
+test("the browser app loads no cross-origin executable scripts", () => {
+  const remoteScripts = SCRIPT_SRCS.filter((src) => !isLocal(src));
+  assert.deepEqual(remoteScripts, [], `unexpected remote scripts: ${remoteScripts.join(", ")}`);
+});
+
 // ── Script-load order smoke ────────────────────────────────────────────────
 // script.js consumes window.DiagcalcCore / DiagcalcDatasets / DiagcalcI18n,
 // so the lib/ scripts must load before it.
@@ -133,14 +138,16 @@ test("release versions stay aligned across engine metadata, npm, lockfile, and b
   assert.equal(require("../package-lock.json").version, version);
   assert.equal(require("../package-lock.json").packages[""].version, version);
   assert.equal(require("../lib/diagcalc-meta").version, version);
-  assert.ok(HTML.includes(`>v${version}</span>`));
+  assert.ok(HTML.includes(`v${version}</span>`), "browser version chip is not aligned");
 });
 
 test("pull requests run checks while deployment credentials are confined to deploy", () => {
   const workflow = fs.readFileSync(path.join(ROOT, ".github/workflows/deploy-pages.yml"), "utf8");
   assert.match(workflow, /pull_request:/);
   assert.match(workflow, /needs: \[test, browser\]/);
-  assert.match(workflow, /if: github.event_name != 'pull_request'/);
+  assert.match(workflow, /if: github\.event_name != 'pull_request' && github\.ref == 'refs\/heads\/main'/);
+  assert.match(workflow, /path: public/);
+  assert.doesNotMatch(workflow, /build_type:\s*legacy/);
   assert.match(workflow, /npm ci/);
   assert.match(workflow, /npm run test:browser/);
   assert.match(workflow, /npm run typecheck/);

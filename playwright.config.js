@@ -1,15 +1,16 @@
 const { defineConfig } = require("@playwright/test");
 const path = require("node:path");
+const port = Number(process.env.DIAGCALC_PORT || 8097);
 module.exports = defineConfig({
   testDir: "test/browser",
-  timeout: 30000,
+  timeout: 45000,
   fullyParallel: true,
   forbidOnly: Boolean(process.env.CI),
   retries: 0,
   workers: process.env.CI ? 2 : 3,
   reporter: "list",
   use: {
-    baseURL: "http://127.0.0.1:8097",
+    baseURL: `http://127.0.0.1:${port}`,
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
   },
@@ -20,8 +21,11 @@ module.exports = defineConfig({
   ],
   webServer: {
     command: "node scripts/serve-site.js",
-    url: "http://127.0.0.1:8097",
+    url: `http://127.0.0.1:${port}`,
     reuseExistingServer: !process.env.CI,
-    env: { DIAGCALC_SITE_ROOT: process.env.DIAGCALC_SITE_ROOT || path.join(__dirname, "public") },
+    env: {
+      DIAGCALC_PORT: String(port),
+      DIAGCALC_SITE_ROOT: process.env.DIAGCALC_SITE_ROOT || path.join(__dirname, "public"),
+    },
   },
 });

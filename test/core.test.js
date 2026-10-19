@@ -210,6 +210,51 @@ test("calculateMetrics propagates continuity option to LR and DOR CIs", () => {
   assert.equal(never.lrPositive.ci, null);
 });
 
+test("continuity correction changes intervals but not LR or DOR point estimates", () => {
+  const clean = { tp: 80, fp: 20, fn: 20, tn: 80, preTestProb: 20 };
+  const auto = core.calculateResults(clean, { continuityCorrection: "auto" });
+  const always = core.calculateResults(clean, { continuityCorrection: "always" });
+  assert.equal(auto.lrPositive.value, 4);
+  assert.equal(always.lrPositive.value, 4);
+  assert.equal(auto.dor.value, 16);
+  assert.equal(always.dor.value, 16);
+  assert.equal(auto.lrPositive.ci.corrected, false);
+  assert.equal(auto.dor.ci.corrected, false);
+  assert.equal(always.lrPositive.ci.corrected, true);
+  assert.equal(always.dor.ci.corrected, true);
+  assert.ok(always.lrPositive.ci.lower < always.lrPositive.value);
+  assert.ok(always.lrPositive.value < always.lrPositive.ci.upper);
+  assert.equal(always.postTestPositive.ci.corrected, true);
+});
+
+test("sparse tables keep exact LR/DOR points and flag corrected intervals", () => {
+  const zero = { tp: 0, fp: 5, fn: 10, tn: 10, preTestProb: 20 };
+  const auto = core.calculateResults(zero, { continuityCorrection: "auto" });
+  assert.equal(auto.lrPositive.value, 0);
+  assert.equal(auto.postTestPositive.value, 0);
+  assert.equal(auto.dor.value, 0);
+  for (const metric of [auto.lrPositive, auto.postTestPositive, auto.dor]) {
+    assert.ok(metric.ci);
+    assert.equal(metric.ci.corrected, true);
+  }
+
+  const never = core.calculateResults(zero, { continuityCorrection: "never" });
+  assert.equal(never.lrPositive.ci, null);
+  assert.equal(never.postTestPositive.ci, null);
+  assert.equal(never.dor.ci, null);
+
+  const perfect = { tp: 50, fp: 0, fn: 5, tn: 100, preTestProb: 30 };
+  const sparse = core.calculateResults(perfect, { continuityCorrection: "auto" });
+  assert.equal(sparse.lrPositive.value, Infinity);
+  assert.equal(sparse.postTestPositive.value, 1);
+  assert.equal(sparse.dor.value, Infinity);
+  for (const metric of [sparse.lrPositive, sparse.postTestPositive, sparse.dor]) {
+    assert.ok(metric.ci);
+    assert.equal(metric.ci.corrected, true);
+  }
+  assert.ok(sparse.postTestPositive.ci.upper < 1);
+});
+
 // ── Ratio / odds helpers ────────────────────────────────────────────────────
 
 test("calculateRatio(0, 0) is NaN (regression: v3.2.4 bug B)", () => {
@@ -534,10 +579,14 @@ test("calcDOR on D-dimer (195·413 / (87·5)) matches definition", () => {
   assert.ok(r.ci.lower < r.value && r.value < r.ci.upper);
 });
 
-test("calcDOR applies continuity correction when any cell is 0", () => {
+test("calcDOR applies continuity correction to the interval only", () => {
   const r = core.calcDOR(0, 5, 5, 10);
-  assert.ok(Number.isFinite(r.value));
+  assert.equal(r.value, 0);
   assert.ok(r.ci !== null);
+  assert.equal(r.ci.corrected, true);
+  const always = core.calcDOR(195, 87, 5, 413, { continuityCorrection: "always" });
+  assert.equal(always.value, (195 * 413) / (87 * 5));
+  assert.equal(always.ci.corrected, true);
 });
 
 test("calculateMetrics exposes the DOR card with a CI and an interpretation note", () => {

@@ -2,7 +2,7 @@
 
 This directory contains the shared calculation engine that powers all three diagcalc interfaces (web, TUI, CLI). The wrappers use a UMD-style export, so the same files load as `<script>` tags in the browser (`window.DiagcalcCore`, `window.DiagcalcDatasets`) and via `require()` in Node.
 
-Keep this folder free of any browser-only code (no `window`, no DOM access). Interfaces consume the exports and render them.
+Keep calculation modules free of browser-only code and DOM access. `diagcalc-i18n.js` is the deliberate exception: it is browser-oriented, but guards `window`, `document` and `navigator` so it still loads in Node. Interfaces consume the exports and render them.
 
 ## `diagcalc-core.js`
 
@@ -22,9 +22,9 @@ Keep this folder free of any browser-only code (no `window`, no DOM access). Int
 | Export | Signature | Notes |
 |---|---|---|
 | `calcWilsonInterval` | `(successes, total)` | Wilson 95% interval for a proportion. Returns `null` if `total === 0`. |
-| `calcLogRatioCI` | `(x1, n1, x2, n2, opts?)` | Log-normal 95% CI for a ratio of two binomial proportions (Simel–Samsa–Matchar 1991). `opts.continuityCorrection` controls the +0.5 adjustment. |
-| `calcPostTestCI` | `(preTestProbability, lrCi)` | Propagates an LR CI to a post-test probability CI via the Bayes update (monotonic transformation of both interval endpoints, holding the prior fixed). |
-| `calcDOR` | `(tp, fp, fn, tn, opts?)` | DOR with log-normal CI; continuity correction governed by `opts.continuityCorrection`. |
+| `calcLogRatioCI` | `(x1, n1, x2, n2, opts?)` | Log-normal 95% CI for a ratio of two binomial proportions (Simel–Samsa–Matchar 1991). `opts.continuityCorrection` controls the +0.5 adjustment. Returns `{ lower, upper, corrected }`, where `corrected` says whether +0.5 was applied. |
+| `calcPostTestCI` | `(preTestProbability, lrCi)` | Propagates an LR CI to a post-test probability CI via the Bayes update (monotonic transformation of both interval endpoints, holding the prior fixed). Propagates the `corrected` flag. |
+| `calcDOR` | `(tp, fp, fn, tn, opts?)` | DOR with log-normal CI. The point estimate always uses the observed cells; `opts.continuityCorrection` governs the CI only. Returns `{ value, ci: { lower, upper, corrected } \| null }`. |
 
 ### Maths primitives
 
@@ -64,7 +64,7 @@ UMD module exporting `{ datasets, getDataset, listDatasets, buildDatasetWarnings
   preTestProb,           // 0–100, inclusive
   name,                  // display label
   description,           // short prose
-  referenceLastReviewed: "YYYY-MM-DD", // background reference review only
+  referenceLastReviewed: "YYYY-MM-DD", // optional; background reference review only
   provenance: { kind: "illustrative", /* see docs/PROVENANCE.md */ },
   reference: null | {    // null on generic teaching scenarios
     authors,
@@ -87,12 +87,12 @@ Adding a preset: insert it in `datasets`, add a matching `<option value="<key>">
 
 ## Data and presentation separation
 
-`calculateResults(input, options)` returns numeric metric records (`value`, optional `ci`, `unit`, interpretation id/params) or null on invalid input/options. It has no label text or formatter functions. `calculateMetrics(input, options, locale)` remains the compatibility adapter, using `diagcalc-presentation.js` to decorate numeric records. The shared types are in `diagcalc-types.d.ts`; `npm run typecheck` checks shared APIs and extracted helpers incrementally.
+`calculateResults(input, options)` returns numeric metric records (`value`, optional `ci`, `unit`, interpretation id/params) or null on invalid input/options. It has no label text or formatter functions. `calculateMetrics(input, options)` remains the compatibility adapter; pass `options.locale` (`"en"` or `"pt-PT"`) to localise labels and notes. The shared types are in `diagcalc-types.d.ts`; `npm run typecheck` checks shared APIs and extracted helpers incrementally.
 
 `parseProbability(string)` accepts complete dot/comma decimal strings. Exact 0%/100% priors are valid; an impossible observed event produces undefined posterior and no CI. `chainedPreTestProbability(fraction)` preserves precision and returns NaN for undefined input.
 
 `validateRocRows(rows, { direction })` rejects partial/invalid data, mixed cohorts, inconsistent cutoff direction and non-monotonic operating points. `calculateROC` orders tied false-positive rates by sensitivity. Threshold calculations return null unless LR+ > 1 and 0 ≤ LR− < 1.
 
-`diagcalc-case.js` creates schema-2 snapshots with engine version, inputs, correction options, case origin and full-precision encoded metrics. Exceptional values use `{ value: null, status }`; CI endpoints use the same encoding. History parsing limits size/count, rejects malformed entries and marks recomputed pre-schema entries legacy. Method metadata describes the selected correction rather than a fixed default.
+`diagcalc-case.js` creates schema-2 snapshots with engine version, inputs, correction options, case origin and full-precision encoded metrics. Exceptional values use `{ value: null, status }`; CI endpoints use the same encoding and may include `corrected: true` when +0.5 was applied. History parsing limits size/count, recomputes same-version metrics to reject corrupted values, rejects malformed entries and marks recomputed pre-schema entries legacy. Method metadata describes the selected correction rather than a fixed default.
 
 `diagcalc-storage.js` guards backend access and preserves session writes when storage is blocked/full. `diagcalc-geometry.js` provides calibrated logarithmic Fagan coordinates with explicit off-scale flags. `diagcalc-meta.js` is the shared version/schema metadata.

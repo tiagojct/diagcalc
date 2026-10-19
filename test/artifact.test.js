@@ -6,15 +6,22 @@ const path = require("node:path");
 const { spawnSync } = require("node:child_process");
 const root = path.resolve(__dirname, "..");
 
-test("prepared Pages artifact includes every local asset, CNAME, and no terminal or repository files", () => {
+test("prepared Pages artifact is a clean allowlist containing every local asset", () => {
   const temp = fs.mkdtempSync(path.join(os.tmpdir(), "diagcalc-site-"));
   try {
+    fs.mkdirSync(path.join(temp, "tui"));
+    fs.writeFileSync(path.join(temp, "tui", "stale.js"), "stale");
     const prepare = spawnSync(process.execPath, [path.join(root, "scripts/prepare-site.js"), temp], { encoding: "utf8" });
     assert.equal(prepare.status, 0, prepare.stderr);
+    assert.deepEqual(fs.readdirSync(temp).sort(), ["CNAME", "index.html", "lib", "script.js", "styles.css", "web"]);
     const html = fs.readFileSync(path.join(temp, "index.html"), "utf8");
     for (const match of html.matchAll(/(?:src|href)="([^"#]+)"/g)) {
       if (/^(https?:|mailto:)/.test(match[1])) continue;
       assert.ok(fs.existsSync(path.join(temp, match[1])), `Missing shipped asset: ${match[1]}`);
+    }
+    const railCss = fs.readFileSync(path.join(temp, "web/rail.css"), "utf8");
+    for (const match of railCss.matchAll(/url\("([^"]+)"\)/g)) {
+      assert.ok(fs.existsSync(path.join(temp, "web", match[1])), `Missing web asset: ${match[1]}`);
     }
     assert.equal(fs.readFileSync(path.join(temp, "CNAME"), "utf8"), fs.readFileSync(path.join(root, "CNAME"), "utf8"));
     for (const name of ["tui", "bin", ".git", "node_modules"]) assert.equal(fs.existsSync(path.join(temp, name)), false);
@@ -26,7 +33,8 @@ test("prepared Pages artifact includes every local asset, CNAME, and no terminal
 test("packed npm package runs the CLI and includes the web, shared modules and terminal adapters", () => {
   const temp = fs.mkdtempSync(path.join(os.tmpdir(), "diagcalc-package-"));
   try {
-    const packed = spawnSync("npm", ["pack", "--json", "--ignore-scripts", "--pack-destination", temp], {
+    const npm = process.platform === "win32" ? "npm.cmd" : "npm";
+    const packed = spawnSync(npm, ["pack", "--json", "--ignore-scripts", "--pack-destination", temp], {
       cwd: root, encoding: "utf8", env: { ...process.env, npm_config_cache: path.join(temp, "cache") },
     });
     assert.equal(packed.status, 0, packed.stderr);

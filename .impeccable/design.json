@@ -1,0 +1,183 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-19T10:10:00.000Z",
+  "title": "Design System: DIAGCALC",
+  "extensions": {
+    "colorMeta": {
+      "paper": {
+        "role": "neutral",
+        "displayName": "Warm Working Paper",
+        "canonical": "#FAF7EE",
+        "tonalRamp": ["#D8D1C2", "#E3DDD0", "#EDE8DD", "#F3EFE5", "#FAF7EE", "#FCFAF4", "#FDFCF8", "#FFFFFF"]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Green-Black Ink",
+        "canonical": "#1C2B27",
+        "tonalRamp": ["#0E1614", "#141F1B", "#1C2B27", "#2A3B35", "#3E5049", "#5A6B64", "#85928C", "#C7CEC9"]
+      },
+      "vermilion": {
+        "role": "primary",
+        "displayName": "Active Evidence Vermilion",
+        "canonical": "#A9432E",
+        "tonalRamp": ["#4A1C12", "#6B281B", "#863322", "#A9432E", "#C45A44", "#D67A66", "#E7A597", "#F5D3CB"]
+      },
+      "bottle": {
+        "role": "secondary",
+        "displayName": "Rule-Out Bottle Green",
+        "canonical": "#2F6B57",
+        "tonalRamp": ["#12291F", "#1B3D31", "#245443", "#2F6B57", "#43846E", "#66A08A", "#9BC3B2", "#D2E6DD"]
+      },
+      "ochre": {
+        "role": "tertiary",
+        "displayName": "Caution Ochre",
+        "canonical": "#876019",
+        "tonalRamp": ["#33240A", "#4D3610", "#684A15", "#876019", "#A87C26", "#C79A45", "#DDBC7C", "#F0DEC0"]
+      },
+      "paper-2": {
+        "role": "neutral",
+        "displayName": "Field Paper",
+        "canonical": "#F1EBDD",
+        "tonalRamp": ["#CFC8B8", "#DCD5C5", "#E7E1D3", "#F1EBDD", "#F5F0E5", "#F8F4EC", "#FBF8F2", "#FFFFFF"]
+      },
+      "rule": {
+        "role": "neutral",
+        "displayName": "Hairline Rule",
+        "canonical": "#C9C1AE",
+        "tonalRamp": ["#6F6A5E", "#8A8476", "#A9A28F", "#C9C1AE", "#D8D1C2", "#E3DDD0", "#EFEAE0", "#FAF7EE"]
+      },
+      "ink-soft": {
+        "role": "neutral",
+        "displayName": "Quiet Ink",
+        "canonical": "#4F5B55",
+        "tonalRamp": ["#1C2522", "#2A3530", "#3A4741", "#4F5B55", "#68756E", "#87938B", "#B2BBB5", "#DCE1DD"]
+      },
+      "dark-paper": {
+        "role": "neutral",
+        "displayName": "Deep Paper",
+        "canonical": "#101714",
+        "tonalRamp": ["#050807", "#0A0F0D", "#101714", "#1A2420", "#26332D", "#37453E", "#5A6A62", "#AAB5AE"]
+      },
+      "dark-ink": {
+        "role": "neutral",
+        "displayName": "Paper in the Dark",
+        "canonical": "#EDE7D8",
+        "tonalRamp": ["#7A756A", "#9B9588", "#BDB6A7", "#D5CEBF", "#EDE7D8", "#F2EDE2", "#F7F3EB", "#FCFAF5"]
+      },
+      "rule-strong": {
+        "role": "neutral",
+        "displayName": "Boundary Rule",
+        "canonical": "#938B78",
+        "tonalRamp": ["#4B463C", "#625C4F", "#7A7364", "#938B78", "#ABA391", "#C2BAA9", "#D8D2C4", "#EDE8DE"]
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Result Display", "purpose": "The active post-test probability only." },
+      "data": { "displayName": "Tabular Data", "purpose": "Every count, probability, ratio and confidence interval." },
+      "label": { "displayName": "Working Label", "purpose": "Matrix headers, metric names, rail labels and control labels." },
+      "teaching": { "displayName": "Teaching Margin", "purpose": "The serif explanation beneath the rail." }
+    },
+    "shadows": [],
+    "motion": [
+      { "name": "rail-draw", "value": "320ms cubic-bezier(0.22, 0.61, 0.36, 1)", "purpose": "Draws the active probability line once per calculation." },
+      { "name": "rail-marker-in", "value": "220ms cubic-bezier(0.22, 0.61, 0.36, 1)", "purpose": "Brings the post-test marker in without hiding it." }
+    ],
+    "breakpoints": [
+      { "name": "compact", "value": "620px" },
+      { "name": "stack", "value": "880px" },
+      { "name": "tablet", "value": "1080px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The calculate action: ink surface, paper text, square-ended with a 2px radius.",
+      "html": "<button class=\"ds-btn-primary\">Calculate results</button>",
+      "css": ".ds-btn-primary { min-height: 40px; padding: 9px 15px; background: #1C2B27; color: #FAF7EE; border: 1px solid #1C2B27; border-radius: 2px; font: 500 13px/1.2 'Plex Sans', sans-serif; cursor: pointer; } .ds-btn-primary:hover { background: #A9432E; border-color: #A9432E; color: #FAF7EE; } .ds-btn-primary:focus-visible { outline: 2px solid #A9432E; outline-offset: 2px; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "A quiet action that never competes with the result.",
+      "html": "<button class=\"ds-btn-secondary\">Clear test 2</button>",
+      "css": ".ds-btn-secondary { min-height: 40px; padding: 9px 15px; background: transparent; color: #1C2B27; border: 1px solid #938B78; border-radius: 2px; font: 500 13px/1.2 'Plex Sans', sans-serif; cursor: pointer; } .ds-btn-secondary:hover { background: #F1EBDD; border-color: #1C2B27; } .ds-btn-secondary:focus-visible { outline: 2px solid #A9432E; outline-offset: 2px; }"
+    },
+    {
+      "name": "Workspace Tab",
+      "kind": "nav",
+      "refersTo": "tab-active",
+      "description": "A ruled tab; the active state is a vermilion bottom rule, not a filled pill.",
+      "html": "<button class=\"ds-tab ds-tab-active\" aria-selected=\"true\">Case</button>",
+      "css": ".ds-tab { appearance: none; background: #FAF7EE; color: #4F5B55; border: 0; border-bottom: 2px solid transparent; border-radius: 0; padding: 13px 16px 11px; font: 500 13px/1.2 'Plex Sans', sans-serif; cursor: pointer; } .ds-tab:hover { color: #1C2B27; border-bottom-color: #C9C1AE; } .ds-tab-active { color: #1C2B27; font-weight: 600; border-bottom-color: #A9432E; }"
+    },
+    {
+      "name": "Numeric Field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "A matrix or probability field: paper ground, hairline rule, mono numerals.",
+      "html": "<input class=\"ds-input\" type=\"text\" inputmode=\"numeric\" value=\"195\" aria-label=\"True positives\" />",
+      "css": ".ds-input { width: 100%; min-height: 40px; padding: 8px 10px; background: #FAF7EE; color: #1C2B27; border: 1px solid #C9C1AE; border-radius: 2px; font: 400 15px/1.35 'Plex Mono', monospace; font-variant-numeric: tabular-nums; } .ds-input:hover { border-color: #938B78; } .ds-input:focus { border-color: #1C2B27; outline: 2px solid #A9432E; outline-offset: 1px; } .ds-input::placeholder { color: #4F5B55; opacity: 1; }"
+    },
+    {
+      "name": "Metric Cell",
+      "kind": "custom",
+      "refersTo": "metric-cell",
+      "description": "A ruled ledger cell; no card, no shadow, no radius.",
+      "html": "<div class=\"ds-metric\"><span class=\"ds-metric-label\">Sensitivity</span><span class=\"ds-metric-value\">97.5%</span><span class=\"ds-metric-ci\">95% CI 94.3% – 98.9%</span></div>",
+      "css": ".ds-metric { background: #FAF7EE; border-right: 1px solid #C9C1AE; border-bottom: 1px solid #C9C1AE; padding: 10px 12px; } .ds-metric-label { display: block; color: #4F5B55; font: 600 11px/1.25 'Plex Sans', sans-serif; letter-spacing: 0.06em; text-transform: uppercase; } .ds-metric-value { display: block; margin-top: 3px; color: #1C2B27; font: 500 1.1rem/1.1 'Plex Mono', monospace; font-variant-numeric: tabular-nums; } .ds-metric-ci { display: block; margin-top: 4px; color: #4F5B55; font: 400 11px/1.35 'Plex Mono', monospace; }"
+    },
+    {
+      "name": "Probability Rail",
+      "kind": "custom",
+      "refersTo": "rail",
+      "description": "The signature control: a logit-scaled axis, active branch, post marker and readout.",
+      "html": "<div class=\"ds-rail\"><div class=\"ds-rail-controls\"><button class=\"ds-rail-toggle ds-rail-toggle-active\" aria-pressed=\"true\">Positive result</button><button class=\"ds-rail-toggle\" aria-pressed=\"false\">Negative result</button></div><div class=\"ds-rail-track\"><span class=\"ds-rail-line\"></span><span class=\"ds-rail-pre\" style=\"left:61%\"></span><span class=\"ds-rail-post\" style=\"left:78%\"></span></div><div class=\"ds-rail-readout\"><span>PRE-TEST 28.6%</span><span>×</span><span>LR+ 5.60</span><span>→</span><strong>POST-TEST 69.2%</strong></div></div>",
+      "css": ".ds-rail { border-top: 1px solid #C9C1AE; padding-top: 12px; } .ds-rail-controls { display: inline-flex; border: 1px solid #938B78; border-radius: 2px; overflow: hidden; } .ds-rail-toggle { min-height: 34px; padding: 6px 11px; background: transparent; color: #4F5B55; border: 0; border-right: 1px solid #938B78; border-radius: 0; font: 500 11px/1.2 'Plex Sans', sans-serif; cursor: pointer; } .ds-rail-toggle:last-child { border-right: 0; } .ds-rail-toggle-active { background: #1C2B27; color: #FAF7EE; } .ds-rail-track { position: relative; height: 156px; margin-top: 18px; background-image: linear-gradient(to right, #C9C1AE 1px, transparent 1px); background-size: 10% 100%; border-bottom: 1px solid #938B78; } .ds-rail-track::after { content: ''; position: absolute; left: 0; right: 0; top: 78px; height: 2px; background: #1C2B27; } .ds-rail-line { position: absolute; left: 61%; width: 17%; top: 78px; height: 2px; background: #A9432E; } .ds-rail-pre, .ds-rail-post { position: absolute; top: 62px; width: 4px; height: 34px; transform: translateX(-50%); background: #A9432E; } .ds-rail-readout { display: flex; gap: 10px; align-items: baseline; padding-top: 8px; color: #4F5B55; font: 400 12px/1.3 'Plex Mono', monospace; } .ds-rail-readout strong { color: #A9432E; font-size: 1.9rem; font-weight: 500; letter-spacing: -0.03em; }"
+    },
+    {
+      "name": "Tool Disclosure",
+      "kind": "custom",
+      "refersTo": "tool-disclosure",
+      "description": "An exploration tool as a ruled disclosure, not a card.",
+      "html": "<details class=\"ds-tool\" open><summary>Explore prevalence sensitivity</summary><p>Drag the slider to see how predictive values respond.</p></details>",
+      "css": ".ds-tool { border-top: 1px solid #938B78; padding: 14px 0 18px; color: #1C2B27; font: 400 13px/1.5 'Plex Sans', sans-serif; } .ds-tool summary { cursor: pointer; font-weight: 600; } .ds-tool p { margin: 8px 0 0; color: #4F5B55; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Working Nomogram",
+    "overview": "DIAGCALC is a teaching instrument built on a ruled calculation sheet. Paper and ink carry the interface; one continuous probability rail carries the maths. The world supplies type, palette, density and the rail, while navigation and controls remain standard web affordances. The result, its explanation and the metrics stay together so a learner can see why the probability moved.",
+    "keyCharacteristics": [
+      "A single logit-scaled probability rail is the signature interaction.",
+      "Ruled, border-led surfaces; no cards, shadows or decorative gradients.",
+      "One data size with rank carried by weight, case and rule.",
+      "Vermilion for positive/active evidence, bottle green for negative evidence, ochre for caution.",
+      "A serif teaching margin beneath the result, in the lecturer's voice.",
+      "Four tabs: Case, Explore, Learn, History."
+    ],
+    "rules": [
+      { "name": "The One Active Colour Rule", "body": "Vermilion or bottle green marks the active result and its rail. The rest of the screen stays paper and ink.", "section": "colors" },
+      { "name": "The Evidence Is Not a Badge Rule", "body": "A colour never carries meaning alone. Every accent has a text label, a shape, or a position that says the same thing.", "section": "colors" },
+      { "name": "The One Data Size Rule", "body": "Data is set at one size per context; rank comes from weight, case and the rule above or below it.", "section": "typography" },
+      { "name": "The Numbers Are Mono Rule", "body": "Every probability, count, ratio and confidence interval uses Plex Mono with tabular numerals.", "section": "typography" },
+      { "name": "The Two Jobs Rule", "body": "The Case tab never mixes entering a matrix with browsing references. Exploration and reading live behind their own tabs.", "section": "layout" },
+      { "name": "The Flat-by-Default Rule", "body": "If an element needs emphasis, change its weight, rule or accent — never add a drop shadow.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do keep the 2×2 sheet, headline, rail and teaching note together in the Case tab.",
+      "Do use Plex Mono for every number and Plex Serif Italic only for the teaching note.",
+      "Do show the corrected CI label when the interval used +0.5.",
+      "Do preserve the empty, invalid, undefined, sparse and storage-blocked states with text, not colour alone.",
+      "Do keep the rail’s active branch switchable with a standard segmented control and aria-pressed."
+    ],
+    "donts": [
+      "Don't turn the result into a grid of rounded cards or add shadows.",
+      "Don't use vermilion or bottle green as decoration; they mark the active result, positive/negative evidence and focus.",
+      "Don't use the rail as a generic progress bar; its positions are probabilities on a logit scale.",
+      "Don't hide the teaching note below the ledger; it belongs immediately after the result.",
+      "Don't add a second chart that repeats the rail’s job in the Case tab."
+    ]
+  }
+}

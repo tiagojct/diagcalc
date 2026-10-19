@@ -18,7 +18,7 @@ function renderMetricCard(metric, opts) {
 
   // Visual indicator between the value and the CI.
   if (o.bar) {
-    card.appendChild(renderInlineBar(metric.value, o.barVariant));
+    card.appendChild(renderInlineBar(metric.value, o.barVariant, metric.label));
   } else if (o.band) {
     card.appendChild(renderBand(metric, o.band));
   }
@@ -27,7 +27,7 @@ function renderMetricCard(metric, opts) {
     const ci = document.createElement("p");
     ci.className = "result-ci";
     const fmt = window.DiagcalcCore.formatValue;
-    ci.textContent = window.DiagcalcI18n.t("ci", { lower: fmt(metric.ci.lower, metric.formatter), upper: fmt(metric.ci.upper, metric.formatter) });
+    ci.textContent = window.DiagcalcI18n.t(metric.ci.corrected ? "ci.corrected" : "ci", { lower: fmt(metric.ci.lower, metric.formatter), upper: fmt(metric.ci.upper, metric.formatter) });
     card.appendChild(ci);
   }
 
@@ -42,13 +42,19 @@ function renderMetricCard(metric, opts) {
 }
 
 // Thin fill bar showing a proportion (0..1) on a 0–100% track.
-function renderInlineBar(value, variant) {
+function renderInlineBar(value, variant, label) {
   const wrap = document.createElement("div");
   wrap.className = "result-bar";
   if (variant) wrap.classList.add(`result-bar--${variant}`);
+  if (!Number.isFinite(value)) {
+    wrap.classList.add("result-bar--unavailable");
+    wrap.setAttribute("role", "img");
+    wrap.setAttribute("aria-label", window.DiagcalcI18n.t("bar.aria.unavailable", { metric: label || "" }));
+    return wrap;
+  }
   const fill = document.createElement("span");
   fill.className = "result-bar-fill";
-  const pct = Number.isFinite(value) ? Math.min(100, Math.max(0, value * 100)) : 0;
+  const pct = Math.min(100, Math.max(0, value * 100));
   fill.style.width = `${pct}%`;
   wrap.appendChild(fill);
   wrap.setAttribute("role", "img");
@@ -64,7 +70,7 @@ const BAND_DEFS = {
 };
 
 function bandPosition(value, stops) {
-  if (Number.isNaN(value)) return 0;
+  if (Number.isNaN(value)) return null;
   if (!Number.isFinite(value)) return value > 0 ? 100 : 0;
   if (value <= stops[0]) return 0;
   const segments = stops.length - 1;
@@ -82,9 +88,15 @@ function renderBand(metric, kind) {
   const sourceDef = BAND_DEFS[kind];
   const def = sourceDef ? { ...sourceDef, labels: sourceDef.labels.map((label) => window.DiagcalcI18n.text(label)) } : null;
   if (!def) return document.createComment(`unknown band: ${kind}`);
+  const pos = bandPosition(metric.value, def.stops);
   const wrap = document.createElement("div");
   wrap.className = `result-band result-band--${kind}`;
   wrap.setAttribute("role", "img");
+  if (pos === null) {
+    wrap.classList.add("result-band--unavailable");
+    wrap.setAttribute("aria-label", window.DiagcalcI18n.t("band.aria.unavailable", { metric: metric.label }));
+    return wrap;
+  }
 
   for (let i = 0; i < def.labels.length; i += 1) {
     const zone = document.createElement("span");
@@ -93,7 +105,6 @@ function renderBand(metric, kind) {
     wrap.appendChild(zone);
   }
 
-  const pos = bandPosition(metric.value, def.stops);
   const marker = document.createElement("span");
   marker.className = "result-band-marker";
   marker.style.left = `${pos}%`;
@@ -150,78 +161,11 @@ function renderSecondary(container, metrics) {
 // old separate .probability-chart block.
 function renderBayesianUpdate(container, metrics) {
   if (!container) return;
-  container.innerHTML = "";
-  const fmtPct = window.DiagcalcCore.formatPercentage;
-  const fmtLR = window.DiagcalcCore.formatLikelihood;
-  const pre = metrics.preTestProbability.value;
-  const rows = [
-    { to: metrics.postTestPositive.value, label: window.DiagcalcI18n.text("Positive test"), lr: metrics.lrPositive.value, variant: "warm" },
-    { to: metrics.postTestNegative.value, label: window.DiagcalcI18n.text("Negative test"), lr: metrics.lrNegative.value, variant: "cool" },
-  ];
-
-  const preVal = Number.isFinite(pre) ? Math.min(1, Math.max(0, pre)) : 0;
-  const prePct = preVal * 100;
-
-  for (const row of rows) {
-    const node = document.createElement("div");
-    node.className = `bayesian-row bayesian-row--${row.variant}`;
-
-    const label = document.createElement("span");
-    label.className = "bayesian-row-label";
-    label.textContent = row.label;
-
-    const lr = document.createElement("span");
-    lr.className = "bayesian-row-lr";
-    lr.textContent = `LR × ${fmtLR(row.lr)}`;
-
-    const toVal = Number.isFinite(row.to) ? Math.min(1, Math.max(0, row.to)) : 0;
-    const toPct = toVal * 100;
-
-    // Axis: a 0–100% rail with pre marker, arrow trail, post marker.
-    const axis = document.createElement("div");
-    axis.className = "bayesian-axis";
-    if (toPct < prePct) axis.classList.add("rtl");
-    axis.setAttribute("role", "img");
-    axis.setAttribute(
-      "aria-label",
-      window.DiagcalcI18n.t("bayes.aria", { label: row.label, pre: fmtPct(pre), post: fmtPct(row.to), lr: fmtLR(row.lr) })
-    );
-
-    const lo = Math.min(prePct, toPct);
-    const hi = Math.max(prePct, toPct);
-
-    const trail = document.createElement("span");
-    trail.className = "bayesian-axis-trail";
-    trail.style.left = `${lo}%`;
-    trail.style.width = `${Math.max(0.001, hi - lo)}%`;
-    axis.appendChild(trail);
-
-    const preMarker = document.createElement("span");
-    preMarker.className = "bayesian-axis-pre";
-    preMarker.style.left = `${prePct}%`;
-    preMarker.title = window.DiagcalcI18n.t("bayes.pre", { value: fmtPct(pre) });
-    axis.appendChild(preMarker);
-
-    const postMarker = document.createElement("span");
-    postMarker.className = "bayesian-axis-post";
-    postMarker.style.left = `${toPct}%`;
-    postMarker.title = window.DiagcalcI18n.t("bayes.post", { value: fmtPct(row.to) });
-    axis.appendChild(postMarker);
-
-    const fromLabel = document.createElement("span");
-    fromLabel.className = "bayesian-row-from";
-    fromLabel.textContent = fmtPct(pre);
-    const toLabel = document.createElement("span");
-    toLabel.className = "bayesian-row-to";
-    toLabel.textContent = fmtPct(row.to);
-
-    node.appendChild(label);
-    node.appendChild(fromLabel);
-    node.appendChild(axis);
-    node.appendChild(toLabel);
-    node.appendChild(lr);
-    container.appendChild(node);
+  if (!window.DiagcalcRail) {
+    container.textContent = window.DiagcalcI18n.t("rail.unavailable");
+    return;
   }
+  window.DiagcalcRail.render(container, metrics);
 }
 
 // Compat: still used by the chained-test panel which uses a simple grid.

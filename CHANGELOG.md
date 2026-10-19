@@ -2,6 +2,54 @@
 
 Todas as alterações relevantes deste projeto são registadas aqui. As datas seguem o formato ISO (AAAA-MM-DD).
 
+## [5.2.0] - 2026-10-19
+
+### Adicionado
+- Nova direcção visual «Probability Rail»: um único eixo pré-teste → razão de verosimilhança → pós-teste, com alternância entre resultado positivo e negativo, intervalo de confiança e leitura acessível.
+- Estrutura por separadores **Caso**, **Explorar**, **Aprender** e **Histórico**, com estado no URL e navegação por teclado.
+- Margem didáctica «Porque este resultado» que liga a matriz à probabilidade pós-teste e usa uma nota serifada para a explicação.
+- Tipografia auto-alojada IBM Plex Sans, Mono e Serif; paleta de papel, tinta, vermelho, verde-garrafa e ocre; grelha de 12 colunas e superfícies sem sombras.
+
+### Alterado
+- A página inicial passa a mostrar o caso, o resultado, o rail e a explicação no primeiro ecrã; as ferramentas de exploração e os materiais de aprendizagem passam para os separadores próprios.
+- A referência do cenário e o aviso de contagem ilustrativa passam para a margem de resultado, junto da explicação.
+- A impressão passa a apresentar apenas a folha de caso/resultado, com paleta clara e sem ferramentas interactivas.
+
+### Corrigido
+- O rail limpa-se quando os campos são editados ou o caso é removido, mantendo o estado vazio e traduzido.
+- O tema, o idioma, o histórico e os separadores preservam o estado activo sem recarregar a página.
+- O foco, os contrastes, as descrições acessíveis e o movimento reduzido foram revistos para a nova grelha.
+
+### Técnico
+- Novo componente puro no browser `web/rail.js` e camada visual `web/rail.css`; fontes em `web/fonts/`.
+- O motor de cálculo, os contratos CLI/TUI e o schema 2 do histórico não foram alterados.
+- Testes de browser actualizados para separadores, rail, impressão e navegação por teclado; o detector mecânico e a revisão final acompanham a entrega.
+
+## [5.1.1] - 2026-10-19
+
+### Corrigido
+- Limpar a selecção de cenário agora remove todos os painéis derivados (Fagan, prevalência, teste encadeado, limiares, explorador de limiar e avisos), impedindo cálculos com probabilidades pós-teste antigas.
+- Chaves de cenário vindas do histórico são resolvidas pela API segura, evitando falhas com `__proto__`, `constructor` ou chaves desconhecidas.
+- «Reset rows» volta a semear a curva ROC a partir da matriz principal no cálculo seguinte.
+- Os marcadores e zonas do medidor de limiares são limpos quando os limiares ficam indisponíveis.
+- Resultados indefinidos deixam de aparecer como barras de 0% ou bandas «weak/poor»; recebem um estado «indisponível» explícito.
+- A impressão redesenha o nomograma de Fagan com a paleta clara e oculta o explorador de limiar.
+- A pré-teste de 0% inicia o explorador de prevalência no mínimo do cursor (0,1%), não em 10%.
+- Recarregar um caso antigo do histórico move-o para o topo sem o duplicar; «Limpar campos» repõe e persiste a correcção automática.
+- Valores de locale herdados da cadeia de protótipos caem para inglês; o tema segue o sistema até uma escolha explícita e expõe `aria-pressed`.
+- A CLI valida opções antes da matriz, os relatórios encadeados em texto incluem os avisos do teste 2 e o JSON usa a mesma decoração de métricas nos dois testes.
+- O TUI escapa chaves de utilizador em widgets com tags e preserva o valor inválido nos relatórios exportados.
+
+### Alterado
+- A correcção de continuidade passa a aplicar-se apenas aos intervalos de confiança. As estimativas pontuais e as probabilidades pós-teste usam sempre as células observadas; os intervalos corrigidos são identificados como `continuity-corrected`.
+- Removido o script de analítica de terceiros. A aplicação web volta a ser totalmente autocontida e sem pedidos externos.
+- Documentação actualizada para os 16 cenários, módulos partilhados e semântica dos intervalos corrigidos.
+
+### Técnico
+- Snapshots schema 2: `ci.corrected` é um campo aditivo opcional. Os valores de DOR em modo `always` e em tabelas com células zero deixam de ser suavizados; os consumidores devem usar o valor observado e ler o intervalo corrigido quando presente.
+- O histórico schema 2 da versão actual é recalculado na leitura e rejeitado se as métricas não corresponderem à matriz guardada. Limites de `parseHistory` e identificadores legados foram endurecidos.
+- Novos testes de regressão para painéis obsoletos, ROC, limiares, histórico, locale, tema, impressão, métricas indefinidas, TUI e opções da CLI.
+
 ## [5.1.0] - 2026-10-01
 
 ### Alterado

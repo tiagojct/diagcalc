@@ -57,7 +57,7 @@ function renderConfidence(metric) {
 
   const lo = core.formatValue(metric.ci.lower, metric.formatter);
   const hi = core.formatValue(metric.ci.upper, metric.formatter);
-  return `95% CI ${lo} to ${hi}`;
+  return `95% CI ${lo} to ${hi}${metric.ci.corrected ? " (continuity-corrected)" : ""}`;
 }
 
 function colourValue(value, kind, numericValue) {

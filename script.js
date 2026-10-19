@@ -1,31 +1,70 @@
-const preferences = window.DiagcalcStorage.createStorage(() => window.localStorage);
+let preferences = null;
 
 document.addEventListener("DOMContentLoaded", () => {
-  const core = window.DiagcalcCore;
-  const datasetStore = window.DiagcalcDatasets;
-  const i18n = window.DiagcalcI18n;
-  const caseStore = window.DiagcalcCase;
-  const scheduler = window.DiagcalcCharts.createScheduler();
-  let activeSnapshot = null;
-  let refreshLocaleResults = () => {};
+  const modules = {
+    DiagcalcCore: window.DiagcalcCore,
+    DiagcalcDatasets: window.DiagcalcDatasets,
+    DiagcalcI18n: window.DiagcalcI18n,
+    DiagcalcCase: window.DiagcalcCase,
+    DiagcalcMeta: window.DiagcalcMeta,
+    DiagcalcPresentation: window.DiagcalcPresentation,
+    DiagcalcGeometry: window.DiagcalcGeometry,
+    DiagcalcStorage: window.DiagcalcStorage,
+    DiagcalcCharts: window.DiagcalcCharts,
+    DiagcalcRail: window.DiagcalcRail,
+  };
+  const missing = Object.entries(modules).filter(([, value]) => !value).map(([name]) => name);
+  const form = document.getElementById("inputForm");
   const feedbackEl = document.getElementById("feedback");
 
-  if (!core || !datasetStore) {
-    const missing = [!core && "DiagcalcCore", !datasetStore && "DiagcalcDatasets"].filter(Boolean).join(" and ");
-    console.error(`DIAGCALC: required script(s) failed to load: ${missing}.`);
+  if (missing.length) {
+    // Keep the form from performing a native navigation when calculation
+    // dependencies are unavailable.
+    if (form) form.addEventListener("submit", (event) => event.preventDefault());
+    console.error(`DIAGCALC: required script(s) failed to load: ${missing.join(", ")}.`);
     if (feedbackEl) {
-      feedbackEl.textContent = i18n ? i18n.t("feedback.load.failed") : "Calculator failed to load. Refresh the page or check the network tab for missing scripts.";
+      const detail = `Missing: ${missing.join(", ")}.`;
+      feedbackEl.textContent = modules.DiagcalcI18n
+        ? `${modules.DiagcalcI18n.t("feedback.load.failed")} ${detail}`
+        : `Calculator failed to load. ${detail}`;
       feedbackEl.classList.add("error");
     }
     return;
   }
+
+  const core = modules.DiagcalcCore;
+  const datasetStore = modules.DiagcalcDatasets;
+  const i18n = modules.DiagcalcI18n;
+  const caseStore = modules.DiagcalcCase;
+  preferences = modules.DiagcalcStorage.createStorage(() => window.localStorage);
+  const scheduler = modules.DiagcalcCharts.createScheduler();
+  let activeSnapshot = null;
+  let refreshLocaleResults = () => {};
 
   function uiText(source) {
     return i18n.text(source);
   }
 
   function tr(key, vars) {
-    return i18n ? i18n.t(key, vars) : key;
+    return i18n.t(key, vars);
+  }
+
+  function createCloseIcon() {
+    const ns = "http://www.w3.org/2000/svg";
+    const svg = document.createElementNS(ns, "svg");
+    svg.setAttribute("viewBox", "0 0 24 24");
+    svg.setAttribute("aria-hidden", "true");
+    svg.setAttribute("focusable", "false");
+    svg.classList.add("icon-close");
+    for (const [x1, y1, x2, y2] of [[6, 6, 18, 18], [18, 6, 6, 18]]) {
+      const line = document.createElementNS(ns, "line");
+      line.setAttribute("x1", String(x1));
+      line.setAttribute("y1", String(y1));
+      line.setAttribute("x2", String(x2));
+      line.setAttribute("y2", String(y2));
+      svg.appendChild(line);
+    }
+    return svg;
   }
 
   // ── Case strip in the app bar ────────────────────────────────────────────
@@ -59,6 +98,7 @@ document.addEventListener("DOMContentLoaded", () => {
     i18n.applyToDom();
     document.documentElement.lang = locale.split("-")[0] || "en";
     renderCaseStrip();
+    updateThemeIcon(document.documentElement.getAttribute("data-theme"));
     refreshLocaleResults();
   }
   if (i18n) {
@@ -70,8 +110,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  const datasets = datasetStore.datasets;
-  const form = document.getElementById("inputForm");
   const resultsHeadlineEl = document.getElementById("resultsHeadline");
   const resultsSecondaryEl = document.getElementById("resultsSecondary");
   const bayesianUpdateEl = document.getElementById("bayesianUpdate");
@@ -140,8 +178,131 @@ document.addEventListener("DOMContentLoaded", () => {
   const rocResetButton = document.getElementById("rocReset");
   const rocCanvas = document.getElementById("rocCanvas");
   const rocReadoutEl = document.getElementById("rocReadout");
+  const teachingNoteEl = document.getElementById("teachingNote");
+  const teachingSourceEl = document.getElementById("teachingSource");
+  const historyEmptyEl = document.getElementById("historyEmpty");
+  const tabButtons = Array.from(document.querySelectorAll("[role='tab']"));
+  const tabPanels = Array.from(document.querySelectorAll("[role='tabpanel']"));
+  let lastMetrics = null;
+  let lastInput = null;
+  let lastDataset = null;
 
+  function switchTab(name, focusTab = false) {
+    const button = tabButtons.find((item) => item.dataset.tab === name) || tabButtons[0];
+    if (!button) return;
+    const selectedName = button.dataset.tab;
+    for (const item of tabButtons) {
+      const selected = item === button;
+      item.setAttribute("aria-selected", String(selected));
+      item.tabIndex = selected ? 0 : -1;
+    }
+    for (const panel of tabPanels) {
+      panel.hidden = panel.id !== `tab-${selectedName}`;
+    }
+    try {
+      window.history.replaceState(null, "", `#${selectedName}`);
+    } catch (_) {}
+    if (focusTab) button.focus();
+    scheduler.schedule();
+  }
+
+  for (const button of tabButtons) {
+    button.addEventListener("click", () => switchTab(button.dataset.tab));
+  }
+  const tabbar = document.querySelector(".tabbar");
+  if (tabbar) {
+    tabbar.addEventListener("keydown", (event) => {
+      const index = tabButtons.indexOf(document.activeElement);
+      if (index < 0) return;
+      let next = index;
+      if (event.key === "ArrowRight") next = (index + 1) % tabButtons.length;
+      else if (event.key === "ArrowLeft") next = (index - 1 + tabButtons.length) % tabButtons.length;
+      else if (event.key === "Home") next = 0;
+      else if (event.key === "End") next = tabButtons.length - 1;
+      else return;
+      event.preventDefault();
+      switchTab(tabButtons[next].dataset.tab, true);
+    });
+  }
+  window.addEventListener("hashchange", () => {
+    const name = window.location.hash.slice(1);
+    if (tabButtons.some((item) => item.dataset.tab === name)) switchTab(name);
+  });
+  const initialTab = window.location.hash.slice(1);
+  switchTab(tabButtons.some((item) => item.dataset.tab === initialTab) ? initialTab : "case");
+
+  function clearTeachingNote() {
+    lastMetrics = null;
+    lastInput = null;
+    lastDataset = null;
+    if (teachingNoteEl) teachingNoteEl.textContent = tr("teach.empty");
+    if (teachingSourceEl) {
+      teachingSourceEl.textContent = "";
+      teachingSourceEl.hidden = true;
+    }
+  }
+
+  function clearRail() {
+    if (!bayesianUpdateEl) return;
+    const empty = document.createElement("p");
+    empty.className = "rail-empty";
+    empty.textContent = tr("rail.empty");
+    bayesianUpdateEl.replaceChildren(empty);
+  }
+
+  function updateTeachingNote(metrics, input, dataset) {
+    lastMetrics = metrics;
+    lastInput = input;
+    lastDataset = dataset;
+    if (!teachingNoteEl) return;
+    if (!metrics) {
+      clearTeachingNote();
+      return;
+    }
+    const result = window.DiagcalcRail ? window.DiagcalcRail.getActiveResult() : "positive";
+    const resultLabel = result === "positive" ? tr("rail.positive") : tr("rail.negative");
+    const lr = result === "positive" ? metrics.lrPositive.value : metrics.lrNegative.value;
+    const post = result === "positive" ? metrics.postTestPositive.value : metrics.postTestNegative.value;
+    const lrLabel = result === "positive" ? "LR+" : "LR−";
+    const sentence = (!Number.isFinite(lr) || !Number.isFinite(post))
+      ? tr("teach.note.undefined", { result: resultLabel })
+      : tr("teach.note", {
+        result: resultLabel,
+        lrLabel,
+        lr: core.formatLikelihood(lr),
+        pre: core.formatPercentage(metrics.preTestProbability.value),
+        post: core.formatPercentage(post),
+      });
+    const context = tr("teach.context", {
+      sens: core.formatPercentage(metrics.sensitivity.value),
+      spec: core.formatPercentage(metrics.specificity.value),
+    });
+    teachingNoteEl.textContent = `${sentence} ${context}`;
+    if (teachingSourceEl) {
+      teachingSourceEl.textContent = dataset
+        ? i18n.text(dataset.provenance.note)
+        : tr("teach.source.custom");
+      teachingSourceEl.hidden = false;
+    }
+  }
+
+  if (window.DiagcalcRail) {
+    window.DiagcalcRail.setOnChange(() => {
+      if (lastMetrics) updateTeachingNote(lastMetrics, lastInput, lastDataset);
+    });
+  }
+  clearTeachingNote();
+  clearRail();
   initializeTheme();
+  const colorSchemeQuery = window.matchMedia("(prefers-color-scheme: dark)");
+  colorSchemeQuery.addEventListener("change", () => {
+    const storedTheme = preferences.getItem("diagcalc-theme");
+    if (storedTheme === "dark" || storedTheme === "light") return;
+    const theme = colorSchemeQuery.matches ? "dark" : "light";
+    document.documentElement.setAttribute("data-theme", theme);
+    updateThemeIcon(theme);
+    scheduler.schedule();
+  });
 
   if (themeToggle) {
     themeToggle.addEventListener("click", () => {
@@ -157,18 +318,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
   datasetSelect.addEventListener("change", () => {
     const selected = datasetSelect.value;
-    if (!selected || !datasets[selected]) {
+    const dataset = selected ? datasetStore.getDataset(selected) : null;
+    if (!dataset) {
       clearMainResults();
-      hideRocPanel();
+      clearDerivedViews();
       activeSnapshot = null;
       caseState.datasetKey = null;
       caseState.modified = false;
       datasetReferenceEl.style.display = "none";
       setCase("empty");
+      setFeedback(tr("feedback.scenario.cleared"), true);
       return;
     }
 
-    const dataset = datasets[selected];
     caseState.datasetKey = selected;
     caseState.modified = false;
     hideRocPanel();
@@ -189,13 +351,8 @@ document.addEventListener("DOMContentLoaded", () => {
       caseState.modified = false;
       setCase("empty");
       setFeedback(tr("feedback.cleared"), true);
-      clearFaganNomogram(faganNomogramEl, faganCanvas);
-      hidePrevalenceExplorer();
-      hideSequentialTest();
-      hideThresholdPanel();
-      hideThresholdDemo();
-      hideRocPanel();
-      renderBiasWarnings([]);
+      if (continuityModeEl) preferences.setItem("diagcalc-continuity", continuityModeEl.value);
+      clearDerivedViews();
     });
   });
 
@@ -220,19 +377,28 @@ document.addEventListener("DOMContentLoaded", () => {
     "rocPanel",
     "historyPanel",
   ]);
+  let printTheme = null;
   window.addEventListener("beforeprint", () => {
+    if (printTheme === null) printTheme = document.documentElement.getAttribute("data-theme");
+    if (printTheme === "dark") document.documentElement.setAttribute("data-theme", "light");
     document.querySelectorAll("details").forEach((d) => {
       if (PRINT_SKIP_IDS.has(d.id)) return;
       d.dataset.printPrevOpen = d.open ? "1" : "0";
       d.open = true;
     });
+    // Canvas colours are captured at draw time, so a CSS-only print theme
+    // would leave dark-theme pixels on white paper. Redraw synchronously.
+    redrawFaganNomogram();
   });
   window.addEventListener("afterprint", () => {
+    if (printTheme) document.documentElement.setAttribute("data-theme", printTheme);
+    printTheme = null;
     document.querySelectorAll("details").forEach((d) => {
       if (!("printPrevOpen" in d.dataset)) return;
       d.open = d.dataset.printPrevOpen === "1";
       delete d.dataset.printPrevOpen;
     });
+    redrawFaganNomogram();
   });
 
   function readFormValues() {
@@ -255,28 +421,24 @@ document.addEventListener("DOMContentLoaded", () => {
       activeSnapshot = null;
       clearMainResults();
       setFeedback(i18n.message(validation.message), false);
-      clearFaganNomogram(faganNomogramEl, faganCanvas);
-      hidePrevalenceExplorer();
-      hideSequentialTest();
-      hideThresholdPanel();
-      hideThresholdDemo();
-      hideRocPanel();
-      renderBiasWarnings([]);
+      clearDerivedViews();
       return;
     }
 
     const metrics = core.calculateMetrics(data, { continuityCorrection: currentContinuityMode(), locale: i18n ? i18n.getLocale() : "en" });
+    const currentDataset = caseState.datasetKey ? datasetStore.getDataset(caseState.datasetKey) : null;
     activeSnapshot = caseStore.createSnapshot(data, { continuityCorrection: currentContinuityMode() }, {
-      label: caseState.label || uiText("Custom case"), datasetKey: caseState.datasetKey,
-      modified: caseState.modified, provenance: caseState.datasetKey ? datasets[caseState.datasetKey].provenance : null,
+      label: caseState.label || uiText("Custom case"), datasetKey: currentDataset ? caseState.datasetKey : null,
+      modified: caseState.modified, provenance: currentDataset ? currentDataset.provenance : null,
     });
     if (caseState.kind === "empty") {
       setCase("adhoc");
     }
-    renderBiasWarnings([...core.buildBiasWarnings(data), ...datasetStore.buildDatasetWarnings(datasets[caseState.datasetKey])]);
+    renderBiasWarnings([...core.buildBiasWarnings(data), ...datasetStore.buildDatasetWarnings(currentDataset)]);
     renderHeadline(resultsHeadlineEl, metrics);
     renderSecondary(resultsSecondaryEl, metrics);
     renderBayesianUpdate(bayesianUpdateEl, metrics);
+    updateTeachingNote(metrics, data, currentDataset);
     renderFaganNomogram(faganCanvas, faganNomogramEl, {
       preTest: metrics.preTestProbability.value,
       lrPositive: metrics.lrPositive.value,
@@ -316,13 +478,17 @@ document.addEventListener("DOMContentLoaded", () => {
   function saveToHistory() {
     if (!activeSnapshot) return;
     const entries = readHistory();
-    if (entries.length && caseStore.fingerprint(entries[0]) === caseStore.fingerprint(activeSnapshot)) return;
-    entries.unshift(activeSnapshot);
-    writeHistory(entries.slice(0, HISTORY_MAX));
+    const fingerprint = caseStore.fingerprint(activeSnapshot);
+    const existingIndex = entries.findIndex((entry) => caseStore.fingerprint(entry) === fingerprint);
+    if (existingIndex === 0) return;
+    const remaining = existingIndex >= 0 ? entries.filter((_, index) => index !== existingIndex) : entries;
+    remaining.unshift(activeSnapshot);
+    writeHistory(remaining.slice(0, HISTORY_MAX));
   }
 
   function historyLabel(entry) {
-    if (entry.datasetKey && datasets[entry.datasetKey]) {
+    const dataset = entry.datasetKey ? datasetStore.getDataset(entry.datasetKey) : null;
+    if (dataset) {
       const name = tr("dataset." + entry.datasetKey + ".name");
       return entry.modified ? tr("case.modified", { name }) : name;
     }
@@ -337,10 +503,13 @@ document.addEventListener("DOMContentLoaded", () => {
     if (entries.length === 0) {
       historyPanelEl.style.display = "none";
       historyPanelEl.open = false;
+      if (historyEmptyEl) historyEmptyEl.hidden = false;
       if (historyCompareEl) historyCompareEl.replaceChildren();
       return;
     }
+    if (historyEmptyEl) historyEmptyEl.hidden = true;
     historyPanelEl.style.display = "block";
+    historyPanelEl.open = true;
     historyListEl.innerHTML = "";
     for (const entry of entries) {
       const li = document.createElement("li");
@@ -383,7 +552,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const deleteBtn = document.createElement("button");
       deleteBtn.type = "button";
       deleteBtn.className = "secondary history-item-delete";
-      deleteBtn.textContent = "×";
+      deleteBtn.append(createCloseIcon());
       deleteBtn.title = uiText("Delete this entry");
       deleteBtn.setAttribute("aria-label", uiText("Delete history entry"));
       deleteBtn.addEventListener("click", () => deleteHistoryEntry(entry.id));
@@ -413,20 +582,22 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("preTestProb").value = entry.input.preTestProb;
     if (continuityModeEl) continuityModeEl.value = entry.options.continuityCorrection;
     preferences.setItem("diagcalc-continuity", entry.options.continuityCorrection);
-    caseState.datasetKey = entry.datasetKey && datasets[entry.datasetKey] ? entry.datasetKey : null;
+    const entryDataset = entry.datasetKey ? datasetStore.getDataset(entry.datasetKey) : null;
+    caseState.datasetKey = entryDataset ? entry.datasetKey : null;
     caseState.modified = entry.modified;
     hideRocPanel();
-    if (datasetSelect && caseState.datasetKey && !entry.modified) {
+    if (datasetSelect && entryDataset && !entry.modified) {
       datasetSelect.value = entry.datasetKey;
-      displayDatasetReference(datasets[entry.datasetKey]);
-      setCase("named", datasets[entry.datasetKey].name);
+      displayDatasetReference(entryDataset);
+      setCase("named", entryDataset.name);
     } else if (datasetSelect) {
       datasetSelect.value = "";
-      if (caseState.datasetKey) displayDatasetReference(datasets[caseState.datasetKey]);
+      if (entryDataset) displayDatasetReference(entryDataset);
       else datasetReferenceEl.style.display = "none";
       setCase("named", entry.label);
     }
     setFeedback(tr("feedback.history.reloaded", { label: historyLabel(entry) }), true);
+    switchTab("case");
     calculateAndRender();
     if (entry.legacy || entry.engineVersion !== window.DiagcalcMeta.version) {
       setFeedback(uiText("Case recalculated with the current engine. Legacy history used auto because its original settings were not recorded."), true);
@@ -498,7 +669,13 @@ document.addEventListener("DOMContentLoaded", () => {
   function showRocPanel(firstRow) {
     if (!rocPanelEl) return;
     rocPanelEl.style.display = "block";
-    if (rocRowsEl.children.length === 0) {
+    // Seed from the main matrix whenever no row carries an entered value.
+    // Reset rows leaves one blank row behind, so counting children alone
+    // would leave the panel stuck on a validation error after recalculation.
+    const hasEnteredRow = Array.from(rocRowsEl.querySelectorAll("input"))
+      .some((input) => input.value.trim() !== "");
+    if (!hasEnteredRow) {
+      rocRowsEl.innerHTML = "";
       addRocRow({ cutoff: "", tp: firstRow.tp, fp: firstRow.fp, fn: firstRow.fn, tn: firstRow.tn });
       addRocRow();
     }
@@ -554,7 +731,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const removeBtn = document.createElement("button");
     removeBtn.type = "button";
     removeBtn.className = "roc-remove";
-    removeBtn.textContent = "×";
+    removeBtn.append(createCloseIcon());
     removeBtn.setAttribute("aria-label", uiText("Remove this cutoff row"));
     removeBtn.addEventListener("click", () => {
       rowEl.remove();
@@ -772,6 +949,21 @@ document.addEventListener("DOMContentLoaded", () => {
     if (bayesianUpdateEl) bayesianUpdateEl.innerHTML = "";
   }
 
+  // Tear down every panel that derives from a calculation. Keeping the reset
+  // paths in one place prevents stale charts or chained-test state from
+  // surviving a cleared or invalid case.
+  function clearDerivedViews() {
+    clearFaganNomogram(faganNomogramEl, faganCanvas);
+    hidePrevalenceExplorer();
+    hideSequentialTest();
+    hideThresholdPanel();
+    hideThresholdDemo();
+    hideRocPanel();
+    renderBiasWarnings([]);
+    clearTeachingNote();
+    clearRail();
+  }
+
   function renderBiasWarnings(warnings) {
     if (!biasWarningsEl) return;
     biasWarningsEl.innerHTML = "";
@@ -803,6 +995,22 @@ document.addEventListener("DOMContentLoaded", () => {
     updateThresholdView();
   }
 
+  function resetThresholdGauge() {
+    if (thresholdGaugeEl) {
+      thresholdGaugeEl.querySelectorAll(".threshold-zone").forEach((zone) => {
+        zone.style.flexBasis = "";
+      });
+    }
+    if (thresholdMarkerPtEl) {
+      thresholdMarkerPtEl.style.left = "";
+      thresholdMarkerPtEl.style.display = "none";
+    }
+    if (thresholdMarkerPreEl) {
+      thresholdMarkerPreEl.style.left = "";
+      thresholdMarkerPreEl.style.display = "none";
+    }
+  }
+
   function hideThresholdPanel() {
     if (!thresholdPanelEl) return;
     thresholdPanelEl.style.display = "none";
@@ -810,6 +1018,7 @@ document.addEventListener("DOMContentLoaded", () => {
     thresholdState.lrPositive = NaN;
     thresholdState.lrNegative = NaN;
     thresholdState.preTest = NaN;
+    resetThresholdGauge();
   }
 
   function updateThresholdView() {
@@ -825,6 +1034,7 @@ document.addEventListener("DOMContentLoaded", () => {
       lrNegative: thresholdState.lrNegative,
     });
     if (!t) {
+      resetThresholdGauge();
       thresholdReadoutEl.textContent = uiText("Thresholds unavailable: this display requires LR+ > 1 and 0 ≤ LR− < 1. Review test direction.");
       return;
     }
@@ -842,6 +1052,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     thresholdMarkerPtEl.style.left = `${Ptpercent}%`;
+    thresholdMarkerPtEl.style.display = "block";
     const prePct = Number.isFinite(thresholdState.preTest) ? thresholdState.preTest * 100 : NaN;
     if (Number.isFinite(prePct)) {
       thresholdMarkerPreEl.style.left = `${core.clamp(prePct, 0, 100)}%`;
@@ -991,7 +1202,8 @@ document.addEventListener("DOMContentLoaded", () => {
     prevalenceState.sens = sens;
     prevalenceState.spec = spec;
     prevalenceExplorerEl.style.display = "block";
-    const startPercent = Math.max(0.1, Math.min(99.9, (currentPrev || 0.1) * 100));
+    const currentFraction = Number.isFinite(currentPrev) ? currentPrev : 0.001;
+    const startPercent = Math.max(0.1, Math.min(99.9, currentFraction * 100));
     prevalenceSliderEl.value = startPercent.toFixed(1);
     updatePrevalenceReadout(startPercent);
     drawPrevalenceChart(sens, spec, startPercent / 100);
@@ -1311,11 +1523,15 @@ document.addEventListener("DOMContentLoaded", () => {
     feedbackEl.textContent = i18n.relocalise(feedbackEl.textContent);
     sequentialFeedbackEl.textContent = i18n.relocalise(sequentialFeedbackEl.textContent);
     renderHistory();
-    renderCompare();
     if (kappaResultEl.children.length) computeKappa();
-    if (caseState.datasetKey) displayDatasetReference(datasets[caseState.datasetKey]);
-    if (!activeSnapshot) return;
-    renderBiasWarnings([...core.buildBiasWarnings(activeSnapshot.input), ...datasetStore.buildDatasetWarnings(datasets[caseState.datasetKey])]);
+    const activeDataset = caseState.datasetKey ? datasetStore.getDataset(caseState.datasetKey) : null;
+    if (activeDataset) displayDatasetReference(activeDataset);
+    if (!activeSnapshot) {
+      clearRail();
+      clearTeachingNote();
+      return;
+    }
+    renderBiasWarnings([...core.buildBiasWarnings(activeSnapshot.input), ...datasetStore.buildDatasetWarnings(activeDataset)]);
     updateSequentialPretestLabel();
     updateThresholdView();
     updatePrevalenceReadout(Number(prevalenceSliderEl.value));
@@ -1333,6 +1549,7 @@ document.addEventListener("DOMContentLoaded", () => {
     renderHeadline(resultsHeadlineEl, metrics);
     renderSecondary(resultsSecondaryEl, metrics);
     renderBayesianUpdate(bayesianUpdateEl, metrics);
+    updateTeachingNote(metrics, activeSnapshot.input, activeDataset);
     if (sequentialResultsEl.children.length) calculateSequentialTest();
     renderThresholdDemo();
     scheduler.schedule();
@@ -1350,6 +1567,8 @@ document.addEventListener("DOMContentLoaded", () => {
     clearFaganNomogram(faganNomogramEl, faganCanvas);
     hidePrevalenceExplorer(); hideSequentialTest(); hideThresholdPanel(); hideThresholdDemo(); hideRocPanel();
     renderBiasWarnings([]);
+    clearTeachingNote();
+    clearRail();
     setFeedback(uiText("Inputs changed. Calculate to update results."), false);
   });
 
@@ -1394,10 +1613,12 @@ function updateThemeIcon(theme) {
     return;
   }
 
-  const icon = toggle.querySelector(".theme-icon");
-  if (icon) {
-    icon.textContent = theme === "dark" ? "☀" : "◐";
-  }
+  const i18n = window.DiagcalcI18n;
+  const nextMode = theme === "dark" ? "light" : "dark";
+  toggle.setAttribute("aria-pressed", theme === "dark" ? "true" : "false");
+  toggle.setAttribute("aria-label", i18n
+    ? i18n.t(nextMode === "light" ? "theme.toggle.light" : "theme.toggle.dark")
+    : (nextMode === "light" ? "Switch to light mode" : "Switch to dark mode"));
 }
 
 // Dataset Reference Display
@@ -1406,8 +1627,6 @@ function displayDatasetReference(dataset) {
   if (!referenceEl) {
     return;
   }
-
-
 
   const ref = dataset.reference;
   referenceEl.innerHTML = "";
@@ -1422,9 +1641,6 @@ function displayDatasetReference(dataset) {
   desc.appendChild(descStrong);
   referenceEl.appendChild(desc);
 
-  const provenance = document.createElement("p");
-  provenance.textContent = window.DiagcalcI18n.text(dataset.provenance.note);
-  referenceEl.appendChild(provenance);
   referenceEl.style.display = "block";
   if (!ref) return;
   const citation = document.createElement("p");

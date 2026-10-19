@@ -5,7 +5,7 @@ const core = require("../lib/diagcalc-core");
 const datasetStore = require("../lib/diagcalc-datasets");
 
 const { renderResults, renderConfidence, CREW } = require("./presentation");
-const { sanitiseRawInput, isAcceptedCharacter } = require("./input");
+const { sanitiseRawInput, escapeTags, isAcceptedCharacter } = require("./input");
 const { buildTextExport, buildMarkdownExport } = require("./report");
 
 function runTui() {
@@ -105,6 +105,8 @@ function runTui() {
     label: " Scenario ",
     border: "line",
     tags: true,
+    keys: true,
+    mouse: true,
     scrollable: true,
     alwaysScroll: true,
     content: "Select a dataset on the left or edit the fields manually.",
@@ -181,17 +183,10 @@ function runTui() {
     label: " Shortcuts ",
     border: "line",
     content: [
-      "Enter   edit/load",
-      "n       ad hoc case",
-      "+       chain second test",
-      "x       export .txt",
-      "m       export .md",
-      "Tab     next panel",
-      "Ctrl-N  next panel",
-      "Ctrl-P  previous panel",
-      "Arrows  move/select",
-      "r       reset",
-      "q       quit",
+      "Enter edit/load   n new case",
+      "+ chain   x txt   m md",
+      "Tab/Ctrl-N next   Ctrl-P previous",
+      "Arrows move/select   r reset   q quit",
     ].join("\n"),
   });
 
@@ -230,7 +225,7 @@ function runTui() {
     },
   };
 
-  const panels = [datasetList, inputForm, resultsBox];
+  const panels = [datasetList, inputForm, resultsBox, datasetInfo];
 
   function currentFocusIndex() {
     const index = panels.indexOf(screen.focused);
@@ -354,6 +349,7 @@ function runTui() {
 
   function updateInputForm() {
     const totals = buildTotals(state.input);
+    const totalText = (value) => Number.isFinite(value) ? String(value) : "—";
     const tpDisplay = renderFieldCell(state, fields, 0);
     const fpDisplay = renderFieldCell(state, fields, 1);
     const fnDisplay = renderFieldCell(state, fields, 2);
@@ -370,8 +366,8 @@ function runTui() {
       preDisplay,
       "",
       `{bold}Totals{/bold}`,
-      `Diseased: ${totals.diseased}   Non-diseased: ${totals.nonDiseased}`,
-      `Study total: ${totals.total}`,
+      `Diseased: ${totalText(totals.diseased)}   Non-diseased: ${totalText(totals.nonDiseased)}`,
+      `Study total: ${totalText(totals.total)}`,
       "",
       "Use arrows to move between cells and type directly.",
     ];
@@ -431,7 +427,8 @@ function runTui() {
     resultsBox.setLabel(` Results - ${state.activeCaseLabel} `);
     resultsBox.setContent(buildPendingResults(state.activeCaseLabel, "Enter or load a case to calculate metrics."));
     setFeedback("Fields cleared.");
-    setDatasetInfo(datasets[datasetList.selected] || datasets[0] || null);
+    datasetList.select(0);
+    setDatasetInfo(datasets[0]);
     screen.render();
   }
 
@@ -575,13 +572,13 @@ function runTui() {
           try {
             await fs.promises.writeFile(trimmedPath, content, { encoding: "utf8", flag: "wx" });
             setFeedback(`Exported ${format} report to ${trimmedPath}`);
-            message.display(`{green-fg}Saved{/}\n${trimmedPath}`, 3, () => {
+            message.display(`{green-fg}Saved{/}\n${escapeTags(trimmedPath)}`, 3, () => {
               done();
             });
             return;
           } catch (writeError) {
             setFeedback(`Export failed: ${writeError.message}`);
-            message.display(`{red-fg}Export failed{/}\n${writeError.message}`, 4, () => {
+            message.display(`{red-fg}Export failed{/}\n${escapeTags(writeError.message)}`, 4, () => {
               done();
             });
             return;
@@ -641,6 +638,9 @@ function runTui() {
   resultsBox.key(["down"], () => resultsBox.scroll(1));
   resultsBox.key(["pageup"], () => resultsBox.scroll(-10));
   resultsBox.key(["pagedown"], () => resultsBox.scroll(10));
+
+  datasetInfo.key(["pageup"], () => datasetInfo.scroll(-5));
+  datasetInfo.key(["pagedown"], () => datasetInfo.scroll(5));
 
   screen.key(["C-c"], () => {
     screen.destroy();
@@ -740,10 +740,11 @@ function buildResultSummary(caseLabel, input, metrics, warnings) {
 }
 
 function buildTotals(input) {
-  const tp = Number.isFinite(input.tp) ? input.tp : 0;
-  const fp = Number.isFinite(input.fp) ? input.fp : 0;
-  const fn = Number.isFinite(input.fn) ? input.fn : 0;
-  const tn = Number.isFinite(input.tn) ? input.tn : 0;
+  const values = [input.tp, input.fp, input.fn, input.tn];
+  if (values.some((value) => !Number.isFinite(value))) {
+    return { diseased: NaN, nonDiseased: NaN, total: NaN };
+  }
+  const [tp, fp, fn, tn] = values;
 
   return {
     diseased: tp + fn,
@@ -780,7 +781,9 @@ function buildConfusionMatrixBox(input) {
 function renderFieldCell(state, fields, index, width = 10) {
   const field = fields[index];
   const rawValue = state.rawInput[field.key] === "" ? "-" : state.rawInput[field.key];
-  const padded = rawValue.padEnd(width);
+  // Escape after padding: the escape tokens render as literal braces, while
+  // the padding is computed on the visible characters.
+  const padded = escapeTags(rawValue.padEnd(width));
 
   if (state.selectedFieldIndex === index) {
     return `{black-fg}{white-bg} ${padded} {/}`;

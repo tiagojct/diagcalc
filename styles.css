@@ -219,7 +219,8 @@ footer .privacy-note {
 }
 
 .theme-toggle:hover {
-  background-color: var(--surface-soft);
+  background-color: var(--ink);
+  color: var(--paper);
 }
 
 .lang-picker {
@@ -407,7 +408,7 @@ select {
   cursor: pointer;
 }
 
-select:focus {
+select:focus:not(:focus-visible) {
   border-color: var(--primary);
   outline: none;
 }
@@ -507,8 +508,8 @@ option {
   opacity: 1;
 }
 
-.grid-item input:focus,
-.preTestProb:focus {
+.grid-item input:focus:not(:focus-visible),
+.preTestProb:focus:not(:focus-visible) {
   border-color: var(--primary);
   outline: none;
   box-shadow: none;
@@ -530,7 +531,7 @@ button {
 }
 
 button:hover {
-  background-color: var(--primary-strong);
+  background-color: var(--primary);
   transform: none;
   box-shadow: none;
 }
@@ -785,15 +786,15 @@ button:hover {
   transform: translateY(-50%);
 }
 
-.bayesian-row--warm .bayesian-axis-trail::after { border-left: 11px solid var(--accent-warm); }
-.bayesian-row--cool .bayesian-axis-trail::after { border-left: 11px solid var(--success); }
+.bayesian-row--warm .bayesian-axis-trail::after { border-left: 0; }
+.bayesian-row--cool .bayesian-axis-trail::after { border-left: 0; }
 
 /* RTL: arrow points left when post-test < pre-test (e.g. negative test). */
 .bayesian-axis.rtl .bayesian-axis-trail::after {
   right: auto;
   left: -10px;
   border-left: none;
-  border-right: 11px solid;
+  border-right: 0;
 }
 
 .bayesian-row--warm .bayesian-axis.rtl .bayesian-axis-trail::after { border-right-color: var(--accent-warm); }
@@ -846,6 +847,7 @@ button:hover {
 .result-bar--neutral .result-bar-fill { background-color: var(--secondary); }
 .result-bar--warm .result-bar-fill    { background-color: var(--accent-warm); }
 .result-bar--cool .result-bar-fill    { background-color: var(--success); }
+.result-bar--unavailable { background-color: transparent; border: 1px dashed var(--border); }
 
 /* ── Clinical-utility band indicators on LR / DOR cards ────────────────── */
 .result-band {
@@ -856,6 +858,8 @@ button:hover {
   overflow: hidden;
   margin: var(--space-1) 0 0;
 }
+
+.result-band--unavailable { background-color: transparent; border: 1px dashed var(--border); }
 
 .result-band-zone {
   flex: 1 1 0;
@@ -923,7 +927,7 @@ button:hover {
   margin-top: 1rem;
   padding: 1rem;
   background-color: var(--surface);
-  border-left: 4px solid var(--primary);
+  border-left: 0;
   border-radius: 4px;
   font-size: 0.9rem;
 }
@@ -1419,7 +1423,7 @@ button:hover {
   font-size: 0.9rem;
 }
 
-.roc-table input[type="number"]:focus {
+.roc-table input[type="number"]:focus:not(:focus-visible) {
   border-color: var(--primary);
   outline: none;
 }
@@ -1486,7 +1490,7 @@ button:hover {
   padding: 0.55rem 0.85rem;
   border-radius: 4px;
   background-color: var(--surface);
-  border-left: 3px solid var(--secondary);
+  border-left: 0;
   color: var(--text);
   font-size: 0.85rem;
   line-height: 1.4;
@@ -1525,7 +1529,7 @@ button:hover {
   padding: 0.9rem 1.1rem;
   background-color: var(--surface);
   border: 1px solid var(--border);
-  border-left: 4px solid var(--crew-pip);
+  border-left: 0;
   border-radius: 6px;
   color: var(--text);
   font-size: 0.92rem;
@@ -1823,7 +1827,7 @@ button:hover {
   padding: 0.65rem 0.85rem;
   background-color: var(--surface-soft);
   border: 1px solid var(--border);
-  border-left: 4px solid var(--crew-daggoo);
+  border-left: 0;
   border-radius: 4px;
   font-size: 0.9rem;
   color: var(--text);
@@ -2426,6 +2430,7 @@ a:hover {
   #prevalenceExplorer,
   #sequentialTest,
   #thresholdPanel,
+  #thresholdDemo,
   #rocPanel,
   #historyPanel,
   .kappa-panel,

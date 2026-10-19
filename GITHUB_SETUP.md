@@ -34,7 +34,7 @@ After you push the repo:
 
 1. Open `Releases` on GitHub.
 2. Click `Draft a new release`.
-3. Create a tag such as `v5.1.0`.
+3. Create a tag such as `v5.2.0`.
 4. Add release notes.
 5. Publish the release.
 

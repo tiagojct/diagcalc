@@ -91,6 +91,7 @@ with tempfile.TemporaryDirectory(prefix="diagcalc-tui-") as folder:
         send(b"\x7f" * 200 + str(invalid).encode() + b"\r", 0.5)
         wait_until(invalid.exists, "Invalid-input report was not exported")
         assert "Validation:" in invalid.read_text(), "-5 was silently changed into 5"
+        assert "TP -5" in invalid.read_text(), "raw invalid value was not preserved"
         drain(3.3)
         # Existing files must not be silently overwritten.
         original = invalid.read_text()

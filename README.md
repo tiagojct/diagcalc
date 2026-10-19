@@ -49,6 +49,7 @@ The web and terminal interfaces both follow that workflow.
 - positive and negative post-test probability
 - Wilson 95% intervals for proportions and log-normal intervals for likelihood ratios and DOR
 - illustrative teaching scenarios with explicit provenance
+- continuous probability rail from pre-test to post-test, with positive/negative comparison
 - Fagan nomogram in the web app
 - TUI, text CLI, and JSON CLI output in the terminal app
 
@@ -66,12 +67,18 @@ All current presets are illustrative teaching scenarios. Medical references prov
 - `hiv_elisa` - fourth-generation HIV ELISA screening
 - `strep_throat` - rapid antigen testing for streptococcal pharyngitis
 - `xray_pneumonia` - chest X-ray for community-acquired pneumonia
+- `wells_dvt` - Wells score for suspected deep-vein thrombosis
+- `heart_acs` - HEART score for major adverse cardiac events
+- `curb65` - CURB-65 for severe community-acquired pneumonia
+- `qsofa` - qSOFA for sepsis screening
+- `apgar_5min` - 5-minute APGAR for severe neonatal outcome
+- `fast_trauma` - FAST ultrasound for blunt abdominal trauma
 
 These cases are included to support teaching across different prevalence settings, screening vs. confirmation logic, and Bayesian interpretation of test results.
 
 ## Web App
 
-The web app is static. It does not need a build step. Its interface is available in English and European Portuguese, including scenarios, validation, history and chart labels. System fonts avoid external font downloads; neutral light/dark themes and responsive matrix tracks keep the calculator readable on phones, tablets and desktop screens.
+The web app is static. It does not need a build step and loads no third-party scripts. The interface is organised into **Case**, **Explore**, **Learn** and **History** tabs. The Case tab keeps the 2×2 matrix, a single probability rail and the interpretation in one working surface; the other tabs hold the exploration tools, teaching notes and saved cases. IBM Plex Sans, Mono and Serif are self-hosted in `web/fonts/`, so the page remains offline-capable. Neutral light/dark themes and responsive matrix tracks keep the calculator readable on phones, tablets and desktop screens.
 
 It is intended for teaching sessions, demonstrations, and direct interactive exploration.
 
@@ -95,7 +102,7 @@ http://localhost:8080
 2. Enter TP, FP, FN, TN.
 3. Enter pre-test probability.
 4. Click `Calculate results`.
-5. Review the probability bars, result cards, and Fagan nomogram.
+5. Review the probability rail, headline values, metric ledger and the “Why this result” note. Use **Explore** for prevalence, chaining, thresholds, ROC and agreement; **Learn** for interpretation and references.
 
 ## Terminal App
 
@@ -169,6 +176,8 @@ The CLI is useful when you want a one-shot calculation or when you want to integ
 
 Counts must be non-negative safe integers, including their total. Both disease cohorts must be present. Pre-test probability accepts complete dot/comma decimal strings from 0 through 100 inclusive. Impossible conditioning events remain undefined and display an em dash; infinite ratios display infinity. Chaining retains full precision and assumes tests are conditionally independent given disease status.
 
+Continuity correction applies to confidence intervals only. Point estimates and post-test probabilities always use the observed cells, so a zero cell still displays infinity or zero and exact chaining is preserved. A corrected interval can therefore exclude an infinite or zero point estimate; the interface labels it `continuity-corrected`, and snapshots record `"corrected": true` inside that metric's `ci` object.
+
 The browser's history retains the inputs, continuity correction, engine version and origin for each calculation. Editing a preset marks it customised and invalidates previous results. Storage restrictions fall back to session memory; they do not prevent calculations. Older history entries are explicitly marked as recalculated legacy cases because their original correction settings were not recorded.
 
 ### Version 5 JSON compatibility
@@ -191,11 +200,11 @@ npx playwright install chromium firefox webkit
 npm run check
 ```
 
-`check` runs JavaScript type checking, engine/CLI/TUI/package tests and browser tests in Chromium, Firefox and WebKit. Browser tests prepare the actual static deployment bundle automatically. Python 3 and a pseudo-terminal are required for the real terminal test on Unix; that test is skipped on Windows. There are no runtime browser dependencies or compilation step.
+`check` type-checks the shared calculation modules and terminal report helpers, then runs engine/CLI/TUI/package tests and browser tests in Chromium, Firefox and WebKit. Browser tests prepare the actual static deployment bundle automatically. Python 3 and a pseudo-terminal are required for the real terminal test on Unix; that test is skipped on Windows. The browser app loads no third-party runtime code and needs no compilation step.
 
 Pull requests run checks on Node 22 and 24 and all three browser engines. Main-branch deployment requires both verification jobs. `npm run prepare:site` copies only browser assets and `CNAME` into `public/`; package tests also extract and execute the actual npm archive outside the checkout.
 
-See [lib/README.md](lib/README.md) for API contracts and [docs/PROVENANCE.md](docs/PROVENANCE.md) for dataset evidence requirements.
+See [DESIGN.md](DESIGN.md) for the Probability Rail visual system and tokens, [PRODUCT.md](PRODUCT.md) for product truth, [lib/README.md](lib/README.md) for API contracts and [docs/PROVENANCE.md](docs/PROVENANCE.md) for dataset evidence requirements.
 
 ## Deployment
 
@@ -236,14 +245,20 @@ Package page:
 
 - `index.html` - web app markup
 - `styles.css` - web app styles
-- `script.js` - web state and event handling
+- `script.js` - web state, tabs and event handling
+- `web/rail.js` - probability rail rendering and active-result state
+- `web/rail.css` - Probability Rail design system, responsive and print layers
+- `web/fonts/` - self-hosted IBM Plex font files and licence
 - `web/` - result rendering and scheduled DPR-aware charts
 - `lib/diagcalc-core.js` - shared numeric calculations and validation
 - `lib/diagcalc-presentation.js` - English/Portuguese metric labels and interpretation
+- `lib/diagcalc-i18n.js` - browser translation tables, DOM application and relocalisation
 - `lib/diagcalc-case.js` - versioned snapshots and safe exceptional-number encoding
 - `lib/diagcalc-storage.js` - resilient browser preferences and session fallback
 - `lib/diagcalc-geometry.js` - independently testable nomogram geometry
 - `lib/diagcalc-datasets.js` - shared preset datasets
+- `lib/diagcalc-meta.js` - engine version and schema metadata
+- `lib/diagcalc-types.d.ts` - shared type contracts
 - `tui/index.js` - terminal UI
 - `bin/diagcalc.js` - CLI and TUI entrypoint
 - `.github/workflows/deploy-pages.yml` - GitHub Pages deployment workflow

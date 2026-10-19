@@ -7,3 +7,7 @@ test-results/
 
 .superdesign/tmp/
 .superdesign/init/
+
+.impeccable/questions/
+.impeccable/decision/
+.impeccable/review/

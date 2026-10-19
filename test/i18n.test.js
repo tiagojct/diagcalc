@@ -29,3 +29,24 @@ test("dynamic bias messages retain their values across language changes", () => 
     assert.equal(i18n.relocalise(translated), original);
   }
 });
+
+test("unsupported and prototype-chain locale values fall back to English", () => {
+  for (const locale of ["constructor", "__proto__", "toString", "xx", null, 42]) {
+    i18n.setLocale(locale);
+    assert.equal(i18n.getLocale(), "en");
+  }
+  i18n.setLocale("pt-PT");
+  assert.equal(i18n.getLocale(), "pt-PT");
+  i18n.setLocale("en");
+});
+
+test("every dataset has name and description translations", () => {
+  const datasets = require("../lib/diagcalc-datasets");
+  for (const dataset of datasets.listDatasets()) {
+    for (const suffix of ["name", "description"]) {
+      const key = `dataset.${dataset.key}.${suffix}`;
+      assert.ok(i18n.translations.en[key], `missing en ${key}`);
+      assert.ok(i18n.translations["pt-PT"][key], `missing pt-PT ${key}`);
+    }
+  }
+});

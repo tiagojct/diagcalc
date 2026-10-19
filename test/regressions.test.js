@@ -6,7 +6,7 @@ const meta = require("../lib/diagcalc-meta");
 const geometry = require("../lib/diagcalc-geometry");
 const datasets = require("../lib/diagcalc-datasets");
 const { createStorage } = require("../lib/diagcalc-storage");
-const { sanitiseRawInput } = require("../tui/input");
+const { sanitiseRawInput, escapeTags } = require("../tui/input");
 const { buildTextExport, buildMarkdownExport } = require("../tui/report");
 const input = { tp: 80, fp: 20, fn: 20, tn: 80, preTestProb: 20 };
 const close = (actual, expected, tolerance = 1e-10) => assert.ok(Math.abs(actual - expected) < tolerance, `${actual} != ${expected}`);
@@ -35,6 +35,12 @@ test("probability parsing consumes the complete string and respects inclusive bo
 
 test("terminal prompt input preserves invalid signs and decimals for validation", () => {
   for (const value of ["-5", "1.5", "20garbage", "1.2.3"]) assert.equal(sanitiseRawInput("tp", value), value);
+});
+
+test("blessed tag escaping renders user braces literally", () => {
+  assert.equal(escapeTags("{red-fg}"), "{open}red-fg{close}");
+  assert.equal(escapeTags("path/{bold}.txt"), "path/{open}bold{close}.txt");
+  assert.equal(escapeTags("-5"), "-5");
 });
 
 test("undefined Bayesian arithmetic never becomes certainty", () => {
@@ -168,10 +174,18 @@ test("snapshots retain settings and distinguish exceptional numbers in JSON", ()
   assert.equal(parsed.options.continuityCorrection, "never");
   assert.equal(parsed.metrics.lrPositive.status, "infinite");
   assert.equal(parsed.metrics.postTestNegative.status, "undefined");
+  assert.equal(parsed.metrics.lrPositive.ci, null);
   assert.equal(cases.summary(parsed).lrPositive, Infinity);
   assert.ok(Number.isNaN(cases.summary(parsed).postTestNegative));
   assert.notEqual(cases.fingerprint(cases.createSnapshot(input, { continuityCorrection: "auto" })),
     cases.fingerprint(cases.createSnapshot(input, { continuityCorrection: "always" })));
+
+  const corrected = JSON.parse(JSON.stringify(cases.createSnapshot(
+    { tp: 50, fp: 0, fn: 5, tn: 100, preTestProb: 30 },
+    { continuityCorrection: "auto" },
+  )));
+  assert.equal(corrected.metrics.lrPositive.ci.corrected, true);
+  assert.equal(corrected.metrics.postTestPositive.ci.corrected, true);
 });
 
 test("history discards malformed records individually and bounds its size", () => {
@@ -181,6 +195,75 @@ test("history discards malformed records individually and bounds its size", () =
   assert.equal(cases.parseHistory("not JSON").length, 0);
   assert.equal(cases.parseHistory(JSON.stringify([{ ...entries[0], schemaVersion: 99 }])).length, 0);
   assert.equal(cases.parseHistory(JSON.stringify([entries[0], entries[0]])).length, 1);
+});
+
+test("history honours explicit limits and keeps id-less legacy entries distinct", () => {
+  const entries = Array.from({ length: 3 }, (_, index) => cases.createSnapshot(input, {}, { id: `e${index}` }));
+  const raw = JSON.stringify(entries);
+  assert.equal(cases.parseHistory(raw, 0).length, 0);
+  assert.equal(cases.parseHistory(raw, -5).length, 0);
+  assert.equal(cases.parseHistory(raw, 1).length, 1);
+  assert.equal(cases.parseHistory(raw, 10.5).length, 3);
+  const legacy = (label, tp) => ({ label, savedAt: "2025-01-01T00:00:00Z", input: { ...input, tp } });
+  assert.equal(cases.parseHistory(JSON.stringify([legacy("A", 80), legacy("B", 81)])).length, 2);
+});
+
+test("history rejects same-version metrics that disagree with the stored input", () => {
+  const original = cases.createSnapshot(input, {}, { id: "tampered" });
+  const tampered = JSON.parse(JSON.stringify(original));
+  tampered.metrics.sensitivity.value = 1;
+  assert.equal(cases.parseHistory(JSON.stringify([tampered])).length, 0);
+
+  const inverted = JSON.parse(JSON.stringify(original));
+  inverted.metrics.sensitivity.ci = {
+    lower: { value: 0.9, status: "finite" },
+    upper: { value: 0.1, status: "finite" },
+    corrected: false,
+  };
+  assert.equal(cases.parseHistory(JSON.stringify([inverted])).length, 0);
+
+  const historical = JSON.parse(JSON.stringify(original));
+  historical.engineVersion = "5.0.0";
+  historical.metrics.sensitivity.value = 1;
+  assert.equal(cases.parseHistory(JSON.stringify([historical])).length, 1);
+});
+
+test("snapshot writer normalises fields its reader would otherwise reject", () => {
+  const snapshot = cases.createSnapshot(input, {}, {
+    id: "x".repeat(101),
+    datasetKey: "d".repeat(101),
+    savedAt: "not-a-date",
+  });
+  assert.notEqual(snapshot.id, "x".repeat(101));
+  assert.ok(snapshot.id.length > 0 && snapshot.id.length <= 100);
+  assert.equal(snapshot.datasetKey.length, 100);
+  assert.ok(Number.isFinite(Date.parse(snapshot.savedAt)));
+  assert.equal(cases.parseHistory(JSON.stringify([snapshot])).length, 1);
+});
+
+test("optional null arguments do not throw", () => {
+  assert.deepEqual(core.buildBiasWarnings(null), []);
+  assert.doesNotThrow(() => core.validateRocRows([{ cutoff: 1, tp: 10, fp: 1, fn: 0, tn: 9 }], null));
+  assert.doesNotThrow(() => cases.createSnapshot(input, null));
+  assert.doesNotThrow(() => cases.createSnapshot(input, {}, null));
+  assert.doesNotThrow(() => cases.methodMetadata(null));
+  assert.deepEqual(cases.summary(null), {});
+});
+
+test("synthetic ROC retains separation for tiny cohorts and honours count bounds", () => {
+  const tiny = core.generateSyntheticRocPoints({ tp: 1, fp: 0, fn: 0, tn: 1 }, 7);
+  const roc = core.calculateROC(tiny);
+  assert.ok(roc);
+  assert.ok(roc.auc > 0.95, `tiny perfect cohort should not collapse to chance, got AUC ${roc.auc}`);
+  assert.equal(core.generateSyntheticRocPoints(input, 1).length, 1);
+  assert.equal(core.generateSyntheticRocPoints(input, 21).length, 20);
+  assert.equal(core.generateSyntheticRocPoints(input, 7.5).length, 7);
+});
+
+test("kappa confidence intervals stay inside [-1, 1]", () => {
+  const result = core.calcCohenKappa({ bothPos: 20, only1Pos: 0, only2Pos: 1, bothNeg: 5 });
+  assert.ok(result.ci.lower >= -1 && result.ci.lower <= result.value);
+  assert.ok(result.ci.upper <= 1 && result.ci.upper >= result.value);
 });
 
 test("legacy history is explicitly recomputed with unknown original settings", () => {
@@ -220,6 +303,24 @@ test("terminal reports include engine, correction mode, provenance and bias warn
     const text = render(state, core.calculateMetrics(dataset), core.validateInputs(dataset));
     assert.ok(text.includes(`Engine ${require("../package.json").version}; continuity correction: auto`));
     assert.match(text, /Illustrative teaching counts/);
+  }
+});
+
+test("terminal exports retain the raw offending value for invalid cases", () => {
+  const state = {
+    input: { tp: NaN, fp: NaN, fn: NaN, tn: NaN, preTestProb: NaN },
+    rawInput: { tp: "-5", fp: "", fn: "", tn: "", preTestProb: "abc" },
+    activeCaseLabel: "Invalid case",
+    activeDatasetKey: "ad_hoc",
+    originDatasetKey: null,
+  };
+  const validation = core.validateInputs(state.input);
+  assert.equal(validation.valid, false);
+  for (const render of [buildTextExport, buildMarkdownExport]) {
+    const text = render(state, null, validation);
+    assert.match(text, /-5/);
+    assert.match(text, /abc/);
+    assert.match(text, /Validation/);
   }
 });
 

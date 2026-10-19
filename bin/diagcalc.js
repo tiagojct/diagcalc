@@ -65,6 +65,13 @@ function printHelp() {
   ].join("\n"));
 }
 
+function decorateMetrics(snapshotMetrics, metrics) {
+  return Object.fromEntries(Object.entries(metrics).map(([key, metric]) => [key, {
+    ...snapshotMetrics[key], label: metric.label,
+    formatted: core.formatValue(metric.value, metric.formatter), note: metric.note,
+  }]));
+}
+
 function printJsonReport(dataset, input, metrics, chained, warnings, continuity) {
   const modified = Boolean(dataset && ["tp", "fp", "fn", "tn", "preTestProb"].some((key) => input[key] !== dataset[key]));
   const snapshot = caseStore.createSnapshot(input, { continuityCorrection: continuity }, {
@@ -78,17 +85,16 @@ function printJsonReport(dataset, input, metrics, chained, warnings, continuity)
     engine: { name: "diagcalc", version: pkg.version, generatedAt: snapshot.savedAt, ciMethods: caseStore.methodMetadata(snapshot.options) },
     case: snapshot.label,
     warnings,
-    metrics: Object.fromEntries(Object.entries(metrics).map(([key, metric]) => [key, {
-      ...snapshot.metrics[key], label: metric.label,
-      formatted: core.formatValue(metric.value, metric.formatter), note: metric.note,
-    }])),
+    metrics: decorateMetrics(snapshot.metrics, metrics),
   };
   if (chained) {
+    const chainedSnapshot = caseStore.createSnapshot(chained.input, { continuityCorrection: continuity }, { label: "Chained second test" });
     payload.chained = {
-      ...caseStore.createSnapshot(chained.input, { continuityCorrection: continuity }, { label: "Chained second test" }),
+      ...chainedSnapshot,
+      metrics: decorateMetrics(chainedSnapshot.metrics, chained.metrics),
       from: chained.from,
       assumption: "Test results are conditionally independent given disease status.",
-      warnings: core.buildBiasWarnings(chained.input),
+      warnings: chained.warnings,
     };
   }
   process.stdout.write(`${JSON.stringify(payload, null, 2)}\n`);
@@ -217,6 +223,27 @@ function main() {
     return;
   }
 
+  // Validate syntax-only options before data so a typo reports the option,
+  // not a misleading missing-matrix error.
+  const continuity = typeof args.continuity === "string" ? args.continuity.toLowerCase() : "auto";
+  if (!["auto", "always", "never"].includes(continuity)) {
+    process.stderr.write(`Invalid --continuity value. Use auto, always, or never.\n`);
+    process.exitCode = 1;
+    return;
+  }
+  const format = typeof args.format === "string" ? args.format.toLowerCase() : "text";
+  if (format !== "text" && format !== "json") {
+    process.stderr.write("Unsupported format. Use --format text or --format json.\n");
+    process.exitCode = 1;
+    return;
+  }
+  const chainFrom = typeof args["chain-from"] === "string" ? args["chain-from"].toLowerCase() : "positive";
+  if (chainFrom !== "positive" && chainFrom !== "negative") {
+    process.stderr.write("Invalid --chain-from. Use 'positive' or 'negative'.\n");
+    process.exitCode = 1;
+    return;
+  }
+
   const built = buildInputFromArgs(args);
   if (built.error) {
     process.stderr.write(`${built.error}\n`);
@@ -231,19 +258,7 @@ function main() {
     return;
   }
 
-  const continuity = typeof args.continuity === "string" ? args.continuity.toLowerCase() : "auto";
-  if (!["auto", "always", "never"].includes(continuity)) {
-    process.stderr.write(`Invalid --continuity value. Use auto, always, or never.\n`);
-    process.exitCode = 1;
-    return;
-  }
   const metrics = core.calculateMetrics(built.input, { continuityCorrection: continuity });
-  if (args.format !== undefined && typeof args.format !== "string") {
-    process.stderr.write("Missing value for --format. Use --format text or --format json.\n");
-    process.exitCode = 1;
-    return;
-  }
-  const format = typeof args.format === "string" ? args.format.toLowerCase() : "text";
 
   let chained = null;
   if (args.chain) {
@@ -259,12 +274,6 @@ function main() {
 
   if (format === "json") {
     printJsonReport(built.dataset, built.input, metrics, chained, warnings, continuity);
-    return;
-  }
-
-  if (format !== "text") {
-    process.stderr.write("Unsupported format. Use --format text or --format json.\n");
-    process.exitCode = 1;
     return;
   }
 
@@ -302,6 +311,7 @@ function buildChainedTest(args, firstMetrics, continuity) {
     from,
     input,
     metrics: core.calculateMetrics(input, { continuityCorrection: continuity }),
+    warnings: core.buildBiasWarnings(input),
   };
 }
 
@@ -309,6 +319,13 @@ function printChainedReport(chained) {
   process.stdout.write(`\n— Chained second test (following test 1's ${chained.from} result) —\n`);
   process.stdout.write("Assumption: results are conditionally independent given disease status.\n");
   process.stdout.write(`Test 2 pre-test probability: ${core.formatPercentage(chained.input.preTestProb / 100)}\n\n`);
+  if (Array.isArray(chained.warnings) && chained.warnings.length > 0) {
+    process.stdout.write("Heads up (test 2):\n");
+    for (const warning of chained.warnings) {
+      process.stdout.write(`  - ${warning}\n`);
+    }
+    process.stdout.write("\n");
+  }
   const entries = [
     chained.metrics.sensitivity,
     chained.metrics.specificity,

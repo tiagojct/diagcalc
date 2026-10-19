@@ -13,6 +13,7 @@ export interface CalculationOptions {
 export interface Interval {
   lower: number;
   upper: number;
+  corrected?: boolean;
 }
 export interface NumericMetric {
   value: number;
@@ -41,7 +42,7 @@ export interface EncodedNumber {
   status: "finite" | "infinite" | "negative-infinite" | "undefined";
 }
 export interface EncodedMetric extends EncodedNumber {
-  ci: { lower: EncodedNumber; upper: EncodedNumber } | null;
+  ci: { lower: EncodedNumber; upper: EncodedNumber; corrected?: boolean } | null;
 }
 export interface Snapshot {
   schemaVersion: number;

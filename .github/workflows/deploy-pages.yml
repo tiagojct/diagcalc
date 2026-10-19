@@ -65,7 +65,7 @@ jobs:
 
   deploy:
     needs: [test, browser]
-    if: github.event_name != 'pull_request'
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
     permissions:
       contents: read
       pages: write
