@@ -1,0 +1,15 @@
+# Quarterdeck project metadata. See ~/quarterdeck/templates/project/workspace.yml for the fields.
+name: diagcalc
+category: apps
+type: other
+status: active
+build: actions
+deploy_target: external
+deploy_method: GitHub Pages
+url: ""
+host: ""
+build_command: npm run build
+artifact: static
+remote_path: ""
+service: ""
+checks: []
